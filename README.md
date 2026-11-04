@@ -1,0 +1,11 @@
+# Conditional Exponential-family Random Graph Models: Do we care about edgecounts?
+
+## Abstract
+
+Exponential-family Random Graph Models [ERGMs or ERG Models] are a family of statistical models used to do inference about the structures and properties that govern the network formation process of networks. ERGMs are known to be complicated to fit, mostly due to the fact that a close form solution for the liklihood is computationally intractable. Instead, modern methods use Markov Chain (simulation-based) estimation methods; the two most popular are the MC-MLE (implemented in the ergm R package) and the Stochastic Approximation (implemented in the PNet package). Although ERGMs can be a fantastic tool for studying network data, they are mostly popular in social sciences. In this talk, we present a simulation study in which we analyze conditional ERGMs in terms of convergence rate and bias. Conditional ERGMs have been theorized to have better convergence properties as they have the potential to avoid degeneracy that happens during the MCMC process. The ultimate goal of this is to shed light on the potential that conditional ERGM models have to improve the estimation and convergence of complicated ERGM models--easier to fit ERGMs would mean that other disciplines could use them as well.
+
+Conditional ERGMs are not a new idea and are a common way to constrain models so they reflect the characteristics of the data generating process. For instance, name generator surveys, which are a common tool for collecting social network data, often restrict the number nominations; so constraining the ERGM to samples that restrict the total number of ties per individual is expected. In our case, we constrain on the edgecount (the total number of ties observed in the graph). The two principal benefits of this process are (i) it turns the density-paramter into a nuisance parameter (so we have one fewer parameter to estimate) and (ii) it constraints the support to networks with the same number of ties as the observed graph, removing the degeneracy problem entirely. In this talk, we will present some preliminary results from a large simulation study in which we assess multiple configurations across seven different ERGMs, evaluating convergence rate, bias, coverage, and speed.
+
+## About the speaker
+
+
