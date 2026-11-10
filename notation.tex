@@ -1,0 +1,80 @@
+% Mathematical functions
+% DELETED!
+\renewcommand{\Pr}[2]{{\mathbb{P}_{#1}\left\{#2\right\} }}
+
+% DELETED!
+\newcommand{\sufstats}[2]{s_{#1}\left(#2\right)}
+\renewcommand{\exp}[1]{\text{exp}\left\{#1\right\}}
+\renewcommand{\log}[1]{\text{log}\left\{#1\right\}}
+\newcommand{\transpose}[1]{{#1}^\mathbf{t}}
+\renewcommand{\t}[1]{\transpose{#1}}
+
+\newcommand{\s}[1]{\sufstats{#1}}
+\newcommand{\SUFF}{\mathcal{S}}
+\newcommand{\Suff}{\mathbf{S}}
+\newcommand{\suff}{\mathbf{s}}
+
+\renewcommand{\beta}{\theta}
+\newcommand{\weight}{\mathbf{w}}
+\newcommand{\Weight}{\mathbf{W}}
+
+% Objects
+% DELETED!
+% DELETED!
+\newcommand{\Graph}{\mathbf{Y}}
+\newcommand{\graph}{\mathbf{y}}
+\newcommand{\GRAPH}{\mathcal{Y}}
+\newcommand{\Adjmat}{A}
+\newcommand{\adjmat}{a}
+\newcommand{\ADJMAT}{\mathcal{A}}
+
+\newcommand{\INDEPVAR}{\mathcal{X}}
+\newcommand{\Indepvar}{X}
+\newcommand{\indepvar}{x}
+
+% Not available in mathjax
+\newcommand{\bm}[1]{\boldsymbol{#1}}
+
+\newcommand{\params}{\bm{\theta}}
+\newcommand{\normconst}[2]{\eta_{#1}\left(\params{}#2\right)}
+
+% \bibliography{bibliography.bib}
+
+\def\ergmito{ERGM\textit{ito}}
+\def\ergmitos{\ergmito{}\textit{s}}
+% Mathematical functions
+\newcommand{\isone}[1]{{\boldsymbol{1}\left\{ #1 \right\}}}
+\newcommand{\f}[1]{{f\left(#1\right) }}
+\newcommand{\Prcond}[3]{{\mathbb{P}_{#1}\left\{#2\vphantom{#3}\;\right|\left.\vphantom{#2}#3\right\}}}
+\newcommand{\fcond}[2]{{f\left(#1|#2\right) }}
+\newcommand{\Expected}[1]{{\mathbb{E}\left\{#1\right\}}}
+\newcommand{\ExpectedCond}[2]{{\mathbb{E}\left\{#1\vphantom{#2}\right|\left.\vphantom{#1}#2\right\}}}
+\renewcommand{\exp}[1]{\text{exp}\left\{#1\right\}}
+
+\newcommand{\Likelihood}[2]{\text{L}\left(#1 \left|\vphantom{#1}#2\right.\right)}
+
+\newcommand{\loglik}[1]{l\left(#1\right)}
+
+
+% Mathematical Annotation -------------------------------
+% Modify this so that it matches the P01 convention overall
+
+% -------------------------------------------------------------
+% Additional simplified ERGM notation (reviewer clarity)
+% Random vs observed network, covariates, parameters, statistics
+% (We keep legacy macros for backward compatibility.)
+\newcommand{\Y}{\mathbf{Y}}       % Random network
+\newcommand{\y}{\mathbf{y}}       % Observed network
+\newcommand{\X}{\mathbf{X}}       % Covariate matrix (fixed)
+\newcommand{\thetavec}{\bm{\theta}} % Parameter vector
+\newcommand{\statvec}[2]{\mathbf{s}\left(#1,#2\right)} % Full sufficient statistics vector
+\newcommand{\statcomp}[3]{s_{#1}\left(#2,#3\right)}     % Component l
+% Partition function (unconditional). Conditional versions: Z^{(l=z)}
+\newcommand{\Partition}{Z} 
+% Conditional partition function macro helper
+\newcommand{\CondPartition}[2]{Z^{(#1)}\left(#2\right)}
+
+% Probability notation with explicit conditioning on X when needed
+% (Reviewer requested explicit X retention.)
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\ProbCond}[2]{\mathbb{P}\left(#1\,\middle|\,#2\right)}

@@ -1,0 +1,448 @@
+/*-- scss:defaults --*/
+// Accent carried over from the CV / website (Typst `accent`).
+$accent:      #00707a;
+$muted:       #6b7280;
+
+$link-color:  $accent;
+$presentation-heading-color: $accent;
+$presentation-heading-font-weight: 600;
+
+// Deck-wide body scale. `smaller: true` in index.qmd turns this on for every
+// slide; Quarto's own `.smaller` rules shrink slide *body* text by this factor
+// and then divide it back out of h1/h2/h3, so headings keep their size while
+// prose, lists, tables and code come down. Quarto's stock value is 0.7.
+// Do NOT scale the deck with `.reveal { font-size: ... }` -- that moves the
+// root and drags the headings down with everything else.
+$deck-smaller: 0.8;
+$presentation-font-smaller: $deck-smaller;
+
+/*-- scss:rules --*/
+.reveal .slide-number { color: $muted; }
+.reveal .footer       { color: $muted; font-size: 0.55em; }
+
+// For dense slides: smaller body text, accent-coloured h3 subheads.
+// The second selector is load-bearing. The deck sets `smaller: true`, and
+// Quarto's own `.reveal.smaller .slides section` (specificity 0,3,1) beats a
+// plain `.reveal .compact` (0,2,0) -- so without it the class parses fine,
+// applies nothing, and dense slides silently overflow the bottom of the frame.
+.reveal .compact,
+.reveal.smaller .slides section.compact { font-size: 0.72em; }
+.reveal .compact h3 { color: $accent; font-size: 1.05em; margin-bottom: .2em; }
+
+// The recurring spine slide.
+.reveal .spine { font-size: 0.95em; }
+.reveal .takeaway {
+  border-left: 4px solid $accent;
+  padding-left: .7em;
+  font-style: italic;
+}
+
+
+// The title is long (Strangelove construction + a two-line venue), so the
+// title slide needs a smaller scale than reveal's default or the author line
+// collides with the footer.
+#title-slide {
+  // Opt out of the deck-wide `smaller` shrink: this slide is not dense, and
+  // the em values below were tuned against the full-size root. The ID beats
+  // Quarto's `.reveal.smaller .slides section` selector.
+  font-size: 1em;
+
+  .title    { font-size: 1.5em !important; line-height: 1.12; margin-bottom: .3em; }
+  .subtitle { font-size: 0.72em !important; line-height: 1.35; color: $muted; margin-bottom: 1em; }
+  .quarto-title-authors { font-size: 0.8em; }
+  .quarto-title-affiliation, .date { font-size: 0.68em; color: $muted; }
+}
+
+// Project-history strip (Act I): seven equal columns, icon + title + body.
+// Faithful to the source figure -- no connector line, left-aligned text,
+// icons in a single accent color. The original artwork used rust (#c0491f);
+// this uses the deck accent so the slide doesn't fight the rest of the theme.
+// Swap $timeline-icon below to go back to rust.
+$timeline-icon: $accent;
+
+.reveal .timeline {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: .55em;
+  align-items: start;
+  text-align: left;
+  // 7 columns on a 1050px canvas cap this: much above .52em and the longest
+  // single words ("epiworldRShiny", "lawmakers.") stop fitting a ~118px column
+  // and start breaking mid-word. Tune the .52em here first if you edit the
+  // text. That bound is set by the canvas, not by the body copy, so divide the
+  // deck-wide shrink back out -- otherwise the strip lands at .42em and the
+  // tuning silently stops meaning anything.
+  font-size: calc(.52em / #{$deck-smaller});
+  line-height: 1.35;
+  margin-top: 5%;     // the strip is inherently short; nudge to optical center
+}
+
+.reveal .timeline .tl-step > *            { margin: 0 0 .5em; }
+.reveal .timeline .tl-step > :last-child  { margin-bottom: 0; }
+.reveal .timeline p                       { overflow-wrap: break-word; }
+.reveal .timeline strong                  { display: block; font-size: 1.1em; line-height: 1.2; }
+.reveal .timeline del                     { opacity: .5; }
+
+// Each step's `{{< fa ... >}}` shortcode is its own leading paragraph (see
+// index.qmd) -- style that paragraph's icon glyph directly rather than the
+// generic .fa class, so nothing else that happens to use an icon is affected.
+.reveal .timeline .tl-step > p:first-child {
+  margin-bottom: .3em;
+}
+.reveal .timeline .tl-step > p:first-child i {
+  font-size: 2.4em;
+  color: $timeline-icon;
+}
+
+// Mermaid renders at natural size and is then scaled to fit, which makes a
+// wide diagram's text unreadable. Let diagrams use the full slide box.
+.reveal .slide pre.mermaid > svg,
+.reveal .slide figure > pre.mermaid > svg {
+  width: 100%;
+  max-height: 78vh;
+}
+
+// Research-map mindmap (S2). Mermaid mindmaps colour nodes by *section* -- the
+// branch a node hangs off -- which cannot say "these two are today's talk, the
+// rest is context". So the palette is set here and keyed on the `:::branch` /
+// `:::today` classes in the diagram (mindmaps have no `classDef` of their own).
+//
+// Two rules about how these selectors are written, both learned the hard way:
+//
+//   * `!important` everywhere is unavoidable: mermaid emits its own section
+//     rules scoped under the SVG's `#id`, which outranks anything writable here.
+//   * Anything that changes text metrics -- `font-weight` here -- hangs off
+//     `.mindmap-node`, NOT off `svg.mindmapDiagram`. Mermaid sizes every label
+//     box before it stamps `mindmapDiagram` on the <svg>, so a rule keyed on
+//     that class would land after the box was measured and overflow it. The
+//     node classes are on the DOM from the moment the label is inserted.
+$mm-rest-fill: #f6f7f8;
+$mm-rest-line: #d1d5db;
+
+.reveal .slide svg.mindmapDiagram {
+  .edge { stroke: $mm-rest-line !important; }
+
+  // Height cap in slide units, not vh: reveal scales the 1050x700 canvas to
+  // the window, so a vh cap means something different at every window aspect
+  // and the map grows into the footer on a 16:9 screen. 570px leaves room for
+  // the h2 above and the footer below whatever the projector turns out to be.
+  max-height: 570px;
+}
+
+.reveal .slide {
+  // Default: every node is background, so the highlights carry the eye.
+  .mindmap-node {
+    rect, path, polygon, circle { fill: $mm-rest-fill !important; }
+    line { stroke: $mm-rest-line !important; }
+    text, tspan { fill: $muted !important; }
+
+    // Mermaid 11 never centres a mindmap label when HTML labels are off: it
+    // offsets the text vertically and leaves it anchored at the node's centre,
+    // so every label runs off the right edge of its own box -- invisible where
+    // that is white text on an accent fill. Anchoring at the middle puts them
+    // back inside. Box widths are unaffected: getBBox() measures the same
+    // glyphs either way.
+    text { text-anchor: middle; }
+  }
+
+  // The three branches: accent, tinted back so they sit between hub and leaf.
+  .mindmap-node.branch {
+    rect, path, polygon { fill: mix($accent, #fff, 15%) !important; }
+    text, tspan { fill: $accent !important; font-weight: 600; }
+  }
+
+  // The hub, and the two nodes this talk actually dives into. Ordered last:
+  // these tie with the branch rules on specificity, so source order decides.
+  .mindmap-node.section-root,
+  .mindmap-node.today {
+    rect, path, polygon, circle { fill: $accent !important; }
+    line { stroke: $accent !important; }
+    text, tspan { fill: #fff !important; font-weight: 600; }
+  }
+}
+
+// Subtitle inside a section-divider heading. It has to live in the <h1>:
+// Quarto closes a section-title slide immediately after the heading, so a
+// following ### is emitted outside the <section> and never displays.
+.reveal .dive-sub {
+  display: block;
+  margin-top: .5em;
+  font-size: 0.42em;
+  font-weight: 400;
+  opacity: .85;
+}
+
+// Collaborators slide (S last-but-one): each name gets a small circular
+// headshot from fig/people/. Names with no approved photo carry `.no-photo`
+// and render a neutral disc instead, so the rows stay aligned. Circle size is
+// given in em so it tracks the `.compact` body scale.
+.reveal .compact h3:has(+ ul.collab) { margin-bottom: .1em; }
+
+.reveal .compact ul.collab {
+  list-style: none;
+  margin: .1em 0 .35em;
+  padding: 0;
+}
+
+.reveal .compact ul.collab li {
+  display: flex;
+  align-items: center;
+  gap: .4em;
+  margin: .1em 0;
+  line-height: 1.1;
+}
+
+.reveal .compact ul.collab li img,
+.reveal .compact ul.collab li.no-photo::before {
+  width: 1.55em;
+  height: 1.55em;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.reveal .compact ul.collab li img {
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, .12);
+}
+
+.reveal .compact ul.collab li.no-photo::before {
+  content: "";
+  background: #e5e7eb;
+  border: 1px solid rgba(0, 0, 0, .06);
+}
+
+// Key-findings slide (ERGM results): 4 columns, each an icon (from
+// fig/terms/, the tabulergm term diagrams) + the term's title + a one-line
+// evidence badge (strength + plain-English direction). Replaces a bullet
+// list read against a background table image -- too much to read live. The
+// full coefficient table moved to its own "Full estimates table" backup
+// slide instead, for pulling up in Q&A.
+.reveal .findings-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.4em;
+  margin-top: .6em;
+  text-align: center;
+}
+
+.reveal .findings-grid .finding img {
+  height: 90px;
+  margin-bottom: .2em;
+}
+
+.reveal .findings-grid .finding h3 {
+  // Reserve room for a two-line title (e.g. "Shared partners") so the badge
+  // below lines up at the same height in every column, whether that
+  // column's own title wraps or not.
+  min-height: 2.3em;
+  margin-bottom: .35em;
+}
+
+.reveal .findings-grid .badge {
+  display: inline-block;
+  padding: .2em .6em;
+  border-radius: 1em;
+  font-weight: 600;
+  font-size: 0.82em;
+  line-height: 1.3;
+}
+
+.reveal .findings-grid .badge-strong {
+  background: mix($accent, #fff, 15%);
+  color: $accent;
+}
+
+// The plain-language line under each badge -- a lighter, smaller tier so it
+// reads as "what this means" rather than competing with the term title.
+.reveal .findings-grid .finding p {
+  margin-top: .5em;
+  font-size: 0.8em;
+  color: $muted;
+}
+
+// ERGM simulator widget (ergm-js/, mounted via ERGMWidget.mount() on the
+// "Simulating from an ERGM" slide). ergm-js ships its own scoped stylesheet
+// with sane standalone defaults -- this only re-tints it to match the deck
+// palette. Slide-specific sizing (pane height) is passed as a `mount()`
+// option in index.qmd instead of fought for here with `!important`, since
+// the widget sets that as an inline style.
+.reveal .ergm-widget {
+  // The slide has ~380px of vertical room for the widget (title + two-column
+  // body + the .takeaway bar below all share a 700px-tall reveal frame), but
+  // the package's own control-panel defaults (5 sliders + buttons + a
+  // 7-line stats block + a hint line) run taller than that stacked up. Shrink
+  // spacing and font size here rather than dropping a slider -- all five stay
+  // reachable during the talk.
+  gap: 0.7em;
+
+  .ergm-controls {
+    font-size: 0.58em;
+    gap: 0.25em;
+  }
+
+  .ergm-row { gap: 0.05em; }
+
+  .ergm-buttons {
+    gap: 0.3em;
+
+    button {
+      padding: 0.15em 0.55em;
+      font-size: 0.95em;
+    }
+
+    button.ergm-primary {
+      background: $accent;
+      border-color: $accent;
+    }
+  }
+
+  .ergm-stats {
+    color: $muted;
+    padding: 0.25em 0.45em;
+    line-height: 1.15;
+  }
+
+  // Redundant with the speaker notes on this slide -- drop it to buy back
+  // vertical space rather than shrink it further.
+  .ergm-hint { display: none; }
+}
+
+// "Where else the model goes" (Act III): each project's `###` subtitle leads
+// with a Font Awesome glyph standing in for that project -- ball for the World
+// Cup sim, stacked tiers for the graded-quarantine variant, a medical report
+// for the health-district deliverables, a calculator for EpiCC. Keyed on the
+// slide's own `.app-icons` class so no other `h3` on the deck picks this up.
+// Sized just under the heading so the glyph reads as a marker beside the
+// title rather than as a second heading.
+.reveal .app-icons h3 i {
+  font-size: .85em;
+  color: $accent;
+  margin-right: .3em;
+}
+
+// ---------------------------------------------------------------------------
+// Payoff slides (`## Results: ...`, three of them: school letters, the
+// Utah-Arizona outbreak, the HCP-resident networks). These are the moments the
+// talk is built toward, so they get their own identity instead of looking like
+// every other content slide: a warm rust accent against the deck's teal, and a
+// badge pinned to the top-right corner.
+//
+// Rust is not a new colour -- it is the palette the project-history artwork
+// originally used (see $timeline-icon above). Reusing it here keeps the deck to
+// two colours while making "this is a finding" unmistakable at a glance.
+//
+// Applied by tagging the slide `{.results background-color="#fdf6f2"}` in
+// index.qmd. The wash has to be a per-slide reveal background attribute rather
+// than a rule here: reveal paints slide backgrounds in its own `.slide-background`
+// layer behind `.slides`, so a background set on the <section> stops at the
+// slide padding instead of bleeding to the edges. Keep the hex there in sync
+// with $results-wash.
+$results-accent: #c0491f;
+$results-wash:   #fdf6f2;
+
+.reveal .slides section.results {
+  h2 {
+    color: $results-accent;
+    // Clear the corner badge (62px disc + halo + gutter) so a long title wraps
+    // before it runs underneath the icon rather than colliding with it. Margin
+    // rather than padding: the rule below is a border on this same element, and
+    // padding would carry it across the corner and through the "RESULTS" label.
+    margin-right: 100px;
+    padding-bottom: .18em;
+    border-bottom: 2px solid mix($results-accent, #fff, 22%);
+  }
+
+  // Subheads on these slides (the ERGM term titles) follow the heading, or the
+  // slide reads as teal content wearing a rust hat. Beats `.reveal .compact h3`
+  // on specificity, which is what the findings slide would otherwise pick up.
+  h3 { color: $results-accent; }
+
+  .takeaway { border-left-color: $results-accent; }
+
+  .findings-grid .badge-strong {
+    background: mix($results-accent, #fff, 13%);
+    color: $results-accent;
+  }
+}
+
+// The corner badge: a filled disc with a chart glyph, plus a small caps label
+// underneath. Both are pseudo-elements on the <section> so no slide has to
+// carry extra markup for it.
+//
+// Sizes are in px, like the mermaid caps above: reveal scales the whole
+// 1050x700 canvas uniformly, so px here are stable slide units, and keeping
+// the disc off the `em` ladder means the deck-wide `smaller` shrink and any
+// `.compact` slide can't resize it out from under the h2 padding above.
+.reveal .slides section.results::before,
+.reveal .slides section.results::after {
+  position: absolute;
+  right: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.reveal .slides section.results::before {
+  // fa-chart-line. The glyph comes from the fontawesome extension's bundled
+  // face, which is already on the page for the `{{< fa ... >}}` shortcodes --
+  // weight 900 is what selects the solid style.
+  content: "\f201";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 27px;
+  top: 4px;
+  width: 62px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: $results-accent;
+  border-radius: 50%;
+  // Soft halo so the disc sits on the wash instead of being stamped on it.
+  box-shadow: 0 0 0 9px rgba($results-accent, .09);
+}
+
+.reveal .slides section.results::after {
+  content: "RESULTS";
+  top: 80px;
+  width: 62px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .11em;
+  color: $results-accent;
+}
+
+// "Counting structures" slide: each column is a centred card (diagram, name,
+// formula, gloss). A class rather than an inline style on the column, because
+// pandoc turns `width=` into a style attribute and drops a second one.
+.reveal .terms-row .column { text-align: center; }
+
+// Headline-findings slide of the simulation study: the cards lead with a Font
+// Awesome glyph instead of the term diagrams the grid was designed around.
+.reveal .findings-grid .finding h3 i {
+  font-size: 1.6em;
+  margin-bottom: .25em;
+}
+
+// Two text columns whose bullets would otherwise touch: keep the left
+// column's text off the right column's bullet markers. A margin on the
+// children rather than padding on the column, whose width is a percentage.
+.reveal .cols-gap .column > * { margin-right: 1.2em; }
+
+// Between the deck default and `.compact`: for slides that overflow at full
+// size by a line or two but look empty at .72em. Same specificity trick as
+// `.compact` (see the comment there).
+.reveal .semi,
+.reveal.smaller .slides section.semi { font-size: 0.86em; }
+.reveal .semi h3 { color: $accent; font-size: 1.05em; margin-bottom: .2em; }
+
+// Headline numbers of the simulation study: the same grid as the ERGM
+// key-findings slide, with the badge promoted to the main element.
+.reveal .findings-grid.headline {
+  .finding h3 { min-height: 3.6em; font-size: 1.15em; }
+  .finding { white-space: normal; }
+  .badge { white-space: nowrap; }
+  .badge { font-size: 1.35em; padding: .25em .8em; }
+  .finding p { font-size: 1em; }
+}
