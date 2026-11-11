@@ -446,3 +446,7 @@ $results-wash:   #fdf6f2;
   .badge { font-size: 1.35em; padding: .25em .8em; }
   .finding p { font-size: 1em; }
 }
+
+// Five term cards: reserve two lines for every title so a title that wraps
+// ("Shared partners") does not push its card's text below its neighbours'.
+.reveal .terms-row h3 { font-size: 0.95em; min-height: 2.4em; }

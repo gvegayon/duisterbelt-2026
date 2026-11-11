@@ -29,6 +29,8 @@ format:
           <script src="ergm-js/vendor/sigma.min.js"></script>
           <script src="ergm-js/src/ergm.js"></script>
           <script src="ergm-js/src/ergm-widget.js"></script>
+mermaid:
+  theme: neutral
 html-math-method: katex
 highlight-style: espresso
 # papers.bib and software.bib are copies of the generated files in
@@ -47,26 +49,46 @@ aspectratio: 169
 fig-format: png
 ---
 
-## Today {data-menu-title="Roadmap"}
-
-<!-- Keep this comment below the first heading: content before it becomes
-     an empty slide.
-     TIMING CONTRACT (45-minute slot, designed to ~40:00)
-       Opening                      2:00   ->  2:00
-       Part 1  What is an ERGM     12:00   -> 14:00
-       Part 2  Conditioning         6:00   -> 20:00
-       Part 3  Information          9:00   -> 29:00
-       Part 4  Simulation study     9:00   -> 38:00
-       Closing                      2:00   -> 40:00
-     Each slide carries [budget | cumulative clock].
-     Sources: ../../research/ergm-cond-consistency/experiment-loglik/report.md
-     (Part 3) and report/report.md (Part 4). Figures: scripts/figures.R. -->
+## The research map {data-menu-title="Research map"}
 
 ::: {.hidden}
 $$
 {{< include notation.tex >}}
 $$
 :::
+
+<!-- Keep this slide first: the block above defines the math macros for the
+     whole deck. Same map as the nsi-sep2026 talk, with today's topic (ERGM
+     methods) highlighted. The point for this audience is the breadth: where
+     a collaboration could start. [1:30 | 1:30] -->
+
+```{mermaid}
+{{< include fig/research_map.mmd >}}
+```
+
+::: {style="font-size: 80%; color: #666;"}
+**Note**: I owe much of the diversity in my work to my collaborators: **it is not a one-person show!**
+:::
+
+
+## Today {data-menu-title="Roadmap"}
+
+<!-- TIMING CONTRACT (content before the first heading becomes an empty
+     slide, so this lives here). (45-minute slot, designed to ~43:00)
+       Opening (map + roadmap)      3:00   ->  3:00
+       Part 1  What is an ERGM     14:00   -> 17:00
+       Part 2  Conditioning         6:00   -> 23:00
+       Part 3  Information          9:00   -> 32:00
+       Part 4  Simulation study     9:00   -> 41:00
+       Closing                      2:00   -> 43:00
+     The per-slide [budget | clock] comments after the research map are from
+     the 40-minute version: add ~3:00 to each clock. If running long, cut
+     "Reading the coefficients" (its point is on the ERGMs slide) and "Why
+     fits fail".
+     Notation: the paper's (notation.tex is a KaTeX port of
+     notation-paper.tex).
+     Sources: ../../research/ergm-cond-consistency/experiment-loglik/report.md
+     (Part 3) and report/report.md (Part 4). Figures: scripts/figures.R. -->
 
 <!-- [1:00 | 1:00] -->
 
@@ -127,62 +149,74 @@ In a network, ties depend on each other. Regression assumes they do not. Exponen
 
 ## The model in one equation {data-menu-title="ERGM equation"}
 
-<!-- [2:00 | 5:30] Walk the colors: data, statistics, parameters, constant. -->
+<!-- [1:30 | 5:30] Walk the colors: data, parameters, statistics, constant,
+     support. Figure: scripts/parts-of-ergm.R. -->
 
-![](fig/parts-of-ergm.svg){width="75%" fig-align="center"}
+![](fig/parts-of-ergm.svg){width="85%" fig-align="center"}
 
 ::: {.incremental}
-- A network is **one draw** from a distribution over all possible networks.
-- Networks with more of the features we count are more (or less) likely, depending on the sign of $\theta$.
+- A network is **one draw** from a distribution over all possible networks, $\GRAPH$.
+- Networks with more of the features we count are more (or less) likely, depending on the sign of $\params$.
 - It is the same family as logistic regression, with the whole network as the outcome [@Hunter2008].
 :::
 
 
-## What goes in $s(\mathbf{y})$: counting structures {.compact data-menu-title="Sufficient statistics"}
+## What goes in $\s{\graph}$: counting structures {.compact data-menu-title="Sufficient statistics"}
 
-<!-- [1:30 | 7:00] Table 1 of the proposal (from the ergmito paper). -->
+<!-- [1:30 | 7:00] These five (plus edges) are the terms of today's
+     experiments. Figures from the tabulergm R package. -->
 
 Each statistic counts a **local structure**. Its coefficient says whether the network has more or fewer of them than chance, given everything else in the model.
 
 ::: {.columns .terms-row}
-::: {.column width="25%" .fragment}
-![](fig/term-mutual.png){height="110px"}
+::: {.column width="20%" .fragment}
+![](fig/term-mutual.png){height="130px"}
 
 ### Mutual ties
 
-$\sum_{i\neq j}y_{ij}y_{ji}$
+`mutual`
 
 "I name you, you name me"
 :::
 
-::: {.column width="25%" .fragment}
-![](fig/term-homophily.png){height="110px"}
+::: {.column width="20%" .fragment}
+![](fig/term-nodematch.png){height="130px"}
 
 ### Homophily
 
-$\sum_{i\neq j}y_{ij}\isone{x_i=x_j}$
+`nodematch`
 
 "We are alike"
 :::
 
-::: {.column width="25%" .fragment}
-![](fig/term-ttriad.png){height="110px"}
+::: {.column width="20%" .fragment}
+![](fig/term-gwesp.png){height="130px"}
 
-### Transitive triads
+### Closure
 
-$\sum_{i\neq j\neq k}y_{ij}y_{jk}y_{ik}$
+`gwesp`
 
-"A friend of a friend"
+"Our friends are friends"
 :::
 
-::: {.column width="25%" .fragment}
-![](fig/term-fourcycle.png){height="110px"}
+::: {.column width="20%" .fragment}
+![](fig/term-gwdsp.png){height="130px"}
 
-### Four-cycles
+### Shared partners
 
-$\sum y_{ij}y_{jk}y_{kl}y_{li}$
+`gwdsp`
 
-"Shared partners"
+"We know the same people"
+:::
+
+::: {.column width="20%" .fragment}
+![](fig/term-gwdegree.png){height="130px"}
+
+### Popularity
+
+`gwdegree`
+
+"Some have many ties"
 :::
 :::
 
@@ -191,22 +225,51 @@ And always **edges**, $\sum_{i\neq j} y_{ij}$: how many ties there are. It plays
 :::
 
 ::: {.fragment style="font-size: 85%; color: #666;"}
-In practice, triangles and stars are replaced by **geometrically weighted** versions (`gwesp`, `gwdsp`, `gwdegree`), which count shared partners with diminishing returns [@snijders_new_2006]. Those are the terms in today's experiments.
+The last three are **geometrically weighted**: each additional shared partner (or tie) counts a little less than the one before, which behaves better than raw counts of triangles and stars [@snijders_new_2006]. Figures drawn with `tabulergm` [@tabulergm].
 :::
+
+
+## ERGMs {.compact}
+
+<!-- [2:00 | 9:00] The "ERGMs" slide of the nsi-sep2026 deck, in the paper's
+     notation. -->
+
+ERGMs provide a parametric representation of the distribution of $\graph \in \GRAPH$.
+
+::: {style="font-size: 80%"}
+$$
+\begin{aligned}
+\Pr{\GRAPH}{\Graph = \graph; \params} & = \frac{\exp{\t{\params}\textcolor{green}{\s{\graph}}}}{\textcolor{red}{\normconst{\params}}},\quad\graph \in\GRAPH \\
+\textcolor{red}{\normconst{\params}} & = \sum_{\graph'\in\GRAPH}\exp{\t{\params}\textcolor{green}{\s{\graph'}}}
+\end{aligned}
+$$
+:::
+
+::: {.incremental}
+- $\textcolor{green}{\s{\graph}}$ is the key: it captures the essential features of the network structure.
+- $\textcolor{red}{\eta}$ (the normalizing constant)[^ergmitos] is intractable for most networks, so estimation requires simulation.
+- Simulation is efficient via the **conditional distribution** of a dyad given the rest of the network (a logit model!):
+
+::: {style="font-size: 80%" .fragment}
+
+$$
+\Prcond{\GRAPH}{\Graph_{ij}{=}1}{\Graph_{-ij}; \params}
+= \frac{1}{1 + \exp{-\t{\params}\textcolor{purple}{\delta_{ij}}}}
+$$
+
+where [$\textcolor{purple}{\delta_{ij} = \s{\Graph_{ij}^{+}} - \s{\Graph_{ij}^{-}}}$]{style="font-size: 80%"} is how much each statistic changes when the tie $i \to j$ is added.
+:::
+
+:::
+
+[^ergmitos]: Unless you care about small networks (which we do: @yon2019exponential; @ergmito; @defm; @vegayonDiscreteExponentialFamilyModels2022).
 
 
 ## Reading the coefficients {.semi data-menu-title="Interpretation"}
 
-<!-- [1:30 | 8:30] The bridge to something the audience already knows. -->
+<!-- [1:00 | 10:00] The bridge to something the audience already knows. -->
 
-Hold the rest of the network fixed and look at **one** pair $(i, j)$:
-
-$$
-\text{logit}\; \Prcond{}{Y_{ij} = 1}{\text{rest of the network}}
-= \transpose{\params}\,\textcolor{purple}{\delta_{ij}(\graph)}
-$$
-
-where $\textcolor{purple}{\delta_{ij}}$ is how much each statistic **changes** when the tie $i \to j$ is added.
+Because the conditional is a logit, each coefficient is a **log-odds ratio**, holding the rest of the network fixed:
 
 ::: {.incremental}
 - $\theta_{\text{homophily}} = 1$: a tie between two alike nodes has $e^{1} \approx 2.7$ times the odds of a tie between two unlike ones.
@@ -240,7 +303,7 @@ A logistic regression in which each tie's predictors are the other ties.
 ```
 
 $$
-\Pr{}{\Graph = \graph; \params} = \frac{\exp{\theta_{\text{edges}}\,s_{\text{edges}}(\graph) + \theta_{\text{homophily}}\,s_{\text{homophily}}(\graph) + \theta_{\text{mutual}}\,s_{\text{mutual}}(\graph)}}{\normconst{}{}}
+\Pr{\GRAPH}{\Graph = \graph; \params} = \frac{\exp{\theta_{\text{edges}}\,\sk{\graph}{\text{edges}} + \theta_{\text{homophily}}\,\sk{\graph}{\text{homophily}} + \theta_{\text{mutual}}\,\sk{\graph}{\text{mutual}}}}{\normconst{\params}}
 $$
 
 ::: {.takeaway}
@@ -257,7 +320,7 @@ Simulating is easy: revisit one pair at a time with the logistic formula. The no
 The normalizing constant adds over **every possible network**:
 
 $$
-\normconst{}{} = \sum_{\graph' \in \GRAPH} \exp{\transpose{\params}\sufstats{}{\graph'}}
+\normconst{\params} = \sum_{\graph' \in \GRAPH} \exp{\t{\params}\s{\graph'}}
 $$
 
 ::: {.incremental}
@@ -307,21 +370,26 @@ The trouble runs along one direction: **the number of ties**. What if we take th
 
 ## Fix what you do not want to model {.compact data-menu-title="Conditional ERGM"}
 
-<!-- [2:00 | 16:00] Equation 2 of the proposal. -->
+<!-- [2:00 | 17:00] k is the edges term; c is the observed number of ties. -->
 
-Only consider networks with **exactly as many ties as the one we observed**, $\textcolor{#c0491f}{e}$:
+Let $\sk{\graph}{k}$ be the number of ties. Only consider networks with **exactly as many ties as the one we observed**, $\textcolor{#c0491f}{c}$:
 
-::: {style="font-size: 90%"}
+::: {style="font-size: 85%"}
 $$
-\Prcond{}{\Graph = \graph}{s_{\text{edges}}(\Graph) = \textcolor{#c0491f}{e};\ \params}
-= \frac{\exp{\theta_{\text{edges}}\textcolor{#c0491f}{e}}\;\exp{\transpose{\params_{\text{rest}}}\sufstats{\text{rest}}{\graph}}}
-       {\exp{\theta_{\text{edges}}\textcolor{#c0491f}{e}}\;\sum_{\graph':\, s_{\text{edges}}(\graph') = e}\exp{\transpose{\params_{\text{rest}}}\sufstats{\text{rest}}{\graph'}}}
-= \frac{\exp{\transpose{\params_{\text{rest}}}\sufstats{\text{rest}}{\graph}}}{\normconst{e}{_{\text{rest}}}}
+\Prcond{\GRAPH}{\Graph = \graph}{\sk{\Graph}{k} = \textcolor{#c0491f}{c};\ \params}
+= \frac{\exp{\t{\params}\s{\graph}}}{\normconst{\params \mid \sn{k} = \textcolor{#c0491f}{c}}}
+= \frac{\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\exp{\t{\params_{-k}}\sk{\graph}{-k}}}
+       {\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c}\exp{\t{\params_{-k}}\sk{\graph'}{-k}}}
+= \frac{\exp{\t{\params_{-k}}\sk{\graph}{-k}}}{\normconst{\params_{-k} \mid \sn{k} = \textcolor{#c0491f}{c}}}
 $$
 :::
 
+::: {style="font-size: 85%; color: #666;"}
+$\normconst{\params \mid \sn{k} = c} = \sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c} \exp{\t{\params}\s{\graph'}}$ is the normalizing constant over the networks with $c$ ties; $-k$ means "all terms but the $k$-th".
+:::
+
 ::: {.incremental}
-- The edges coefficient **cancels**. There is one parameter less, and it is the troublesome one.
+- The edges coefficient, $\theta_k$, **cancels**. There is one parameter less, and it is the troublesome one.
 - The empty and the complete network are no longer possible outcomes.
 - It is the idea behind **conditional logistic regression** (matched case--control studies), applied to networks [@snijders_conditional_2010; @pattison_conditional_2013].
 - Sometimes it is simply the truth: surveys that cap the number of friends you can name, or brain networks thresholded to a fixed density.
@@ -357,7 +425,7 @@ With several networks, each keeps its own edge count, so every network's density
 Same model, no edges term. Each step **moves** a tie instead of adding or deleting one:
 
 $$
-\Pr{}{\text{accept the move}} = \min\left\{1,\ \exp{\transpose{\params_{\text{rest}}}\left[\sufstats{\text{rest}}{\graph_{\text{new}}} - \sufstats{\text{rest}}{\graph_{\text{old}}}\right]}\right\}
+\Pr{}{\text{accept the move}} = \min\left\{1,\ \exp{\t{\params_{-k}}\left[\sk{\graph_{\text{new}}}{-k} - \sk{\graph_{\text{old}}}{-k}\right]}\right\}
 $$
 
 ::: {.takeaway}
@@ -367,16 +435,16 @@ The number of ties never changes, so the chain cannot drift to the empty or the 
 
 ## What could it cost? {data-menu-title="The two questions"}
 
-<!-- [1:30 | 19:00] Equation 3 of the proposal. This is the spine of the
-     rest of the talk. -->
+<!-- [1:30 | 20:00] The factorization as written in the paper. This is the
+     spine of the rest of the talk. -->
 
 The full model is the conditional model **times** the model for the edge count:
 
 $$
-\Pr{}{\Graph = \graph; \params} =
-\underbrace{\Prcond{}{\Graph = \graph}{s_{\text{edges}} = e;\ \params_{\text{rest}}}}_{\text{Conditional ERGM}}
+\Pr{\GRAPH}{\Graph = \graph; \params} =
+\underbrace{\frac{\exp{\t{\params}\s{\graph}}}{\normconst{\params \mid \sn{k} = c}}}_{\text{Conditional}}
 \times
-\underbrace{\Pr{}{s_{\text{edges}}(\Graph) = e;\ \params}}_{\text{Marginal: how many ties}}
+\underbrace{\frac{\normconst{\params \mid \sn{k} = c}}{\normconst{\params}}}_{\text{Marginal: how many ties}}
 $$
 
 Fitting only the first factor throws the second away. Maximizing one is **not** the same as maximizing the product.
@@ -385,7 +453,7 @@ Fitting only the first factor throws the second away. Maximizing one is **not** 
 ::: {.column width="50%" .fragment}
 ### Question 1
 
-Does the edge count tell us anything about $\params_{\text{rest}}$?
+Does the edge count tell us anything about $\params_{-k}$?
 
 *How much **information** do we lose?*
 :::
@@ -437,20 +505,22 @@ We simulate networks from the **full** ERGM (so the unconditional model is the c
 
 ## Splitting the log-likelihood {.semi data-menu-title="Likelihood decomposition"}
 
-<!-- [2:00 | 22:00] Everything in this part is evaluated AT the true
+<!-- [2:00 | 23:00] Everything in this part is evaluated AT the true
      parameter, by simulation only -- no model is fit. -->
 
 Taking logs of the factorization, at the **true** parameter:
 
 $$
-\ell_{\text{full}} \;=\; \underbrace{\ell_{\text{cond}}}_{\text{which network, given its edge count}} \;+\; \underbrace{\ell_{\text{marg}}}_{\text{the edge count}}
+\loglik{\params} \;=\;
+\underbrace{\t{\params}\s{\graph} - \log{\normconst{\params \mid \sn{k} = c}}}_{l_{\text{cond}}:\ \text{which network, given its edge count}}
+\;+\;
+\underbrace{\log{\normconst{\params \mid \sn{k} = c}} - \log{\normconst{\params}}}_{l_{\text{marg}}:\ \text{the edge count}}
 $$
 
 ::: {.incremental}
 - No model is fit here. We only **simulate** at the true parameter, on the same networks as the main experiment ($M = 1$ and $5$).
-- $\ell_{\text{marg}} = \text{log}\,\Pr{}{s_{\text{edges}} = e}$ is read off draws from the full model.
 - The marginal piece is about **$-4$ nats per network** at every density: the observed edge count has probability $\approx e^{-4} \approx 0.02$.
-- $\ell_{\text{cond}}$ runs in the **hundreds to thousands** of nats: it grows with the number of pairs, the marginal piece with its logarithm.
+- $l_{\text{cond}}$ runs in the **hundreds to thousands** of nats: it grows with the number of pairs, the marginal piece with its logarithm.
 :::
 
 ::: {.takeaway .fragment}
@@ -460,19 +530,19 @@ The edge count carries a fraction of a percent of the log-likelihood. But that i
 
 ## The right yardstick: Fisher information {.compact data-menu-title="Information identity"}
 
-<!-- [2:00 | 24:00] Say it in words: the full model ALREADY pays for not
+<!-- [2:00 | 25:00] Say it in words: the full model ALREADY pays for not
      knowing the edges coefficient. The fair comparison is against that. -->
 
-How precisely can each model pin down $\params_{\text{rest}}$?
+How precisely can each model pin down $\params_{-k}$? Write $S_k = \sk{\Graph}{k}$ for the edge count and $S_{-k} = \sk{\Graph}{-k}$ for the other statistics.
 
 ::: {.columns}
 ::: {.column width="50%" .fragment}
 ### Full model
 
-It must also estimate $\theta_{\text{edges}}$, which costs precision. What is left is the **efficient information**:
+It must also estimate $\theta_{k}$, which costs precision. What is left is the **efficient information**:
 
 $$
-I_{\text{eff}} = \text{Var}(G) - \frac{\text{Cov}(G, E)\,\text{Cov}(E, G)}{\text{Var}(E)}
+I_{\text{eff}} = \Var{S_{-k}} - \frac{\Cov{S_{-k}}{S_k}\,\Cov{S_k}{S_{-k}}}{\Var{S_k}}
 $$
 :::
 
@@ -482,20 +552,16 @@ $$
 The variability of the statistics **within** an edge count, averaged over edge counts:
 
 $$
-I_{\text{cond}} = \mathbb{E}\left[\text{Var}(G \mid E)\right]
+I_{\text{cond}} = \Expected{\VarCond{S_{-k}}{S_k}}
 $$
 :::
-:::
-
-::: {style="font-size: 85%; color: #666;"}
-$E$: the edge count. $G$: the other statistics. $m(E) = \mathbb{E}[G \mid E]$. $B$: the slope of $G$ on $E$.
 :::
 
 ::: {.fragment}
-The difference is exact:
+The difference is exact, with $m(S_k) = \ExpectedCond{S_{-k}}{S_k}$ and $B$ the slope of $S_{-k}$ on $S_k$:
 
 $$
-I_{\text{eff}} - I_{\text{cond}} = \text{Var}\bigl(m(E) - B\,E\bigr)
+I_{\text{eff}} - I_{\text{cond}} = \Var{m(S_k) - B\,S_k}
 $$
 :::
 
@@ -581,7 +647,7 @@ Two-paths and degrees grow with the **square** of the edge count: that is the be
 
 ::: {.incremental}
 - **Not identified.** In up to a fifth of the samples a coefficient has no information at all under *either* model: the drawn coefficients freeze the network.
-- **$\ell_{\text{cond}}$ itself** is not estimated reliably when the clustering coefficient is negative; the simulation path behaves like a phase transition. See the [\<details\>](#conditional-bridges).
+- **$l_{\text{cond}}$ itself** is not estimated reliably when the clustering coefficient is negative; the simulation path behaves like a phase transition. See the [\<details\>](#conditional-bridges).
 - **Local.** Information at the truth is about precision in large samples. It says nothing about bias or about whether a fit converges.
 :::
 :::
@@ -823,6 +889,9 @@ All of it as open-source R packages built on `ergm`.
 
 ## Thank you! {.center data-menu-title="Thank you"}
 
+::: {.columns}
+
+::: {.column width="50%"}
 ::: {style="font-size: 1.3em;"}
 Conditional Exponential-Family Random Graph Models
 :::
@@ -834,31 +903,42 @@ Division of Epidemiology<br>University of Utah
 
 {{< fa globe >}} <https://ggvy.cl>
 :::
+:::
+
+::: {.column width="50%"}
+<!-- Same research map as the opening slide: bookends the talk and leaves
+     the collaboration areas on screen during questions. -->
+```{mermaid}
+{{< include fig/research_map.mmd >}}
+```
+:::
+
+:::
 
 
 # Appendix {visibility="uncounted" background-color="#00707a"}
 
 ## The information identity {#information-algebra .compact visibility="uncounted" data-menu-title="Information: algebra"}
 
-One network, edges coefficient unknown. $E$: edge count; $G$: the other statistics; $m(E) = \mathbb{E}[G \mid E]$; $B = \text{Cov}(G, E) / \text{Var}(E)$.
+One network, edges coefficient $\theta_k$ unknown. $S_k = \sk{\Graph}{k}$: edge count; $S_{-k} = \sk{\Graph}{-k}$: the other statistics; $m(S_k) = \ExpectedCond{S_{-k}}{S_k}$; $B = \Cov{S_{-k}}{S_k} / \Var{S_k}$.
 
-1. The law of total covariance gives $\text{Var}(G) = \mathbb{E}[\text{Var}(G \mid E)] + \text{Var}(m(E)) = I_{\text{cond}} + \text{Var}(m(E))$.
+1. The law of total covariance gives $\Var{S_{-k}} = \Expected{\VarCond{S_{-k}}{S_k}} + \Var{m(S_k)} = I_{\text{cond}} + \Var{m(S_k)}$.
 
-2. Since $\text{Cov}(m(E), E) = \text{Cov}(G, E)$,
+2. Since $\Cov{m(S_k)}{S_k} = \Cov{S_{-k}}{S_k}$,
 
 $$
-\text{Var}\bigl(m(E) - BE\bigr) = \text{Var}(m(E)) - B\,\text{Var}(E)\,\transpose{B}.
+\Var{m(S_k) - B S_k} = \Var{m(S_k)} - B\,\Var{S_k}\,\t{B}.
 $$
 
 3. Subtracting,
 
 $$
-I_{\text{eff}} - I_{\text{cond}} = \text{Var}(G) - B\,\text{Var}(E)\,\transpose{B} - I_{\text{cond}} = \text{Var}\bigl(m(E) - BE\bigr) \succeq 0.
+I_{\text{eff}} - I_{\text{cond}} = \Var{S_{-k}} - B\,\Var{S_k}\,\t{B} - I_{\text{cond}} = \Var{m(S_k) - B S_k} \succeq 0.
 $$
 
 ::: {.incremental}
 - No orthogonality between edges and the other parameters is needed: the cancellation is exact.
-- If $G$ itself is a linear function of $E$, both sides are zero: equal information does not mean the coefficient can be estimated.
+- If $S_{-k}$ itself is a linear function of $S_k$, both sides are zero: equal information does not mean the coefficient can be estimated.
 - With several networks and a shared size effect, the full sample's information is assembled first and the nuisance block removed once.
 :::
 
@@ -869,19 +949,19 @@ Go [\<back\>](#the-right-yardstick-fisher-information)
 
 ## Estimating the conditional log-likelihood {#conditional-bridges .compact visibility="uncounted" data-menu-title="Conditional bridges"}
 
-$\ell_{\text{cond}}$ needs a sum over all networks with $e$ edges. We bridge from the uniform distribution ($\params_{\text{rest}} = 0$, where the sum is known) to the true parameter, forward and in reverse. If a chain only lags, the two directions bracket the value and the gap closes with effort.
+$l_{\text{cond}}$ needs $\normconst{\params \mid \sn{k} = c}$, a sum over all networks with $c$ edges. We bridge from the uniform distribution ($\params_{-k} = 0$, where the sum is known) to the true parameter, forward and in reverse. If a chain only lags, the two directions bracket the value and the gap closes with effort.
 
 | Networks (10 each) | Gap, effort $\times 1$ | $\times 8$ | $\times 64$ |
 |:--|--:|--:|--:|
 | Positive `gwesp` | 1.24 | 0.21 | 0.09 |
 | Negative `gwesp` | 179 | 94 | 76 |
-| Negative `gwesp`, $\hat\ell_{\text{cond}} > 0$ | 2,613 | 2,414 | 2,318 |
+| Negative `gwesp`, $\hat{l}_{\text{cond}} > 0$ | 2,613 | 2,414 | 2,318 |
 
 ::: {style="font-size: 85%; color: #666;"}
 Median gap between the forward and reverse bridges, in nats.
 :::
 
-- With fewer triangles than chance at a fixed edge count, the forward path does not cross: 362 of 2,999 networks had an impossible $\ell_{\text{cond}} > 0$, all with a negative `gwesp` coefficient.
+- With fewer triangles than chance at a fixed edge count, the forward path does not cross: 362 of 2,999 networks had an impossible $l_{\text{cond}} > 0$, all with a negative `gwesp` coefficient.
 - The information results do not use these bridges.
 
 ::: {.absolute bottom="0" right="0" style="font-size: 80%; color: #666;"}

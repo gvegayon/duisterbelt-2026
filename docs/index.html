@@ -59,7 +59,7 @@
     div.csl-indent {
       margin-left: 2em;
     }  </style>
-  <link rel="stylesheet" href="index_files/libs/revealjs/dist/theme/quarto-1eca17b9b5495f3ab1ee0111abcd39ba.css">
+  <link rel="stylesheet" href="index_files/libs/revealjs/dist/theme/quarto-62166277e511c0aa512b9951f40d81db.css">
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
@@ -167,6 +167,10 @@
       margin-right: 0; 
     }
   </style>
+  <meta name="mermaid-theme" content="neutral">
+  <script src="index_files/libs/quarto-diagram/mermaid.min.js"></script>
+  <script src="index_files/libs/quarto-diagram/mermaid-init.js"></script>
+  <link href="index_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
   <script src="ergm-js/vendor/graphology.umd.min.js"></script>
   <script src="ergm-js/vendor/sigma.min.js"></script>
   <script src="ergm-js/src/ergm.js"></script>
@@ -193,32 +197,93 @@
 
   <p class="date">December 2026</p>
 </section>
-<section id="today" class="slide level2" data-menu-title="Roadmap">
-<h2>Today</h2>
-<!-- Keep this comment below the first heading: content before it becomes
-     an empty slide.
-     TIMING CONTRACT (45-minute slot, designed to ~40:00)
-       Opening                      2:00   ->  2:00
-       Part 1  What is an ERGM     12:00   -> 14:00
-       Part 2  Conditioning         6:00   -> 20:00
-       Part 3  Information          9:00   -> 29:00
-       Part 4  Simulation study     9:00   -> 38:00
-       Closing                      2:00   -> 40:00
-     Each slide carries [budget | cumulative clock].
-     Sources: ../../research/ergm-cond-consistency/experiment-loglik/report.md
-     (Part 3) and report/report.md (Part 4). Figures: scripts/figures.R. -->
+<section id="the-research-map" class="slide level2" data-menu-title="Research map">
+<h2>The research map</h2>
 <div class="hidden">
-<p>$$ % Mathematical functions % DELETED! </p>
-<p>% DELETED! </p>
-<p>% Objects % DELETED! % DELETED! </p>
-<p>% Not available in mathjax </p>
-%
+<p>$$ % KaTeX port of notation-paper.tex from the conditional-ERGM paper % (Overleaf: “paper - conditional ergms”). Keep the two in sync by hand. % % KaTeX has no or , so the paper’s macros with % optional arguments are split into fixed-arity ones: % % paper here renders % s(y) % s_k(y) % s_k % eta(theta) % eta(x)</p>
 <p>% Mathematical functions </p>
-<p>% Mathematical Annotation ——————————- % Modify this so that it matches the P01 convention overall</p>
-<p>% ————————————————————- % Additional simplified ERGM notation (reviewer clarity) % Random vs observed network, covariates, parameters, statistics % (We keep legacy macros for backward compatibility.) % Random network % Observed network % Covariate matrix (fixed) % Parameter vector % Full sufficient statistics vector % Component l % Partition function (unconditional). Conditional versions: Z^{(l=z)} % Conditional partition function macro helper </p>
-<p>% Probability notation with explicit conditioning on X when needed % (Reviewer requested explicit X retention.) </p>
+<p>% Objects </p>
+<p>% is not available in KaTeX </p>
+<p>% Deck-only additions (not in the paper yet), in the same brace style. </p>
 <p>$$</p>
 </div>
+<!-- Keep this slide first: the block above defines the math macros for the
+     whole deck. Same map as the nsi-sep2026 talk, with today's topic (ERGM
+     methods) highlighted. The point for this audience is the breadth: where
+     a collaboration could start. [1:30 | 1:30] -->
+<div class="cell" data-reveal="true" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class=""><p></p>
+<div>
+<pre class="mermaid mermaid-js">---
+config:
+  htmlLabels: false
+---
+%% htmlLabels:false is load-bearing, not cosmetic. With HTML labels mermaid
+%% sizes each box from getBoundingClientRect(), which reveal's slide-scaling
+%% transform multiplies -- every box comes out ~40% too narrow and every label
+%% is clipped. SVG labels are measured with getBBox(), which the transform
+%% does not touch. (Labels still wrap at 200px either way.) The price is that
+%% mermaid then never centres them, so style.scss re-anchors the text; see
+%% "Research-map mindmap" there. No themeVariables.fontSize either: the SVG is
+%% scaled to the slide, which grows boxes and text together anyway.
+%%
+%% Mindmaps have no `classDef` -- the palette for `branch` / `today` also
+%% lives in style.scss. Two syntax traps: `:::class` must sit on its OWN line
+%% under the node it decorates (`node:::x` is a parse error), and a bare node
+%% label cannot contain parentheses, hence the quoted `["..."]` form on the
+%% leaves. The layout is force-directed: identical on every load at a given
+%% window size, but it can settle into a different arrangement on a screen of
+%% a different shape. Check it on the room's projector, not just your laptop.
+mindmap
+  root(("Statistical&lt;br&gt;computing and&lt;br&gt;scientific&lt;br&gt;software"))
+    NS(Network science)
+    :::branch
+      E1["Applied ERGMs"]
+      E2["Other graphical&lt;br&gt;models"]
+      E3["ERGM methods"]
+      :::today
+      E4["Social Influence"]
+    PH(Public health)
+    :::branch
+      P1["Measles"]
+      P2["Agent-Based Models"]
+      P3["Mechanistic Machine&lt;br&gt;Learning"]
+      P4["Economic Impact"]
+    OTH(Other domains)
+    :::branch
+      O1["Genomics"]
+      O2["Quantum&lt;br&gt;Computing"]
+
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<div style="font-size: 80%; color: #666;">
+<p><strong>Note</strong>: I owe much of the diversity in my work to my collaborators: <strong>it is not a one-person show!</strong></p>
+</div>
+</section>
+<section id="today" class="slide level2" data-menu-title="Roadmap">
+<h2>Today</h2>
+<!-- TIMING CONTRACT (content before the first heading becomes an empty
+     slide, so this lives here). (45-minute slot, designed to ~43:00)
+       Opening (map + roadmap)      3:00   ->  3:00
+       Part 1  What is an ERGM     14:00   -> 17:00
+       Part 2  Conditioning         6:00   -> 23:00
+       Part 3  Information          9:00   -> 32:00
+       Part 4  Simulation study     9:00   -> 41:00
+       Closing                      2:00   -> 43:00
+     The per-slide [budget | clock] comments after the research map are from
+     the 40-minute version: add ~3:00 to each clock. If running long, cut
+     "Reading the coefficients" (its point is on the ERGMs slide) and "Why
+     fits fail".
+     Notation: the paper's (notation.tex is a KaTeX port of
+     notation-paper.tex).
+     Sources: ../../research/ergm-cond-consistency/experiment-loglik/report.md
+     (Part 3) and report/report.md (Part 4). Figures: scripts/figures.R. -->
 <!-- [1:00 | 1:00] -->
 <div style="font-size: 125%;">
 <blockquote>
@@ -264,60 +329,88 @@
 </section>
 <section id="the-model-in-one-equation" class="slide level2" data-menu-title="ERGM equation">
 <h2>The model in one equation</h2>
-<!-- [2:00 | 5:30] Walk the colors: data, statistics, parameters, constant. -->
+<!-- [1:30 | 5:30] Walk the colors: data, parameters, statistics, constant,
+     support. Figure: scripts/parts-of-ergm.R. -->
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:75.0%"></a></p>
+<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:85.0%"></a></p>
 </figure>
 </div>
 <ul>
-<li class="fragment">A network is <strong>one draw</strong> from a distribution over all possible networks.</li>
-<li class="fragment">Networks with more of the features we count are more (or less) likely, depending on the sign of <span class="math inline">\theta</span>.</li>
+<li class="fragment">A network is <strong>one draw</strong> from a distribution over all possible networks, <span class="math inline">\mathcal{Y}</span>.</li>
+<li class="fragment">Networks with more of the features we count are more (or less) likely, depending on the sign of <span class="math inline">\boldsymbol{\theta}</span>.</li>
 <li class="fragment">It is the same family as logistic regression, with the whole network as the outcome <span class="citation" data-cites="Hunter2008">(<a href="#/references" role="doc-biblioref" onclick="">Hunter et al. 2008</a>)</span>.</li>
 </ul>
 </section>
-<section id="what-goes-in-smathbfy-counting-structures" class="slide level2 compact" data-menu-title="Sufficient statistics">
-<h2>What goes in <span class="math inline">s(\mathbf{y})</span>: counting structures</h2>
-<!-- [1:30 | 7:00] Table 1 of the proposal (from the ergmito paper). -->
+<section id="what-goes-in-sleftmathbfyright-counting-structures" class="slide level2 compact" data-menu-title="Sufficient statistics">
+<h2>What goes in <span class="math inline">s\left(\mathbf{y}\right)</span>: counting structures</h2>
+<!-- [1:30 | 7:00] These five (plus edges) are the terms of today's
+     experiments. Figures from the tabulergm R package. -->
 <p>Each statistic counts a <strong>local structure</strong>. Its coefficient says whether the network has more or fewer of them than chance, given everything else in the model.</p>
 <div class="columns terms-row">
-<div class="column fragment" style="width:25%;">
-<p><a href="fig/term-mutual.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img data-src="fig/term-mutual.png" height="110"></a></p>
+<div class="column fragment" style="width:20%;">
+<p><a href="fig/term-mutual.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img data-src="fig/term-mutual.png" height="130"></a></p>
 <h3 id="mutual-ties">Mutual ties</h3>
-<p><span class="math inline">\sum_{i\neq j}y_{ij}y_{ji}</span></p>
+<p><code>mutual</code></p>
 <p>“I name you, you name me”</p>
-</div><div class="column fragment" style="width:25%;">
-<p><a href="fig/term-homophily.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img data-src="fig/term-homophily.png" height="110"></a></p>
+</div><div class="column fragment" style="width:20%;">
+<p><a href="fig/term-nodematch.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img data-src="fig/term-nodematch.png" height="130"></a></p>
 <h3 id="homophily">Homophily</h3>
-<p><span class="math inline">\sum_{i\neq j}y_{ij}{\boldsymbol{1}\left\{ x_i=x_j \right\}}</span></p>
+<p><code>nodematch</code></p>
 <p>“We are alike”</p>
-</div><div class="column fragment" style="width:25%;">
-<p><a href="fig/term-ttriad.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img data-src="fig/term-ttriad.png" height="110"></a></p>
-<h3 id="transitive-triads">Transitive triads</h3>
-<p><span class="math inline">\sum_{i\neq j\neq k}y_{ij}y_{jk}y_{ik}</span></p>
-<p>“A friend of a friend”</p>
-</div><div class="column fragment" style="width:25%;">
-<p><a href="fig/term-fourcycle.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img data-src="fig/term-fourcycle.png" height="110"></a></p>
-<h3 id="four-cycles">Four-cycles</h3>
-<p><span class="math inline">\sum y_{ij}y_{jk}y_{kl}y_{li}</span></p>
-<p>“Shared partners”</p>
+</div><div class="column fragment" style="width:20%;">
+<p><a href="fig/term-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img data-src="fig/term-gwesp.png" height="130"></a></p>
+<h3 id="closure">Closure</h3>
+<p><code>gwesp</code></p>
+<p>“Our friends are friends”</p>
+</div><div class="column fragment" style="width:20%;">
+<p><a href="fig/term-gwdsp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img data-src="fig/term-gwdsp.png" height="130"></a></p>
+<h3 id="shared-partners">Shared partners</h3>
+<p><code>gwdsp</code></p>
+<p>“We know the same people”</p>
+</div><div class="column fragment" style="width:20%;">
+<p><a href="fig/term-gwdegree.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img data-src="fig/term-gwdegree.png" height="130"></a></p>
+<h3 id="popularity">Popularity</h3>
+<p><code>gwdegree</code></p>
+<p>“Some have many ties”</p>
 </div></div>
 <div class="fragment">
 <p>And always <strong>edges</strong>, <span class="math inline">\sum_{i\neq j} y_{ij}</span>: how many ties there are. It plays the role of the intercept.</p>
 </div>
 <div class="fragment" style="font-size: 85%; color: #666;">
-<p>In practice, triangles and stars are replaced by <strong>geometrically weighted</strong> versions (<code>gwesp</code>, <code>gwdsp</code>, <code>gwdegree</code>), which count shared partners with diminishing returns <span class="citation" data-cites="snijders_new_2006">(<a href="#/references" role="doc-biblioref" onclick="">Snijders et al. 2006</a>)</span>. Those are the terms in today’s experiments.</p>
+<p>The last three are <strong>geometrically weighted</strong>: each additional shared partner (or tie) counts a little less than the one before, which behaves better than raw counts of triangles and stars <span class="citation" data-cites="snijders_new_2006">(<a href="#/references" role="doc-biblioref" onclick="">Snijders et al. 2006</a>)</span>. Figures drawn with <code>tabulergm</code> <span class="citation" data-cites="tabulergm">(<a href="#/references" role="doc-biblioref" onclick="">Vega Yon 2026b</a>)</span>.</p>
 </div>
 </section>
+<section id="ergms" class="slide level2 compact">
+<h2>ERGMs</h2>
+<!-- [2:00 | 9:00] The "ERGMs" slide of the nsi-sep2026 deck, in the paper's
+     notation. -->
+<p>ERGMs provide a parametric representation of the distribution of <span class="math inline">\mathbf{y}\in \mathcal{Y}</span>.</p>
+<div style="font-size: 80%">
+<p><span class="math display">
+\begin{aligned}
+{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}; \boldsymbol{\theta}\right\} } &amp; = \frac{\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}\textcolor{green}{s\left(\mathbf{y}\right)}\right\}}{\textcolor{red}{\eta\left(\boldsymbol{\theta}\right)}},\quad\mathbf{y}\in\mathcal{Y}\\
+\textcolor{red}{\eta\left(\boldsymbol{\theta}\right)} &amp; = \sum_{\mathbf{y}'\in\mathcal{Y}}\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}\textcolor{green}{s\left(\mathbf{y}'\right)}\right\}
+\end{aligned}
+</span></p>
+</div>
+<ul>
+<li class="fragment"><span class="math inline">\textcolor{green}{s\left(\mathbf{y}\right)}</span> is the key: it captures the essential features of the network structure.</li>
+<li class="fragment"><span class="math inline">\textcolor{red}{\eta}</span> (the normalizing constant)<sup>1</sup> is intractable for most networks, so estimation requires simulation.</li>
+<li class="fragment">Simulation is efficient via the <strong>conditional distribution</strong> of a dyad given the rest of the network (a logit model!):</li>
+</ul>
+<div class="fragment" style="font-size: 80%">
+<p><span class="math display">
+{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}_{ij}{=}1\vphantom{\mathbf{Y}_{-ij}; \boldsymbol{\theta}}\;\right|\left.\vphantom{\mathbf{Y}_{ij}{=}1}\mathbf{Y}_{-ij}; \boldsymbol{\theta}\right\}}
+= \frac{1}{1 + \text{exp}\left\{-{\boldsymbol{\theta}}^\mathbf{t}\textcolor{purple}{\delta_{ij}}\right\}}
+</span></p>
+<p>where <span style="font-size: 80%"><span class="math inline">\textcolor{purple}{\delta_{ij} = s\left(\mathbf{Y}_{ij}^{+}\right) - s\left(\mathbf{Y}_{ij}^{-}\right)}</span></span> is how much each statistic changes when the tie <span class="math inline">i \to j</span> is added.</p>
+</div>
+<aside><ol class="aside-footnotes"><li id="fn1"><p>Unless you care about small networks (which we do: <span class="citation" data-cites="yon2019exponential">Vega Yon et al. (<a href="#/references" role="doc-biblioref" onclick="">2021</a>)</span>; <span class="citation" data-cites="ergmito">Vega Yon and Haye (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span>; <span class="citation" data-cites="defm">Vega Yon (<a href="#/references" role="doc-biblioref" onclick="">2026a</a>)</span>; <span class="citation" data-cites="vegayonDiscreteExponentialFamilyModels2022">Vega Yon et al. (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span>).</p></li></ol></aside></section>
 <section id="reading-the-coefficients" class="slide level2 semi" data-menu-title="Interpretation">
 <h2>Reading the coefficients</h2>
-<!-- [1:30 | 8:30] The bridge to something the audience already knows. -->
-<p>Hold the rest of the network fixed and look at <strong>one</strong> pair <span class="math inline">(i, j)</span>:</p>
-<p><span class="math display">
-\text{logit}\; {\mathbb{P}_{}\left\{Y_{ij} = 1\vphantom{\text{rest of the network}}\;\right|\left.\vphantom{Y_{ij} = 1}\text{rest of the network}\right\}}
-= {\boldsymbol{\theta}}^\mathbf{t}\,\textcolor{purple}{\delta_{ij}(\mathbf{y})}
-</span></p>
-<p>where <span class="math inline">\textcolor{purple}{\delta_{ij}}</span> is how much each statistic <strong>changes</strong> when the tie <span class="math inline">i \to j</span> is added.</p>
+<!-- [1:00 | 10:00] The bridge to something the audience already knows. -->
+<p>Because the conditional is a logit, each coefficient is a <strong>log-odds ratio</strong>, holding the rest of the network fixed:</p>
 <ul>
 <li class="fragment"><span class="math inline">\theta_{\text{homophily}} = 1</span>: a tie between two alike nodes has <span class="math inline">e^{1} \approx 2.7</span> times the odds of a tie between two unlike ones.</li>
 <li class="fragment"><span class="math inline">\theta_{\text{mutual}} = 2</span>: a tie that reciprocates an existing one has <span class="math inline">e^{2} \approx 7.4</span> times the odds.</li>
@@ -344,7 +437,7 @@
     }
 );</script>
 <p><span class="math display">
-{\mathbb{P}_{}\left\{\mathbf{Y}= \mathbf{y}; \boldsymbol{\theta}\right\} } = \frac{\text{exp}\left\{\theta_{\text{edges}}\,s_{\text{edges}}(\mathbf{y}) + \theta_{\text{homophily}}\,s_{\text{homophily}}(\mathbf{y}) + \theta_{\text{mutual}}\,s_{\text{mutual}}(\mathbf{y})\right\}}{\eta_{}\left(\boldsymbol{\theta}{}\right)}
+{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}; \boldsymbol{\theta}\right\} } = \frac{\text{exp}\left\{\theta_{\text{edges}}\,s_{\text{edges}}\left(\mathbf{y}\right) + \theta_{\text{homophily}}\,s_{\text{homophily}}\left(\mathbf{y}\right) + \theta_{\text{mutual}}\,s_{\text{mutual}}\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}\right)}
 </span></p>
 <div class="takeaway">
 <p>Simulating is easy: revisit one pair at a time with the logistic formula. The normalizing constant never shows up.</p>
@@ -357,7 +450,7 @@
 <div class="column" style="width:55%;">
 <p>The normalizing constant adds over <strong>every possible network</strong>:</p>
 <p><span class="math display">
-\eta_{}\left(\boldsymbol{\theta}{}\right) = \sum_{\mathbf{y}' \in \mathcal{Y}} \text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s_{}\left(\mathbf{y}'\right)\right\}
+\eta\left(\boldsymbol{\theta}\right) = \sum_{\mathbf{y}' \in \mathcal{Y}} \text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}'\right)\right\}
 </span></p>
 <ul>
 <li class="fragment">A directed network with <span class="math inline">n</span> nodes has <span class="math inline">2^{n(n-1)}</span> possible configurations. With <span class="math inline">n = 10</span>, that is <span class="math inline">2^{90} \approx 10^{27}</span>.</li>
@@ -381,7 +474,7 @@
 <!-- [2:00 | 14:00] Figure 1 of the proposal. Point at the two corners. -->
 <div class="columns">
 <div class="column" style="width:50%;">
-<p><a href="fig/ergm-distributions.webp" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img data-src="fig/ergm-distributions.webp" style="width:95.0%"></a></p>
+<p><a href="fig/ergm-distributions.webp" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img data-src="fig/ergm-distributions.webp" style="width:95.0%"></a></p>
 </div><div class="column" style="width:50%;">
 <ul>
 <li class="fragment">Each dot is a possible network: its share of ties (x) and of triangles (y).</li>
@@ -401,18 +494,22 @@
 </section>
 <section id="fix-what-you-do-not-want-to-model" class="slide level2 compact" data-menu-title="Conditional ERGM">
 <h2>Fix what you do not want to model</h2>
-<!-- [2:00 | 16:00] Equation 2 of the proposal. -->
-<p>Only consider networks with <strong>exactly as many ties as the one we observed</strong>, <span class="math inline">\textcolor{#c0491f}{e}</span>:</p>
-<div style="font-size: 90%">
+<!-- [2:00 | 17:00] k is the edges term; c is the observed number of ties. -->
+<p>Let <span class="math inline">s_{k}\left(\mathbf{y}\right)</span> be the number of ties. Only consider networks with <strong>exactly as many ties as the one we observed</strong>, <span class="math inline">\textcolor{#c0491f}{c}</span>:</p>
+<div style="font-size: 85%">
 <p><span class="math display">
-{\mathbb{P}_{}\left\{\mathbf{Y}= \mathbf{y}\vphantom{s_{\text{edges}}(\mathbf{Y}) = \textcolor{#c0491f}{e};\ \boldsymbol{\theta}}\;\right|\left.\vphantom{\mathbf{Y}= \mathbf{y}}s_{\text{edges}}(\mathbf{Y}) = \textcolor{#c0491f}{e};\ \boldsymbol{\theta}\right\}}
-= \frac{\text{exp}\left\{\theta_{\text{edges}}\textcolor{#c0491f}{e}\right\}\;\text{exp}\left\{{\boldsymbol{\theta}_{\text{rest}}}^\mathbf{t}s_{\text{rest}}\left(\mathbf{y}\right)\right\}}
-       {\text{exp}\left\{\theta_{\text{edges}}\textcolor{#c0491f}{e}\right\}\;\sum_{\mathbf{y}':\, s_{\text{edges}}(\mathbf{y}') = e}\text{exp}\left\{{\boldsymbol{\theta}_{\text{rest}}}^\mathbf{t}s_{\text{rest}}\left(\mathbf{y}'\right)\right\}}
-= \frac{\text{exp}\left\{{\boldsymbol{\theta}_{\text{rest}}}^\mathbf{t}s_{\text{rest}}\left(\mathbf{y}\right)\right\}}{\eta_{e}\left(\boldsymbol{\theta}{}_{\text{rest}}\right)}
+{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}\vphantom{s_{k}\left(\mathbf{Y}\right) = \textcolor{#c0491f}{c};\ \boldsymbol{\theta}}\;\right|\left.\vphantom{\mathbf{Y}= \mathbf{y}}s_{k}\left(\mathbf{Y}\right) = \textcolor{#c0491f}{c};\ \boldsymbol{\theta}\right\}}
+= \frac{\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}\mid s_{k} = \textcolor{#c0491f}{c}\right)}
+= \frac{\text{exp}\left\{\theta_{k}\textcolor{#c0491f}{c}\right\}\;\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}\right)\right\}}
+       {\text{exp}\left\{\theta_{k}\textcolor{#c0491f}{c}\right\}\;\sum_{\mathbf{y}' \in \mathcal{Y}:\, s_{k}\left(\mathbf{y}'\right) = c}\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}'\right)\right\}}
+= \frac{\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}_{-k} \mid s_{k} = \textcolor{#c0491f}{c}\right)}
 </span></p>
 </div>
+<div style="font-size: 85%; color: #666;">
+<p><span class="math inline">\eta\left(\boldsymbol{\theta}\mid s_{k} = c\right) = \sum_{\mathbf{y}' \in \mathcal{Y}:\, s_{k}\left(\mathbf{y}'\right) = c} \text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}'\right)\right\}</span> is the normalizing constant over the networks with <span class="math inline">c</span> ties; <span class="math inline">-k</span> means “all terms but the <span class="math inline">k</span>-th”.</p>
+</div>
 <ul>
-<li class="fragment">The edges coefficient <strong>cancels</strong>. There is one parameter less, and it is the troublesome one.</li>
+<li class="fragment">The edges coefficient, <span class="math inline">\theta_k</span>, <strong>cancels</strong>. There is one parameter less, and it is the troublesome one.</li>
 <li class="fragment">The empty and the complete network are no longer possible outcomes.</li>
 <li class="fragment">It is the idea behind <strong>conditional logistic regression</strong> (matched case–control studies), applied to networks <span class="citation" data-cites="snijders_conditional_2010 pattison_conditional_2013">(<a href="#/references" role="doc-biblioref" onclick="">Snijders 2010</a>; <a href="#/references" role="doc-biblioref" onclick="">Pattison et al. 2013</a>)</span>.</li>
 <li class="fragment">Sometimes it is simply the truth: surveys that cap the number of friends you can name, or brain networks thresholded to a fixed density.</li>
@@ -441,7 +538,7 @@
 );</script>
 <p>Same model, no edges term. Each step <strong>moves</strong> a tie instead of adding or deleting one:</p>
 <p><span class="math display">
-{\mathbb{P}_{}\left\{\text{accept the move}\right\} } = \min\left\{1,\ \text{exp}\left\{{\boldsymbol{\theta}_{\text{rest}}}^\mathbf{t}\left[s_{\text{rest}}\left(\mathbf{y}_{\text{new}}\right) - s_{\text{rest}}\left(\mathbf{y}_{\text{old}}\right)\right]\right\}\right\}
+{\mathbb{P}_{}\left\{\text{accept the move}\right\} } = \min\left\{1,\ \text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}\left[s_{-k}\left(\mathbf{y}_{\text{new}}\right) - s_{-k}\left(\mathbf{y}_{\text{old}}\right)\right]\right\}\right\}
 </span></p>
 <div class="takeaway">
 <p>The number of ties never changes, so the chain cannot drift to the empty or the complete network.</p>
@@ -449,20 +546,20 @@
 </section>
 <section id="what-could-it-cost" class="slide level2" data-menu-title="The two questions">
 <h2>What could it cost?</h2>
-<!-- [1:30 | 19:00] Equation 3 of the proposal. This is the spine of the
-     rest of the talk. -->
+<!-- [1:30 | 20:00] The factorization as written in the paper. This is the
+     spine of the rest of the talk. -->
 <p>The full model is the conditional model <strong>times</strong> the model for the edge count:</p>
 <p><span class="math display">
-{\mathbb{P}_{}\left\{\mathbf{Y}= \mathbf{y}; \boldsymbol{\theta}\right\} } =
-\underbrace{{\mathbb{P}_{}\left\{\mathbf{Y}= \mathbf{y}\vphantom{s_{\text{edges}} = e;\ \boldsymbol{\theta}_{\text{rest}}}\;\right|\left.\vphantom{\mathbf{Y}= \mathbf{y}}s_{\text{edges}} = e;\ \boldsymbol{\theta}_{\text{rest}}\right\}}}_{\text{Conditional ERGM}}
+{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}; \boldsymbol{\theta}\right\} } =
+\underbrace{\frac{\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}\mid s_{k} = c\right)}}_{\text{Conditional}}
 \times
-\underbrace{{\mathbb{P}_{}\left\{s_{\text{edges}}(\mathbf{Y}) = e;\ \boldsymbol{\theta}\right\} }}_{\text{Marginal: how many ties}}
+\underbrace{\frac{\eta\left(\boldsymbol{\theta}\mid s_{k} = c\right)}{\eta\left(\boldsymbol{\theta}\right)}}_{\text{Marginal: how many ties}}
 </span></p>
 <p>Fitting only the first factor throws the second away. Maximizing one is <strong>not</strong> the same as maximizing the product.</p>
 <div class="columns">
 <div class="column fragment" style="width:50%;">
 <h3 id="question-1">Question 1</h3>
-<p>Does the edge count tell us anything about <span class="math inline">\boldsymbol{\theta}_{\text{rest}}</span>?</p>
+<p>Does the edge count tell us anything about <span class="math inline">\boldsymbol{\theta}_{-k}</span>?</p>
 <p><em>How much <strong>information</strong> do we lose?</em></p>
 </div><div class="column fragment" style="width:50%;">
 <h3 id="question-2">Question 2</h3>
@@ -535,17 +632,19 @@
 </section>
 <section id="splitting-the-log-likelihood" class="slide level2 semi" data-menu-title="Likelihood decomposition">
 <h2>Splitting the log-likelihood</h2>
-<!-- [2:00 | 22:00] Everything in this part is evaluated AT the true
+<!-- [2:00 | 23:00] Everything in this part is evaluated AT the true
      parameter, by simulation only -- no model is fit. -->
 <p>Taking logs of the factorization, at the <strong>true</strong> parameter:</p>
 <p><span class="math display">
-\ell_{\text{full}} \;=\; \underbrace{\ell_{\text{cond}}}_{\text{which network, given its edge count}} \;+\; \underbrace{\ell_{\text{marg}}}_{\text{the edge count}}
+l\left(\boldsymbol{\theta}\right) \;=\;
+\underbrace{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}\right) - \text{log}\left\{\eta\left(\boldsymbol{\theta}\mid s_{k} = c\right)\right\}}_{l_{\text{cond}}:\ \text{which network, given its edge count}}
+\;+\;
+\underbrace{\text{log}\left\{\eta\left(\boldsymbol{\theta}\mid s_{k} = c\right)\right\} - \text{log}\left\{\eta\left(\boldsymbol{\theta}\right)\right\}}_{l_{\text{marg}}:\ \text{the edge count}}
 </span></p>
 <ul>
 <li class="fragment">No model is fit here. We only <strong>simulate</strong> at the true parameter, on the same networks as the main experiment (<span class="math inline">M = 1</span> and <span class="math inline">5</span>).</li>
-<li class="fragment"><span class="math inline">\ell_{\text{marg}} = \text{log}\,{\mathbb{P}_{}\left\{s_{\text{edges}} = e\right\} }</span> is read off draws from the full model.</li>
 <li class="fragment">The marginal piece is about <strong><span class="math inline">-4</span> nats per network</strong> at every density: the observed edge count has probability <span class="math inline">\approx e^{-4} \approx 0.02</span>.</li>
-<li class="fragment"><span class="math inline">\ell_{\text{cond}}</span> runs in the <strong>hundreds to thousands</strong> of nats: it grows with the number of pairs, the marginal piece with its logarithm.</li>
+<li class="fragment"><span class="math inline">l_{\text{cond}}</span> runs in the <strong>hundreds to thousands</strong> of nats: it grows with the number of pairs, the marginal piece with its logarithm.</li>
 </ul>
 <div class="takeaway fragment">
 <p>The edge count carries a fraction of a percent of the log-likelihood. But that is mostly size. The real question is what it says about the <strong>coefficients</strong>.</p>
@@ -553,30 +652,27 @@
 </section>
 <section id="the-right-yardstick-fisher-information" class="slide level2 compact" data-menu-title="Information identity">
 <h2>The right yardstick: Fisher information</h2>
-<!-- [2:00 | 24:00] Say it in words: the full model ALREADY pays for not
+<!-- [2:00 | 25:00] Say it in words: the full model ALREADY pays for not
      knowing the edges coefficient. The fair comparison is against that. -->
-<p>How precisely can each model pin down <span class="math inline">\boldsymbol{\theta}_{\text{rest}}</span>?</p>
+<p>How precisely can each model pin down <span class="math inline">\boldsymbol{\theta}_{-k}</span>? Write <span class="math inline">S_k = s_{k}\left(\mathbf{Y}\right)</span> for the edge count and <span class="math inline">S_{-k} = s_{-k}\left(\mathbf{Y}\right)</span> for the other statistics.</p>
 <div class="columns">
 <div class="column fragment" style="width:50%;">
 <h3 id="full-model">Full model</h3>
-<p>It must also estimate <span class="math inline">\theta_{\text{edges}}</span>, which costs precision. What is left is the <strong>efficient information</strong>:</p>
+<p>It must also estimate <span class="math inline">\theta_{k}</span>, which costs precision. What is left is the <strong>efficient information</strong>:</p>
 <p><span class="math display">
-I_{\text{eff}} = \text{Var}(G) - \frac{\text{Cov}(G, E)\,\text{Cov}(E, G)}{\text{Var}(E)}
+I_{\text{eff}} = \text{Var}\left\{S_{-k}\right\} - \frac{\text{Cov}\left\{S_{-k},\, S_k\right\}\,\text{Cov}\left\{S_k,\, S_{-k}\right\}}{\text{Var}\left\{S_k\right\}}
 </span></p>
 </div><div class="column fragment" style="width:50%;">
 <h3 id="conditional-model">Conditional model</h3>
 <p>The variability of the statistics <strong>within</strong> an edge count, averaged over edge counts:</p>
 <p><span class="math display">
-I_{\text{cond}} = \mathbb{E}\left[\text{Var}(G \mid E)\right]
+I_{\text{cond}} = {\mathbb{E}\left\{\text{Var}\left\{S_{-k}\vphantom{S_k}\right|\left.\vphantom{S_{-k}}S_k\right\}\right\}}
 </span></p>
 </div></div>
-<div style="font-size: 85%; color: #666;">
-<p><span class="math inline">E</span>: the edge count. <span class="math inline">G</span>: the other statistics. <span class="math inline">m(E) = \mathbb{E}[G \mid E]</span>. <span class="math inline">B</span>: the slope of <span class="math inline">G</span> on <span class="math inline">E</span>.</p>
-</div>
 <div class="fragment">
-<p>The difference is exact:</p>
+<p>The difference is exact, with <span class="math inline">m(S_k) = {\mathbb{E}\left\{S_{-k}\vphantom{S_k}\right|\left.\vphantom{S_{-k}}S_k\right\}}</span> and <span class="math inline">B</span> the slope of <span class="math inline">S_{-k}</span> on <span class="math inline">S_k</span>:</p>
 <p><span class="math display">
-I_{\text{eff}} - I_{\text{cond}} = \text{Var}\bigl(m(E) - B\,E\bigr)
+I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </span></p>
 </div>
 <div class="takeaway fragment">
@@ -588,7 +684,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\bigl(m(E) - B\,E\bigr)
 <!-- [1:30 | 25:30] Line = median sample, band = 10th to 90th percentile. -->
 <div class="columns">
 <div class="column" style="width:62%;">
-<p><a href="fig/info-mutual-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img data-src="fig/info-mutual-gwesp.png" style="width:100.0%"></a></p>
+<p><a href="fig/info-mutual-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="fig/info-mutual-gwesp.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Directed model with homophily, mutual and gwesp. Line: median sample. Band: 10th to 90th percentile. 500 samples per panel.</p>
 </div>
@@ -610,7 +706,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\bigl(m(E) - B\,E\bigr)
      bottom four do not. -->
 <div class="columns">
 <div class="column" style="width:70%;">
-<p><a href="fig/info-loss.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="fig/info-loss.png" style="width:100.0%"></a></p>
+<p><a href="fig/info-loss.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img data-src="fig/info-loss.png" style="width:100.0%"></a></p>
 </div><div class="column" style="width:30%;">
 <div class="fragment">
 <h3 id="loses-little">Loses little</h3>
@@ -640,7 +736,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\bigl(m(E) - B\,E\bigr)
 <h3 id="what-does-not-yet">What does not (yet)</h3>
 <ul>
 <li class="fragment"><strong>Not identified.</strong> In up to a fifth of the samples a coefficient has no information at all under <em>either</em> model: the drawn coefficients freeze the network.</li>
-<li class="fragment"><strong><span class="math inline">\ell_{\text{cond}}</span> itself</strong> is not estimated reliably when the clustering coefficient is negative; the simulation path behaves like a phase transition. See the <a href="#/conditional-bridges">&lt;details&gt;</a>.</li>
+<li class="fragment"><strong><span class="math inline">l_{\text{cond}}</span> itself</strong> is not estimated reliably when the clustering coefficient is negative; the simulation path behaves like a phase transition. See the <a href="#/conditional-bridges">&lt;details&gt;</a>.</li>
 <li class="fragment"><strong>Local.</strong> Information at the truth is about precision in large samples. It says nothing about bias or about whether a fit converges.</li>
 </ul>
 </div></div>
@@ -713,7 +809,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\bigl(m(E) - B\,E\bigr)
 <section id="results-more-networks-same-story" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: by M">
 <h2>Results: more networks, same story</h2>
 <!-- [1:30 | 33:30] The third panel is the consistency picture. -->
-<p><a href="fig/sim-by-m.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img data-src="fig/sim-by-m.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-by-m.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img data-src="fig/sim-by-m.png" style="width:100.0%"></a></p>
 <ul>
 <li class="fragment"><strong>Consistency.</strong> The error falls from 0.34 with one network to 0.10 with twenty, at the same rate in both models.</li>
 <li class="fragment"><strong>Time.</strong> The gap widens with <span class="math inline">M</span>: 2 minutes against 4 with twenty networks.</li>
@@ -723,7 +819,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\bigl(m(E) - B\,E\bigr)
 <section id="results-model-by-model" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: by model">
 <h2>Results: model by model</h2>
 <!-- [1:30 | 35:00] -->
-<p><a href="fig/sim-by-experiment.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img data-src="fig/sim-by-experiment.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-by-experiment.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="fig/sim-by-experiment.png" style="width:100.0%"></a></p>
 <ul>
 <li class="fragment">The gain in convergence is largest where fitting is hardest: degree terms (+13 points) and an estimated decay (+12 points).</li>
 <li class="fragment">With <code>gwesp + gwnsp</code>, the unconditional intervals cover the truth 81% of the time; the conditional ones, 92%.</li>
@@ -735,7 +831,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\bigl(m(E) - B\,E\bigr)
 <!-- [1:30 | 36:30] Table 3c of the report + appendix A1. -->
 <div class="columns">
 <div class="column" style="width:60%;">
-<p><a href="fig/sim-density.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="fig/sim-density.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-density.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/sim-density.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Directed model with homophily, mutual and gwesp; all <span class="math inline">M</span>.</p>
 </div>
@@ -871,6 +967,8 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\bigl(m(E) - B\,E\bigr)
 </section>
 <section id="thank-you" class="slide level2 center" data-menu-title="Thank you">
 <h2>Thank you!</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
 <div style="font-size: 1.3em;">
 <p>Conditional Exponential-Family Random Graph Models</p>
 </div>
@@ -879,6 +977,61 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\bigl(m(E) - B\,E\bigr)
 <p>Division of Epidemiology<br>University of Utah</p>
 <p><i class="fa-solid fa-globe" aria-label="globe"></i> <a href="https://ggvy.cl" class="uri">https://ggvy.cl</a></p>
 </div>
+</div><div class="column" style="width:50%;">
+<!-- Same research map as the opening slide: bookends the talk and leaves
+     the collaboration areas on screen during questions. -->
+<div class="cell" data-reveal="true" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class=""><p></p>
+<div>
+<pre class="mermaid mermaid-js">---
+config:
+  htmlLabels: false
+---
+%% htmlLabels:false is load-bearing, not cosmetic. With HTML labels mermaid
+%% sizes each box from getBoundingClientRect(), which reveal's slide-scaling
+%% transform multiplies -- every box comes out ~40% too narrow and every label
+%% is clipped. SVG labels are measured with getBBox(), which the transform
+%% does not touch. (Labels still wrap at 200px either way.) The price is that
+%% mermaid then never centres them, so style.scss re-anchors the text; see
+%% "Research-map mindmap" there. No themeVariables.fontSize either: the SVG is
+%% scaled to the slide, which grows boxes and text together anyway.
+%%
+%% Mindmaps have no `classDef` -- the palette for `branch` / `today` also
+%% lives in style.scss. Two syntax traps: `:::class` must sit on its OWN line
+%% under the node it decorates (`node:::x` is a parse error), and a bare node
+%% label cannot contain parentheses, hence the quoted `["..."]` form on the
+%% leaves. The layout is force-directed: identical on every load at a given
+%% window size, but it can settle into a different arrangement on a screen of
+%% a different shape. Check it on the room's projector, not just your laptop.
+mindmap
+  root(("Statistical&lt;br&gt;computing and&lt;br&gt;scientific&lt;br&gt;software"))
+    NS(Network science)
+    :::branch
+      E1["Applied ERGMs"]
+      E2["Other graphical&lt;br&gt;models"]
+      E3["ERGM methods"]
+      :::today
+      E4["Social Influence"]
+    PH(Public health)
+    :::branch
+      P1["Measles"]
+      P2["Agent-Based Models"]
+      P3["Mechanistic Machine&lt;br&gt;Learning"]
+      P4["Economic Impact"]
+    OTH(Other domains)
+    :::branch
+      O1["Genomics"]
+      O2["Quantum&lt;br&gt;Computing"]
+
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</div></div>
 </section></section>
 <section>
 <section id="appendix" class="title-slide slide level1 center" data-visibility="uncounted" data-background-color="#00707a">
@@ -887,23 +1040,23 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\bigl(m(E) - B\,E\bigr)
 </section>
 <section id="information-algebra" class="slide level2 compact" data-visibility="uncounted" data-menu-title="Information: algebra">
 <h2>The information identity</h2>
-<p>One network, edges coefficient unknown. <span class="math inline">E</span>: edge count; <span class="math inline">G</span>: the other statistics; <span class="math inline">m(E) = \mathbb{E}[G \mid E]</span>; <span class="math inline">B = \text{Cov}(G, E) / \text{Var}(E)</span>.</p>
+<p>One network, edges coefficient <span class="math inline">\theta_k</span> unknown. <span class="math inline">S_k = s_{k}\left(\mathbf{Y}\right)</span>: edge count; <span class="math inline">S_{-k} = s_{-k}\left(\mathbf{Y}\right)</span>: the other statistics; <span class="math inline">m(S_k) = {\mathbb{E}\left\{S_{-k}\vphantom{S_k}\right|\left.\vphantom{S_{-k}}S_k\right\}}</span>; <span class="math inline">B = \text{Cov}\left\{S_{-k},\, S_k\right\} / \text{Var}\left\{S_k\right\}</span>.</p>
 <ol type="1">
-<li><p>The law of total covariance gives <span class="math inline">\text{Var}(G) = \mathbb{E}[\text{Var}(G \mid E)] + \text{Var}(m(E)) = I_{\text{cond}} + \text{Var}(m(E))</span>.</p></li>
-<li><p>Since <span class="math inline">\text{Cov}(m(E), E) = \text{Cov}(G, E)</span>,</p></li>
+<li><p>The law of total covariance gives <span class="math inline">\text{Var}\left\{S_{-k}\right\} = {\mathbb{E}\left\{\text{Var}\left\{S_{-k}\vphantom{S_k}\right|\left.\vphantom{S_{-k}}S_k\right\}\right\}} + \text{Var}\left\{m(S_k)\right\} = I_{\text{cond}} + \text{Var}\left\{m(S_k)\right\}</span>.</p></li>
+<li><p>Since <span class="math inline">\text{Cov}\left\{m(S_k),\, S_k\right\} = \text{Cov}\left\{S_{-k},\, S_k\right\}</span>,</p></li>
 </ol>
 <p><span class="math display">
-\text{Var}\bigl(m(E) - BE\bigr) = \text{Var}(m(E)) - B\,\text{Var}(E)\,{B}^\mathbf{t}.
+\text{Var}\left\{m(S_k) - B S_k\right\} = \text{Var}\left\{m(S_k)\right\} - B\,\text{Var}\left\{S_k\right\}\,{B}^\mathbf{t}.
 </span></p>
 <ol start="3" type="1">
 <li>Subtracting,</li>
 </ol>
 <p><span class="math display">
-I_{\text{eff}} - I_{\text{cond}} = \text{Var}(G) - B\,\text{Var}(E)\,{B}^\mathbf{t} - I_{\text{cond}} = \text{Var}\bigl(m(E) - BE\bigr) \succeq 0.
+I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{S_{-k}\right\} - B\,\text{Var}\left\{S_k\right\}\,{B}^\mathbf{t} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B S_k\right\} \succeq 0.
 </span></p>
 <ul>
 <li class="fragment">No orthogonality between edges and the other parameters is needed: the cancellation is exact.</li>
-<li class="fragment">If <span class="math inline">G</span> itself is a linear function of <span class="math inline">E</span>, both sides are zero: equal information does not mean the coefficient can be estimated.</li>
+<li class="fragment">If <span class="math inline">S_{-k}</span> itself is a linear function of <span class="math inline">S_k</span>, both sides are zero: equal information does not mean the coefficient can be estimated.</li>
 <li class="fragment">With several networks and a shared size effect, the full sample’s information is assembled first and the nuisance block removed once.</li>
 </ul>
 <div class="absolute" style="font-size: 80%; color: #666;bottom: 0px; right: 0px; ">
@@ -912,7 +1065,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}(G) - B\,\text{Var}(E)\,{B}^\mathbf
 </section>
 <section id="conditional-bridges" class="slide level2 compact" data-visibility="uncounted" data-menu-title="Conditional bridges">
 <h2>Estimating the conditional log-likelihood</h2>
-<p><span class="math inline">\ell_{\text{cond}}</span> needs a sum over all networks with <span class="math inline">e</span> edges. We bridge from the uniform distribution (<span class="math inline">\boldsymbol{\theta}_{\text{rest}} = 0</span>, where the sum is known) to the true parameter, forward and in reverse. If a chain only lags, the two directions bracket the value and the gap closes with effort.</p>
+<p><span class="math inline">l_{\text{cond}}</span> needs <span class="math inline">\eta\left(\boldsymbol{\theta}\mid s_{k} = c\right)</span>, a sum over all networks with <span class="math inline">c</span> edges. We bridge from the uniform distribution (<span class="math inline">\boldsymbol{\theta}_{-k} = 0</span>, where the sum is known) to the true parameter, forward and in reverse. If a chain only lags, the two directions bracket the value and the gap closes with effort.</p>
 <table class="caption-top">
 <colgroup>
 <col style="width: 25%">
@@ -942,7 +1095,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}(G) - B\,\text{Var}(E)\,{B}^\mathbf
 <td style="text-align: right;">76</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Negative <code>gwesp</code>, <span class="math inline">\hat\ell_{\text{cond}} &gt; 0</span></td>
+<td style="text-align: left;">Negative <code>gwesp</code>, <span class="math inline">\hat{l}_{\text{cond}} &gt; 0</span></td>
 <td style="text-align: right;">2,613</td>
 <td style="text-align: right;">2,414</td>
 <td style="text-align: right;">2,318</td>
@@ -953,7 +1106,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}(G) - B\,\text{Var}(E)\,{B}^\mathbf
 <p>Median gap between the forward and reverse bridges, in nats.</p>
 </div>
 <ul>
-<li>With fewer triangles than chance at a fixed edge count, the forward path does not cross: 362 of 2,999 networks had an impossible <span class="math inline">\ell_{\text{cond}} &gt; 0</span>, all with a negative <code>gwesp</code> coefficient.</li>
+<li>With fewer triangles than chance at a fixed edge count, the forward path does not cross: 362 of 2,999 networks had an impossible <span class="math inline">l_{\text{cond}} &gt; 0</span>, all with a negative <code>gwesp</code> coefficient.</li>
 <li>The information results do not use these bridges.</li>
 </ul>
 <div class="absolute" style="font-size: 80%; color: #666;bottom: 0px; right: 0px; ">
@@ -1110,7 +1263,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}(G) - B\,\text{Var}(E)\,{B}^\mathbf
 </div><div class="column" style="width:55%;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/experiment2_gof_bias.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-12" title="Bias in the predicted distribution of shortest paths"><img data-src="fig/experiment2_gof_bias.svg" style="width:100.0%" alt="Bias in the predicted distribution of shortest paths"></a></p>
+<p><a href="fig/experiment2_gof_bias.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-13" title="Bias in the predicted distribution of shortest paths"><img data-src="fig/experiment2_gof_bias.svg" style="width:100.0%" alt="Bias in the predicted distribution of shortest paths"></a></p>
 <figcaption>Bias in the predicted distribution of shortest paths</figcaption>
 </figure>
 </div>
@@ -1126,7 +1279,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}(G) - B\,\text{Var}(E)\,{B}^\mathbf
 </blockquote>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/power-rejoinder.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-13" title="Figure 1 adapted from @krivitskyRejoinderDiscussionTale2023: empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."><img data-src="fig/power-rejoinder.svg" class="" style="width:65.0%" alt="Figure 1 adapted from Krivitsky et al. (2023): empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."></a></p>
+<p><a href="fig/power-rejoinder.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-14" title="Figure 1 adapted from @krivitskyRejoinderDiscussionTale2023: empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."><img data-src="fig/power-rejoinder.svg" class="" style="width:65.0%" alt="Figure 1 adapted from Krivitsky et al. (2023): empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."></a></p>
 <figcaption>Figure 1 adapted from <span class="citation" data-cites="krivitskyRejoinderDiscussionTale2023">Krivitsky et al. (<a href="#/references" role="doc-biblioref" onclick="">2023</a>)</span>: empirical power for detecting a gender homophily effect (<span class="math inline">\theta_{\text{homophily}} = 1.1</span>) as a function of the number of networks, each with 8 nodes and 20 edges.</figcaption>
 </figure>
 </div>
@@ -1164,9 +1317,25 @@ Snijders, Tom A. B., Philippa E. Pattison, Garry L. Robins, and Mark S. Handcock
 <div id="ref-vegayonPowerMulticollinearitySmall2023a" class="csl-entry" role="listitem">
 Vega Yon, George G. 2023. <span>“Power and Multicollinearity in Small Networks: A Discussion of <span>‘Tale of Two Datasets: Representativeness and Generalisability of Inference for Samples of Networks’</span> by Krivitsky, Coletti, and Hens.”</span> <em>Journal of the American Statistical Association</em> 118 (544): 2228–31. <a href="https://doi.org/10.1080/01621459.2023.2252041">https://doi.org/10.1080/01621459.2023.2252041</a>.
 </div>
+<div id="ref-defm" class="csl-entry" role="listitem">
+Vega Yon, George G. 2026a. <em>Defm: Estimation and Simulation of Multi-Binary Response Models</em>. <a href="https://doi.org/10.32614/CRAN.package.defm">https://doi.org/10.32614/CRAN.package.defm</a>.
+</div>
+<div id="ref-tabulergm" class="csl-entry" role="listitem">
+Vega Yon, George G. 2026b. <em>Tabulergm: Publication-Ready Tables and Summaries for Exponential-Family Random Graph Models</em>. <a href="https://doi.org/10.32614/CRAN.package.tabulergm">https://doi.org/10.32614/CRAN.package.tabulergm</a>.
+</div>
+<div id="ref-ergmito" class="csl-entry" role="listitem">
+Vega Yon, George G., and Kayla de la Haye. 2025. <em>Ergmito: Exponential Random Graph Models for Small Networks</em>. <a href="https://doi.org/10.32614/CRAN.package.ergmito">https://doi.org/10.32614/CRAN.package.ergmito</a>.
+</div>
+<div id="ref-vegayonDiscreteExponentialFamilyModels2022" class="csl-entry" role="listitem">
+Vega Yon, George G., Mary Jo Pugh, and Thomas W. Valente. 2022. <em>Discrete Exponential-Family Models for Multivariate Binary Outcomes</em>. arXiv:2211.00627. arXiv. <a href="https://doi.org/10.48550/arXiv.2211.00627">https://doi.org/10.48550/arXiv.2211.00627</a>.
+</div>
+<div id="ref-yon2019exponential" class="csl-entry" role="listitem">
+Vega Yon, George G., Andrew Slaughter, and Kayla de la Haye. 2021. <span>“Exponential Random Graph Models for Little Networks.”</span> <em>Social Networks</em> 64: 225–38. <a href="https://doi.org/10.1016/j.socnet.2020.07.005">https://doi.org/10.1016/j.socnet.2020.07.005</a>.
+</div>
 </div>
 
 </section></section>
+
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">

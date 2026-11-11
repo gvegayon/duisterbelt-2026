@@ -1,0 +1,39 @@
+---
+config:
+  htmlLabels: false
+---
+%% htmlLabels:false is load-bearing, not cosmetic. With HTML labels mermaid
+%% sizes each box from getBoundingClientRect(), which reveal's slide-scaling
+%% transform multiplies -- every box comes out ~40% too narrow and every label
+%% is clipped. SVG labels are measured with getBBox(), which the transform
+%% does not touch. (Labels still wrap at 200px either way.) The price is that
+%% mermaid then never centres them, so style.scss re-anchors the text; see
+%% "Research-map mindmap" there. No themeVariables.fontSize either: the SVG is
+%% scaled to the slide, which grows boxes and text together anyway.
+%%
+%% Mindmaps have no `classDef` -- the palette for `branch` / `today` also
+%% lives in style.scss. Two syntax traps: `:::class` must sit on its OWN line
+%% under the node it decorates (`node:::x` is a parse error), and a bare node
+%% label cannot contain parentheses, hence the quoted `["..."]` form on the
+%% leaves. The layout is force-directed: identical on every load at a given
+%% window size, but it can settle into a different arrangement on a screen of
+%% a different shape. Check it on the room's projector, not just your laptop.
+mindmap
+  root(("Statistical<br>computing and<br>scientific<br>software"))
+    NS(Network science)
+    :::branch
+      E1["Applied ERGMs"]
+      E2["Other graphical<br>models"]
+      E3["ERGM methods"]
+      :::today
+      E4["Social Influence"]
+    PH(Public health)
+    :::branch
+      P1["Measles"]
+      P2["Agent-Based Models"]
+      P3["Mechanistic Machine<br>Learning"]
+      P4["Economic Impact"]
+    OTH(Other domains)
+    :::branch
+      O1["Genomics"]
+      O2["Quantum<br>Computing"]
