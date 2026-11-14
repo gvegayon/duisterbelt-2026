@@ -207,10 +207,6 @@
 <p>% Deck-only additions (not in the paper yet), in the same brace style. </p>
 <p>$$</p>
 </div>
-<!-- Keep this slide first: the block above defines the math macros for the
-     whole deck. Same map as the nsi-sep2026 talk, with today's topic (ERGM
-     methods) highlighted. The point for this audience is the breadth: where
-     a collaboration could start. [1:30 | 1:30] -->
 <div class="cell" data-reveal="true" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -268,37 +264,12 @@ mindmap
 </section>
 <section id="today" class="slide level2" data-menu-title="Roadmap">
 <h2>Today</h2>
-<!-- TIMING CONTRACT (content before the first heading becomes an empty
-     slide, so this lives here). (45-minute slot, designed to ~43:00)
-       Opening (map + roadmap)      3:00   ->  3:00
-       Part 1  What is an ERGM     14:00   -> 17:00
-       Part 2  Conditioning         6:00   -> 23:00
-       Part 3  Information          9:00   -> 32:00
-       Part 4  Simulation study     9:00   -> 41:00
-       Closing                      2:00   -> 43:00
-     The per-slide [budget | clock] comments after the research map are from
-     the 40-minute version: add ~3:00 to each clock. If running long, cut
-     "Reading the coefficients" (its point is on the ERGMs slide) and "Why
-     fits fail".
-     Notation: the paper's (notation.tex is a KaTeX port of
-     notation-paper.tex).
-     Sources: ../../research/ergm-cond-consistency/experiment-loglik/report.md
-     (Part 3) and report/report.md (Part 4). Figures: scripts/figures.R. -->
-<!-- [1:00 | 1:00] -->
-<div style="font-size: 125%;">
-<blockquote>
-<p>Many network models are hard to fit. If we stop modeling <strong>how many</strong> ties there are, do we lose anything about <strong>how</strong> they are arranged?</p>
-</blockquote>
-</div>
 <ol type="1">
-<li class="fragment"><strong>What is an ERGM?</strong> A statistical model for why ties form, and why fitting it is hard.</li>
-<li class="fragment"><strong>Conditioning on the edge count.</strong> What it is, and what it could cost.</li>
-<li class="fragment"><strong>How much information do we lose?</strong> The likelihood, split in two.</li>
-<li class="fragment"><strong>Does it work in practice?</strong> A simulation study with about 10,000 samples of networks.</li>
+<li class="fragment"><strong>What is an ERGM?</strong></li>
+<li class="fragment"><strong>Conditioning on the edge count.</strong></li>
+<li class="fragment"><strong>How much information do we lose?</strong></li>
+<li class="fragment"><strong>Does it work in practice?</strong></li>
 </ol>
-<div class="fragment" style="font-size: 80%; color: #666;">
-<p>Everything from part 3 on is <strong>preliminary</strong>.</p>
-</div>
 </section>
 <section>
 <section id="part-1-what-is-an-ergm" class="title-slide slide level1 center" data-background-color="#00707a">
@@ -307,8 +278,7 @@ mindmap
 </section>
 <section id="why-model-a-network" class="slide level2 compact" data-menu-title="Why model networks">
 <h2>Why model a network?</h2>
-<!-- [1:30 | 3:30] From the Significance section of the proposal. -->
-<p>Seeing a pattern in a network is easy. Saying <strong>what produced it</strong> is not.</p>
+<p>We want to do more than describe or draw a network; we want to <strong>explain it</strong>.</p>
 <div class="columns">
 <div class="column fragment" style="width:33%;">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c2066612070656f706c652d67726f7570203e7d7d-public-health"><i class="fa-solid fa-people-group" aria-label="people-group"></i> Public health</h3>
@@ -316,60 +286,65 @@ mindmap
 <p>Contact networks, vaccination behavior, health-care teams.</p>
 </div><div class="column fragment" style="width:33%;">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20666120627261696e203e7d7d-neuroscience"><i class="fa-solid fa-brain" aria-label="brain"></i> Neuroscience</h3>
-<p>Are two brain regions connected beyond what their location predicts?</p>
+<p>What connectivity patterns characterize a healthy brain? Do diseases alter them?</p>
 <p>Whole-brain connectivity from fMRI <span class="citation" data-cites="simpson_exponential_2011">(<a href="#/references" role="doc-biblioref" onclick="">Simpson et al. 2011</a>)</span>.</p>
 </div><div class="column fragment" style="width:33%;">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20666120646e61203e7d7d-biology"><i class="fa-solid fa-dna" aria-label="dna"></i> Biology</h3>
-<p>Do genes that regulate each other also share regulators?</p>
+<p>What patterns of interaction are typical of a protein network?</p>
 <p>Protein–protein and gene-regulatory networks.</p>
 </div></div>
 <div class="takeaway fragment">
 <p>In a network, ties depend on each other. Regression assumes they do not. Exponential-family Random Graph Models (ERGMs) are built for the dependence.</p>
 </div>
 </section>
-<section id="the-model-in-one-equation" class="slide level2" data-menu-title="ERGM equation">
-<h2>The model in one equation</h2>
-<!-- [1:30 | 5:30] Walk the colors: data, parameters, statistics, constant,
-     support. Figure: scripts/parts-of-ergm.R. -->
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:85.0%"></a></p>
-</figure>
+<section id="ergms" class="slide level2 compact">
+<h2>ERGMs</h2>
+<p>Exponential-family Random Graph Models (ERGMs or ERG Models) provide a parametric representation of the distribution of <span class="math inline">\mathbf{y}\in \mathcal{Y}</span>.</p>
+<div style="font-size: 80%">
+<p><span class="math display">
+{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}; \boldsymbol{\theta}\right\} } = \frac{\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}\textcolor{green}{s\left(\mathbf{y}\right)}\right\}}{\textcolor{red}{\eta\left(\boldsymbol{\theta}\right)}},\quad\mathbf{y}\in\mathcal{Y}\qquad
+\textcolor{red}{\eta\left(\boldsymbol{\theta}\right)}  = \sum_{\mathbf{y}'\in\mathcal{Y}}\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}\textcolor{green}{s\left(\mathbf{y}'\right)}\right\}
+</span></p>
 </div>
 <ul>
-<li class="fragment">A network is <strong>one draw</strong> from a distribution over all possible networks, <span class="math inline">\mathcal{Y}</span>.</li>
-<li class="fragment">Networks with more of the features we count are more (or less) likely, depending on the sign of <span class="math inline">\boldsymbol{\theta}</span>.</li>
-<li class="fragment">It is the same family as logistic regression, with the whole network as the outcome <span class="citation" data-cites="Hunter2008">(<a href="#/references" role="doc-biblioref" onclick="">Hunter et al. 2008</a>)</span>.</li>
+<li class="fragment"><span class="math inline">\textcolor{green}{s\left(\mathbf{y}\right)}</span> is the key: it captures the essential features of the network structure.</li>
+<li class="fragment"><span class="math inline">\textcolor{red}{\eta}</span> (the normalizing constant)<sup>1</sup> is intractable for most networks– <span class="math inline">O\left(2^{n^2}\right)</span> possible networks for <span class="math inline">n</span> nodes.</li>
+<li class="fragment">Simulation is efficient via the <strong>conditional distribution</strong> of a dyad given the rest of the network (a logit model!):</li>
 </ul>
-</section>
+<div class="fragment">
+<p><span class="math display">
+{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}_{ij}{=}1\vphantom{\mathbf{Y}_{-ij}; \boldsymbol{\theta}}\;\right|\left.\vphantom{\mathbf{Y}_{ij}{=}1}\mathbf{Y}_{-ij}; \boldsymbol{\theta}\right\}}
+= \frac{1}{1 + \text{exp}\left\{-{\boldsymbol{\theta}}^\mathbf{t}\textcolor{purple}{\delta_{ij}}\right\}}
+</span></p>
+<p>where <span style="font-size: 80%"><span class="math inline">\textcolor{purple}{\delta_{ij} = s\left(\mathbf{Y}_{ij}^{+}\right) - s\left(\mathbf{Y}_{ij}^{-}\right)}</span></span> is how much each statistic changes when the tie <span class="math inline">i \to j</span> is added.</p>
+</div>
+<aside><ol class="aside-footnotes"><li id="fn1"><p>Unless you care about small networks (which we do: <span class="citation" data-cites="yon2019exponential">Vega Yon et al. (<a href="#/references" role="doc-biblioref" onclick="">2021</a>)</span>; <span class="citation" data-cites="ergmito">Vega Yon and Haye (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span>; <span class="citation" data-cites="defm">Vega Yon (<a href="#/references" role="doc-biblioref" onclick="">2026a</a>)</span>; <span class="citation" data-cites="vegayonDiscreteExponentialFamilyModels2022">Vega Yon et al. (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span>).</p></li></ol></aside></section>
 <section id="what-goes-in-sleftmathbfyright-counting-structures" class="slide level2 compact" data-menu-title="Sufficient statistics">
 <h2>What goes in <span class="math inline">s\left(\mathbf{y}\right)</span>: counting structures</h2>
-<!-- [1:30 | 7:00] These five (plus edges) are the terms of today's
-     experiments. Figures from the tabulergm R package. -->
 <p>Each statistic counts a <strong>local structure</strong>. Its coefficient says whether the network has more or fewer of them than chance, given everything else in the model.</p>
 <div class="columns terms-row">
 <div class="column fragment" style="width:20%;">
-<p><a href="fig/term-mutual.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img data-src="fig/term-mutual.png" height="130"></a></p>
+<p><a href="fig/term-mutual.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img data-src="fig/term-mutual.png" height="130"></a></p>
 <h3 id="mutual-ties">Mutual ties</h3>
 <p><code>mutual</code></p>
 <p>“I name you, you name me”</p>
 </div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-nodematch.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img data-src="fig/term-nodematch.png" height="130"></a></p>
+<p><a href="fig/term-nodematch.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img data-src="fig/term-nodematch.png" height="130"></a></p>
 <h3 id="homophily">Homophily</h3>
 <p><code>nodematch</code></p>
 <p>“We are alike”</p>
 </div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img data-src="fig/term-gwesp.png" height="130"></a></p>
+<p><a href="fig/term-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img data-src="fig/term-gwesp.png" height="130"></a></p>
 <h3 id="closure">Closure</h3>
 <p><code>gwesp</code></p>
 <p>“Our friends are friends”</p>
 </div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-gwdsp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img data-src="fig/term-gwdsp.png" height="130"></a></p>
+<p><a href="fig/term-gwdsp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img data-src="fig/term-gwdsp.png" height="130"></a></p>
 <h3 id="shared-partners">Shared partners</h3>
 <p><code>gwdsp</code></p>
 <p>“We know the same people”</p>
 </div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-gwdegree.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img data-src="fig/term-gwdegree.png" height="130"></a></p>
+<p><a href="fig/term-gwdegree.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img data-src="fig/term-gwdegree.png" height="130"></a></p>
 <h3 id="popularity">Popularity</h3>
 <p><code>gwdegree</code></p>
 <p>“Some have many ties”</p>
@@ -381,71 +356,8 @@ mindmap
 <p>The last three are <strong>geometrically weighted</strong>: each additional shared partner (or tie) counts a little less than the one before, which behaves better than raw counts of triangles and stars <span class="citation" data-cites="snijders_new_2006">(<a href="#/references" role="doc-biblioref" onclick="">Snijders et al. 2006</a>)</span>. Figures drawn with <code>tabulergm</code> <span class="citation" data-cites="tabulergm">(<a href="#/references" role="doc-biblioref" onclick="">Vega Yon 2026b</a>)</span>.</p>
 </div>
 </section>
-<section id="ergms" class="slide level2 compact">
-<h2>ERGMs</h2>
-<!-- [2:00 | 9:00] The "ERGMs" slide of the nsi-sep2026 deck, in the paper's
-     notation. -->
-<p>ERGMs provide a parametric representation of the distribution of <span class="math inline">\mathbf{y}\in \mathcal{Y}</span>.</p>
-<div style="font-size: 80%">
-<p><span class="math display">
-\begin{aligned}
-{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}; \boldsymbol{\theta}\right\} } &amp; = \frac{\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}\textcolor{green}{s\left(\mathbf{y}\right)}\right\}}{\textcolor{red}{\eta\left(\boldsymbol{\theta}\right)}},\quad\mathbf{y}\in\mathcal{Y}\\
-\textcolor{red}{\eta\left(\boldsymbol{\theta}\right)} &amp; = \sum_{\mathbf{y}'\in\mathcal{Y}}\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}\textcolor{green}{s\left(\mathbf{y}'\right)}\right\}
-\end{aligned}
-</span></p>
-</div>
-<ul>
-<li class="fragment"><span class="math inline">\textcolor{green}{s\left(\mathbf{y}\right)}</span> is the key: it captures the essential features of the network structure.</li>
-<li class="fragment"><span class="math inline">\textcolor{red}{\eta}</span> (the normalizing constant)<sup>1</sup> is intractable for most networks, so estimation requires simulation.</li>
-<li class="fragment">Simulation is efficient via the <strong>conditional distribution</strong> of a dyad given the rest of the network (a logit model!):</li>
-</ul>
-<div class="fragment" style="font-size: 80%">
-<p><span class="math display">
-{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}_{ij}{=}1\vphantom{\mathbf{Y}_{-ij}; \boldsymbol{\theta}}\;\right|\left.\vphantom{\mathbf{Y}_{ij}{=}1}\mathbf{Y}_{-ij}; \boldsymbol{\theta}\right\}}
-= \frac{1}{1 + \text{exp}\left\{-{\boldsymbol{\theta}}^\mathbf{t}\textcolor{purple}{\delta_{ij}}\right\}}
-</span></p>
-<p>where <span style="font-size: 80%"><span class="math inline">\textcolor{purple}{\delta_{ij} = s\left(\mathbf{Y}_{ij}^{+}\right) - s\left(\mathbf{Y}_{ij}^{-}\right)}</span></span> is how much each statistic changes when the tie <span class="math inline">i \to j</span> is added.</p>
-</div>
-<aside><ol class="aside-footnotes"><li id="fn1"><p>Unless you care about small networks (which we do: <span class="citation" data-cites="yon2019exponential">Vega Yon et al. (<a href="#/references" role="doc-biblioref" onclick="">2021</a>)</span>; <span class="citation" data-cites="ergmito">Vega Yon and Haye (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span>; <span class="citation" data-cites="defm">Vega Yon (<a href="#/references" role="doc-biblioref" onclick="">2026a</a>)</span>; <span class="citation" data-cites="vegayonDiscreteExponentialFamilyModels2022">Vega Yon et al. (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span>).</p></li></ol></aside></section>
-<section id="reading-the-coefficients" class="slide level2 semi" data-menu-title="Interpretation">
-<h2>Reading the coefficients</h2>
-<!-- [1:00 | 10:00] The bridge to something the audience already knows. -->
-<p>Because the conditional is a logit, each coefficient is a <strong>log-odds ratio</strong>, holding the rest of the network fixed:</p>
-<ul>
-<li class="fragment"><span class="math inline">\theta_{\text{homophily}} = 1</span>: a tie between two alike nodes has <span class="math inline">e^{1} \approx 2.7</span> times the odds of a tie between two unlike ones.</li>
-<li class="fragment"><span class="math inline">\theta_{\text{mutual}} = 2</span>: a tie that reciprocates an existing one has <span class="math inline">e^{2} \approx 7.4</span> times the odds.</li>
-<li class="fragment"><span class="math inline">\theta_{\text{edges}} = -3</span>: the baseline. A tie that creates nothing else has probability <span class="math inline">\approx 0.05</span>.</li>
-</ul>
-<div class="takeaway fragment">
-<p>A logistic regression in which each tie’s predictors are the other ties.</p>
-</div>
-</section>
-<section id="an-ergm-live" class="slide level2 compact" data-menu-title="Demo: ERGM">
-<h2>An ERGM, live</h2>
-<!-- [2:00 | 10:30] Press Run. Raise homophily: the colors separate. Raise
-     mutual: arrows pair up. Then push edges up and watch it fill -- that is
-     the segue to degeneracy. -->
-<div class="ergm-widget" id="ergm-demo" style="font-size: 130%;"></div>
-<script>ERGMWidget.mount(
-  document.getElementById("ergm-demo"), {
-    height: 400,
-    model: ["edges", "nodematch", "mutual"],
-    theta: {edges: -3, nodematch: 0, mutual: 0},
-    stepsPerFrame: 20,
-    n: 60,
-    controls: {n: false, meanDegree: false}
-    }
-);</script>
-<p><span class="math display">
-{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}; \boldsymbol{\theta}\right\} } = \frac{\text{exp}\left\{\theta_{\text{edges}}\,s_{\text{edges}}\left(\mathbf{y}\right) + \theta_{\text{homophily}}\,s_{\text{homophily}}\left(\mathbf{y}\right) + \theta_{\text{mutual}}\,s_{\text{mutual}}\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}\right)}
-</span></p>
-<div class="takeaway">
-<p>Simulating is easy: revisit one pair at a time with the logistic formula. The normalizing constant never shows up.</p>
-</div>
-</section>
 <section id="fitting-is-the-hard-part" class="slide level2 semi" data-menu-title="Estimation">
 <h2>Fitting is the hard part</h2>
-<!-- [1:30 | 12:00] -->
 <div class="columns">
 <div class="column" style="width:55%;">
 <p>The normalizing constant adds over <strong>every possible network</strong>:</p>
@@ -459,22 +371,54 @@ mindmap
 </div><div class="column fragment" style="width:45%;">
 <p><strong>The loop</strong></p>
 <ol type="1">
-<li>Guess <span class="math inline">\boldsymbol{\theta}</span>.</li>
+<li>Guess <span class="math inline">\boldsymbol{\theta}</span> (usually using Maximum Pseudo-Likelihood, MPLE).</li>
 <li>Simulate networks from the model at <span class="math inline">\boldsymbol{\theta}</span>.</li>
-<li>Compare their statistics with the observed ones.</li>
-<li>Update <span class="math inline">\boldsymbol{\theta}</span>; go back to 2.</li>
+<li>Approximate a ratio of <span class="math inline">\eta\left(\boldsymbol{\theta}\right)/\eta\left(\boldsymbol{\theta}_0\right)</span> (<del>LLM</del> LLN).</li>
+<li>Update <span class="math inline">\boldsymbol{\theta}</span> via a Newton-Raphson step; go back to 2.</li>
 </ol>
 </div></div>
 <div class="takeaway fragment">
 <p>This only works if the simulated networks look something like the observed one. Often they do not.</p>
 </div>
 </section>
+<section id="reading-the-coefficients" class="slide level2 semi" data-menu-title="Interpretation">
+<h2>Reading the coefficients</h2>
+<p>Because the conditional is a logit, each coefficient is a <strong>log-odds ratio</strong>, holding the rest of the network fixed:</p>
+<ul>
+<li class="fragment"><span class="math inline">\theta_{\text{homophily}} = 1</span>: a tie between two alike nodes has <span class="math inline">e^{1} \approx 2.7</span> times the odds of a tie between two unlike ones.</li>
+<li class="fragment"><span class="math inline">\theta_{\text{mutual}} = 2</span>: a tie that reciprocates an existing one has <span class="math inline">e^{2} \approx 7.4</span> times the odds.</li>
+<li class="fragment"><span class="math inline">\theta_{\text{edges}} = -3</span>: the baseline. A tie that creates nothing else has probability <span class="math inline">\approx 0.05</span>.</li>
+</ul>
+<div class="takeaway fragment">
+<p>A logistic regression in which each tie’s predictors are the other ties.</p>
+</div>
+</section>
+<section id="an-ergm-live" class="slide level2 compact" data-menu-title="Demo: ERGM">
+<h2>An ERGM, live</h2>
+<div class="ergm-widget" id="ergm-demo" style="font-size: 130%;"></div>
+<script>ERGMWidget.mount(
+  document.getElementById("ergm-demo"), {
+    height: 400,
+    model: ["edges", "nodematch", "mutual"],
+    theta: {edges: -3, nodematch: 0, mutual: 0},
+    stepsPerFrame: 20,
+    n: 60,
+    controls: {n: true, meanDegree: false}
+    }
+);</script>
+<p><span class="math display">
+{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}; \boldsymbol{\theta}\right\} } = \frac{\text{exp}\left\{\theta_{\text{edges}}\,s_{\text{edges}}\left(\mathbf{y}\right) + \theta_{\text{homophily}}\,s_{\text{homophily}}\left(\mathbf{y}\right) + \theta_{\text{mutual}}\,s_{\text{mutual}}\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}\right)}
+</span></p>
+<p><span class="math display">
+{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}_{ij}{=}1\vphantom{\mathbf{Y}_{-ij}; \boldsymbol{\theta}}\;\right|\left.\vphantom{\mathbf{Y}_{ij}{=}1}\mathbf{Y}_{-ij}; \boldsymbol{\theta}\right\}}
+= \frac{1}{1 + \text{exp}\left\{-{\boldsymbol{\theta}}^\mathbf{t}\textcolor{purple}{\delta_{ij}}\right\}}
+</span></p>
+</section>
 <section id="degeneracy" class="slide level2 compact" data-menu-title="Degeneracy">
 <h2>Degeneracy</h2>
-<!-- [2:00 | 14:00] Figure 1 of the proposal. Point at the two corners. -->
 <div class="columns">
 <div class="column" style="width:50%;">
-<p><a href="fig/ergm-distributions.webp" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img data-src="fig/ergm-distributions.webp" style="width:95.0%"></a></p>
+<p><a href="fig/ergm-distributions.webp" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img data-src="fig/ergm-distributions.webp" style="width:95.0%"></a></p>
 </div><div class="column" style="width:50%;">
 <ul>
 <li class="fragment">Each dot is a possible network: its share of ties (x) and of triangles (y).</li>
@@ -494,15 +438,16 @@ mindmap
 </section>
 <section id="fix-what-you-do-not-want-to-model" class="slide level2 compact" data-menu-title="Conditional ERGM">
 <h2>Fix what you do not want to model</h2>
-<!-- [2:00 | 17:00] k is the edges term; c is the observed number of ties. -->
 <p>Let <span class="math inline">s_{k}\left(\mathbf{y}\right)</span> be the number of ties. Only consider networks with <strong>exactly as many ties as the one we observed</strong>, <span class="math inline">\textcolor{#c0491f}{c}</span>:</p>
 <div style="font-size: 85%">
 <p><span class="math display">
+\begin{aligned}
 {\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}\vphantom{s_{k}\left(\mathbf{Y}\right) = \textcolor{#c0491f}{c};\ \boldsymbol{\theta}}\;\right|\left.\vphantom{\mathbf{Y}= \mathbf{y}}s_{k}\left(\mathbf{Y}\right) = \textcolor{#c0491f}{c};\ \boldsymbol{\theta}\right\}}
-= \frac{\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}\mid s_{k} = \textcolor{#c0491f}{c}\right)}
-= \frac{\text{exp}\left\{\theta_{k}\textcolor{#c0491f}{c}\right\}\;\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}\right)\right\}}
-       {\text{exp}\left\{\theta_{k}\textcolor{#c0491f}{c}\right\}\;\sum_{\mathbf{y}' \in \mathcal{Y}:\, s_{k}\left(\mathbf{y}'\right) = c}\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}'\right)\right\}}
-= \frac{\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}_{-k} \mid s_{k} = \textcolor{#c0491f}{c}\right)}
+&amp; = \frac{\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}\mid s_{k} = \textcolor{#c0491f}{c}\right)} \\
+&amp; = \frac{\text{exp}\left\{\theta_{k}\textcolor{#c0491f}{c}\right\}\;\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}\right)\right\}}
+       {\text{exp}\left\{\theta_{k}\textcolor{#c0491f}{c}\right\}\;\sum_{\mathbf{y}' \in \mathcal{Y}:\, s_{k}\left(\mathbf{y}'\right) = c}\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}'\right)\right\}} \\
+&amp; = \frac{\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}_{-k} \mid s_{k} = \textcolor{#c0491f}{c}\right)}
+\end{aligned}
 </span></p>
 </div>
 <div style="font-size: 85%; color: #666;">
@@ -518,25 +463,9 @@ mindmap
 <p>With several networks, each keeps its own edge count, so every network’s density drops out at once.</p>
 </div>
 </section>
-<section id="the-conditional-model-live" class="slide level2 compact" data-menu-title="Demo: conditional">
-<h2>The conditional model, live</h2>
-<!-- [1:30 | 17:30] Press Run and read the stats box: "edges" never moves.
-     Each step moves one tie from an occupied pair to an empty one. The mean
-     out-degree slider + Reset sets the (fixed) number of ties. -->
-<div class="ergm-widget" id="ergm-demo-cond" style="font-size: 130%;"></div>
-<script>ERGMWidget.mount(
-  document.getElementById("ergm-demo-cond"), {
-    height: 400,
-    model: ["nodematch", "mutual"],
-    theta: {nodematch: 0, mutual: 0},
-    constraint: "edges",
-    stepsPerFrame: 20,
-    n: 60,
-    meanDegree: 4,
-    controls: {n: false, meanDegree: true}
-    }
-);</script>
-<p>Same model, no edges term. Each step <strong>moves</strong> a tie instead of adding or deleting one:</p>
+<section id="simulating-a-conditional-model" class="slide level2 compact" data-menu-title="Conditional simulation">
+<h2>Simulating a conditional model</h2>
+<p>To keep the edge count fixed, a proposal <strong>moves</strong> a tie from an occupied dyad to an empty one. With a symmetric proposal, accept the move with probability:</p>
 <p><span class="math display">
 {\mathbb{P}_{}\left\{\text{accept the move}\right\} } = \min\left\{1,\ \text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}\left[s_{-k}\left(\mathbf{y}_{\text{new}}\right) - s_{-k}\left(\mathbf{y}_{\text{old}}\right)\right]\right\}\right\}
 </span></p>
@@ -546,8 +475,6 @@ mindmap
 </section>
 <section id="what-could-it-cost" class="slide level2" data-menu-title="The two questions">
 <h2>What could it cost?</h2>
-<!-- [1:30 | 20:00] The factorization as written in the paper. This is the
-     spine of the rest of the talk. -->
 <p>The full model is the conditional model <strong>times</strong> the model for the edge count:</p>
 <p><span class="math display">
 {\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}; \boldsymbol{\theta}\right\} } =
@@ -568,8 +495,6 @@ mindmap
 </section>
 <section id="one-design-for-both-questions" class="slide level2 compact" data-menu-title="Study design">
 <h2>One design for both questions</h2>
-<!-- [1:00 | 20:00] Do NOT read the table. Three things: seven models, small
-     networks in groups of 1 to 20, truth is known because we simulate. -->
 <p>We simulate networks from the <strong>full</strong> ERGM (so the unconditional model is the correct one), with known coefficients.</p>
 <div class="columns">
 <div class="column" style="width:52%;">
@@ -632,8 +557,6 @@ mindmap
 </section>
 <section id="splitting-the-log-likelihood" class="slide level2 semi" data-menu-title="Likelihood decomposition">
 <h2>Splitting the log-likelihood</h2>
-<!-- [2:00 | 23:00] Everything in this part is evaluated AT the true
-     parameter, by simulation only -- no model is fit. -->
 <p>Taking logs of the factorization, at the <strong>true</strong> parameter:</p>
 <p><span class="math display">
 l\left(\boldsymbol{\theta}\right) \;=\;
@@ -652,8 +575,6 @@ l\left(\boldsymbol{\theta}\right) \;=\;
 </section>
 <section id="the-right-yardstick-fisher-information" class="slide level2 compact" data-menu-title="Information identity">
 <h2>The right yardstick: Fisher information</h2>
-<!-- [2:00 | 25:00] Say it in words: the full model ALREADY pays for not
-     knowing the edges coefficient. The fair comparison is against that. -->
 <p>How precisely can each model pin down <span class="math inline">\boldsymbol{\theta}_{-k}</span>? Write <span class="math inline">S_k = s_{k}\left(\mathbf{Y}\right)</span> for the edge count and <span class="math inline">S_{-k} = s_{-k}\left(\mathbf{Y}\right)</span> for the other statistics.</p>
 <div class="columns">
 <div class="column fragment" style="width:50%;">
@@ -681,10 +602,9 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="results-triangles-lose-almost-nothing" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Information: mutual + gwesp">
 <h2>Results: triangles lose almost nothing</h2>
-<!-- [1:30 | 25:30] Line = median sample, band = 10th to 90th percentile. -->
 <div class="columns">
 <div class="column" style="width:62%;">
-<p><a href="fig/info-mutual-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="fig/info-mutual-gwesp.png" style="width:100.0%"></a></p>
+<p><a href="fig/info-mutual-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img data-src="fig/info-mutual-gwesp.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Directed model with homophily, mutual and gwesp. Line: median sample. Band: 10th to 90th percentile. 500 samples per panel.</p>
 </div>
@@ -702,11 +622,9 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="results-but-it-depends-on-the-term" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Information: all models">
 <h2>Results: but it depends on the term</h2>
-<!-- [2:00 | 27:30] Read top to bottom: the first four blocks hug zero, the
-     bottom four do not. -->
 <div class="columns">
 <div class="column" style="width:70%;">
-<p><a href="fig/info-loss.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img data-src="fig/info-loss.png" style="width:100.0%"></a></p>
+<p><a href="fig/info-loss.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="fig/info-loss.png" style="width:100.0%"></a></p>
 </div><div class="column" style="width:30%;">
 <div class="fragment">
 <h3 id="loses-little">Loses little</h3>
@@ -724,7 +642,6 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="how-far-to-trust-these-numbers" class="slide level2 compact" data-menu-title="Information: checks">
 <h2>How far to trust these numbers</h2>
-<!-- [1:30 | 29:00] -->
 <div class="columns cols-gap">
 <div class="column" style="width:50%;">
 <h3 id="what-holds-up">What holds up</h3>
@@ -751,7 +668,6 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="two-ways-to-fit-the-same-networks" class="slide level2 semi" data-menu-title="Simulation: arms">
 <h2>Two ways to fit the same networks</h2>
-<!-- [1:30 | 30:30] -->
 <div class="columns">
 <div class="column" style="width:50%;">
 <h3 id="unconditional">Unconditional</h3>
@@ -775,7 +691,6 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="results-the-short-version" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: headline">
 <h2>Results: the short version</h2>
-<!-- [1:30 | 32:00] Table 2 of the report, last row. -->
 <p>All models and sample sizes pooled (10,179 samples, each fit both ways):</p>
 <div class="findings-grid headline">
 <div class="finding fragment">
@@ -808,8 +723,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="results-more-networks-same-story" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: by M">
 <h2>Results: more networks, same story</h2>
-<!-- [1:30 | 33:30] The third panel is the consistency picture. -->
-<p><a href="fig/sim-by-m.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img data-src="fig/sim-by-m.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-by-m.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img data-src="fig/sim-by-m.png" style="width:100.0%"></a></p>
 <ul>
 <li class="fragment"><strong>Consistency.</strong> The error falls from 0.34 with one network to 0.10 with twenty, at the same rate in both models.</li>
 <li class="fragment"><strong>Time.</strong> The gap widens with <span class="math inline">M</span>: 2 minutes against 4 with twenty networks.</li>
@@ -818,8 +732,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="results-model-by-model" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: by model">
 <h2>Results: model by model</h2>
-<!-- [1:30 | 35:00] -->
-<p><a href="fig/sim-by-experiment.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="fig/sim-by-experiment.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-by-experiment.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img data-src="fig/sim-by-experiment.png" style="width:100.0%"></a></p>
 <ul>
 <li class="fragment">The gain in convergence is largest where fitting is hardest: degree terms (+13 points) and an estimated decay (+12 points).</li>
 <li class="fragment">With <code>gwesp + gwnsp</code>, the unconditional intervals cover the truth 81% of the time; the conditional ones, 92%.</li>
@@ -828,10 +741,9 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="where-both-models-struggle-density" class="slide level2 compact" data-menu-title="Simulation: density">
 <h2>Where both models struggle: density</h2>
-<!-- [1:30 | 36:30] Table 3c of the report + appendix A1. -->
 <div class="columns">
 <div class="column" style="width:60%;">
-<p><a href="fig/sim-density.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/sim-density.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-density.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="fig/sim-density.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Directed model with homophily, mutual and gwesp; all <span class="math inline">M</span>.</p>
 </div>
@@ -849,7 +761,6 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="why-fits-fail" class="slide level2 compact" data-menu-title="Simulation: failures">
 <h2>Why fits fail</h2>
-<!-- [1:30 | 38:00] Tables 3b and 8b of the report. -->
 <p>Share of fits by cause of failure, range over <span class="math inline">M \in \{1, 5, 10, 20\}</span>:</p>
 <table class="caption-top">
 <colgroup>
@@ -918,7 +829,6 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="does-conditioning-on-edge-counts-help" class="slide level2 compact" data-menu-title="Summary">
 <h2>Does conditioning on edge counts help?</h2>
-<!-- [1:00 | 39:00] -->
 <div class="columns cols-gap">
 <div class="column" style="width:50%;">
 <h3 id="yes">Yes</h3>
@@ -941,7 +851,6 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="what-comes-next" class="slide level2 compact where-next" data-menu-title="Next steps">
 <h2>What comes next</h2>
-<!-- [1:00 | 40:00] -->
 <div class="columns">
 <div class="column fragment" style="width:33%;">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20666120657870616e64203e7d7d-larger-networks"><i class="fa-solid fa-expand" aria-label="expand"></i> Larger networks</h3>
@@ -978,8 +887,6 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <p><i class="fa-solid fa-globe" aria-label="globe"></i> <a href="https://ggvy.cl" class="uri">https://ggvy.cl</a></p>
 </div>
 </div><div class="column" style="width:50%;">
-<!-- Same research map as the opening slide: bookends the talk and leaves
-     the collaboration areas on screen during questions. -->
 <div class="cell" data-reveal="true" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -1037,6 +944,19 @@ mindmap
 <section id="appendix" class="title-slide slide level1 center" data-visibility="uncounted" data-background-color="#00707a">
 <h1>Appendix</h1>
 
+</section>
+<section id="the-model-in-one-equation" class="slide level2" data-menu-title="ERGM equation">
+<h2>The model in one equation</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:85.0%"></a></p>
+</figure>
+</div>
+<ul>
+<li class="fragment">A network is <strong>one draw</strong> from a distribution over all possible networks, <span class="math inline">\mathcal{Y}</span>.</li>
+<li class="fragment">Networks with more of the features we count are more (or less) likely, depending on the sign of <span class="math inline">\boldsymbol{\theta}</span>.</li>
+<li class="fragment">It is the same family as logistic regression, with the whole network as the outcome <span class="citation" data-cites="Hunter2008">(<a href="#/references" role="doc-biblioref" onclick="">Hunter et al. 2008</a>)</span>.</li>
+</ul>
 </section>
 <section id="information-algebra" class="slide level2 compact" data-visibility="uncounted" data-menu-title="Information: algebra">
 <h2>The information identity</h2>

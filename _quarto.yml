@@ -1,6 +1,7 @@
 project:
   type: default
   output-dir: docs
+  resources:
+    - ergm-js/LICENSE.md
   render:
     - index.qmd
-

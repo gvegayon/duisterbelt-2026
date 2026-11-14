@@ -35,12 +35,11 @@
     // Initial-network controls can be hidden independently. Term controls
     // are selected by `model`, not by this object.
     controls: { n: true, meanDegree: true },
-    // null: the usual sampler over all graphs. "edges": hold the number of
-    // ties fixed (the edge-conditional ERGM; see ERGM.stepSwap), in which
-    // case `model` would normally leave out "edges".
-    constraint: null,
     seed: 42,
-    stepsPerFrame: 50, // Gibbs proposals per animation frame while running
+    stepsPerFrame: 50, // sampler proposals per animation frame while running
+    // MCMC update: "gibbs" (redraw a random dyad from its full conditional)
+    // or "tnt" (ergm's tie / no-tie Metropolis-Hastings proposal).
+    sampler: "gibbs",
     height: 360,
     groupColors: ["#00707a", "#c0491f"], // deck $accent / rust
     edgeColorMatch: "#00707a",
@@ -284,6 +283,10 @@
   function Widget(el, opts) {
     opts = opts || {};
     const model = normalizeModel(hasOwn(opts, "model") ? opts.model : DEFAULTS.model);
+    const sampler = hasOwn(opts, "sampler") ? opts.sampler : DEFAULTS.sampler;
+    if (ERGM.SAMPLERS.indexOf(sampler) < 0) {
+      throw new RangeError('Unknown ERGM sampler "' + sampler + '"; use ' + ERGM.SAMPLERS.join(" or ") + ".");
+    }
     const suppliedTheta = opts.theta && typeof opts.theta === "object" ? opts.theta : {};
     const theta = {};
     for (let i = 0; i < model.length; i++) {
@@ -603,14 +606,6 @@
   // the single edge that changed rather than rebuilding the whole graph.
   Widget.prototype._applyRecord = function (rec) {
     if (!rec.changed) return;
-    // Fixed-edge-count moves change two dyads at once.
-    if (rec.toggles) {
-      for (let t = 0; t < rec.toggles.length; t++) {
-        const tg = rec.toggles[t];
-        this._applyRecord({ changed: true, i: tg.i, j: tg.j, on: tg.on });
-      }
-      return;
-    }
     // A structural change: nudge the layout back into motion so it
     // resettles around the new tie. A small bump, not a full reheat -- a
     // single flipped dyad shouldn't scatter an otherwise-settled layout.
@@ -632,9 +627,16 @@
 
   Widget.prototype.stepN = function (count) {
     const self = this;
-    ERGM.simulate(this.net, this.opts.theta, count, this._rng, function (rec) {
-      self._applyRecord(rec);
-    }, this.opts.constraint);
+    ERGM.simulate(
+      this.net,
+      this.opts.theta,
+      count,
+      this._rng,
+      function (rec) {
+        self._applyRecord(rec);
+      },
+      { sampler: this.opts.sampler }
+    );
     this.stepCount += count;
     this._updateStats();
     this._ensureLoop(); // let the layout animate the settle even if Run isn't on
@@ -642,7 +644,7 @@
 
   // A single animation loop drives two independent things, both gated on
   // the widget being visible:
-  //   - the Gibbs sampler, while `running` is true (Run/Pause);
+  //   - the sampler, while `running` is true (Run/Pause);
   //   - the force layout settling, while it's still "hot" (`alpha` above
   //     threshold) -- which happens after Reset and after any edge change,
   //     regardless of whether the sampler itself is running.

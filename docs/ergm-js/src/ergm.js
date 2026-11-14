@@ -27,8 +27,13 @@
  * where delta_ij(y) = g(y with y_ij=1) - g(y with y_ij=0). kappa cancels
  * exactly because it does not depend on y_ij. Repeatedly resampling random
  * dyads this way is a Gibbs sampler whose stationary distribution is the
- * ERGM above (Hunter & Handcock 2006; this is also how ergm's MCMC works
- * under the hood).
+ * ERGM above (Hunter & Handcock 2006).
+ *
+ * The R package ergm instead uses Metropolis-Hastings with a "tie / no tie"
+ * (TNT) proposal: half the time it proposes removing an existing tie, half
+ * the time it toggles a random dyad, and it corrects for that asymmetry in
+ * the acceptance ratio. Same stationary distribution, much faster mixing on
+ * sparse graphs. Pass {sampler: "tnt"} to step/simulate/createModel for it.
  *
  * Usage (browser):
  *   <script src="ergm.js"></script>
@@ -53,7 +58,7 @@
 
   // Public semantic version. The widget renders this value in its graph pane;
   // keep it synchronized with package.json (covered by the self-test).
-  const VERSION = "0.2.1";
+  const VERSION = "0.4.0";
 
   // ---------------------------------------------------------------------
   // RNG -- mulberry32, a small, fast, seedable PRNG. Not cryptographic;
@@ -71,22 +76,93 @@
   }
 
   // ---------------------------------------------------------------------
-  // Net -- a directed, loopless graph on n nodes with a binary node
-  // attribute, stored as a flat adjacency matrix for O(1) dyad lookups
-  // (all a Gibbs sweep ever needs).
+  // Net -- a directed, loopless graph on n nodes with one or more numeric
+  // node attributes, stored as a flat adjacency matrix for O(1) dyad
+  // lookups (all a Gibbs sweep ever needs).
   // ---------------------------------------------------------------------
+  function isAttributeVector(value) {
+    return (
+      Array.isArray(value) ||
+      (typeof ArrayBuffer !== "undefined" &&
+        ArrayBuffer.isView(value) &&
+        typeof value.length === "number")
+    );
+  }
+
+  function validateAttributeVector(value, n, label) {
+    if (!isAttributeVector(value)) {
+      throw new TypeError(label + " must be an Array or typed array.");
+    }
+    if (value.length !== n) {
+      throw new RangeError(label + " must have length " + n + "; got " + value.length + ".");
+    }
+    for (let i = 0; i < value.length; i++) {
+      if (typeof value[i] !== "number" || !Number.isFinite(value[i])) {
+        throw new TypeError(label + " must contain only finite numbers (invalid value at index " + i + ").");
+      }
+    }
+    return value;
+  }
+
+  function copyAttributeVector(value) {
+    return value.slice();
+  }
+
   function Net(n, opts) {
     opts = opts || {};
     this.n = n;
     this.adj = opts.adj || new Uint8Array(n * n);
-    // Binary node covariate used by the `nodematch` term. Defaults to an
-    // alternating pattern if not supplied.
-    if (opts.attr) {
-      this.attr = opts.attr;
-    } else {
-      this.attr = new Uint8Array(n);
-      for (let i = 0; i < n; i++) this.attr[i] = i % 2;
+
+    // Edge index: a dense list of present dyads (as i * n + j) plus each
+    // dyad's position in it (-1 when absent). set() keeps both in sync with
+    // adj in O(1), which lets the TNT sampler draw an existing tie uniformly
+    // at random. Write ties through set(), never into adj directly.
+    this._edges = new Int32Array(n * n);
+    this._edgePos = new Int32Array(n * n).fill(-1);
+    this._nEdges = 0;
+    for (let i = 0; i < n; i++) {
+      if (this.adj[i * n + i] !== 0) {
+        throw new RangeError("Net option `adj` has a self-loop at node " + i + "; the graph is loopless.");
+      }
     }
+    for (let k = 0; k < this.adj.length; k++) {
+      if (this.adj[k] === 1) {
+        this._edgePos[k] = this._nEdges;
+        this._edges[this._nEdges++] = k;
+      }
+    }
+
+    if (opts.attr !== undefined && opts.attrs !== undefined) {
+      throw new TypeError("Net options `attr` and `attrs` are mutually exclusive.");
+    }
+
+    if (opts.attrs !== undefined) {
+      if (!Array.isArray(opts.attrs) || opts.attrs.length === 0) {
+        throw new TypeError("Net option `attrs` must be a non-empty array of attribute vectors.");
+      }
+      this.attrs = opts.attrs.map(function (value, idx) {
+        return validateAttributeVector(value, n, "Net option `attrs[" + idx + "]`");
+      });
+    } else if (opts.attr !== undefined) {
+      this.attrs = [validateAttributeVector(opts.attr, n, "Net option `attr`")];
+    } else {
+      const attr = new Uint8Array(n);
+      for (let i = 0; i < n; i++) attr[i] = i % 2;
+      this.attrs = [attr];
+    }
+
+    // Backward-compatible alias for the original single-attribute API.
+    // Assigning a new vector keeps attrs[0] synchronized and validated.
+    Object.defineProperty(this, "attr", {
+      enumerable: true,
+      configurable: false,
+      get: function () {
+        return this.attrs[0];
+      },
+      set: function (value) {
+        this.attrs[0] = validateAttributeVector(value, this.n, "Net property `attr`");
+      },
+    });
   }
 
   Net.prototype.has = function (i, j) {
@@ -94,17 +170,78 @@
   };
 
   Net.prototype.set = function (i, j, value) {
-    this.adj[i * this.n + j] = value ? 1 : 0;
+    const on = value ? 1 : 0;
+    if (i === j && on) {
+      throw new RangeError("Net.set(" + i + ", " + j + ") would add a self-loop; the graph is loopless.");
+    }
+    const k = i * this.n + j;
+    const was = this.adj[k] === 1;
+    this.adj[k] = on;
+    if (was === (on === 1)) return;
+    if (on) {
+      this._edgePos[k] = this._nEdges;
+      this._edges[this._nEdges++] = k;
+    } else {
+      // Swap-remove: move the last listed edge into the vacated slot.
+      const pos = this._edgePos[k];
+      const last = this._edges[--this._nEdges];
+      this._edges[pos] = last;
+      this._edgePos[last] = pos;
+      this._edgePos[k] = -1;
+    }
+  };
+
+  // Number of directed ties, in O(1).
+  Net.prototype.edgeCount = function () {
+    return this._nEdges;
   };
 
   Net.prototype.clone = function () {
-    return new Net(this.n, { adj: this.adj.slice(), attr: this.attr.slice() });
+    return new Net(this.n, {
+      adj: this.adj.slice(),
+      attrs: this.attrs.map(copyAttributeVector),
+    });
   };
+
+  // Attribute and degree helpers shared by parameterized term factories.
+  // The degree helpers always exclude the candidate cell (i, j), so their
+  // result is identical whether y_ij is currently zero or one.
+  function attributeVector(net, attrIndex) {
+    if (!Number.isInteger(attrIndex) || attrIndex < 0) {
+      throw new RangeError("Attribute index must be a non-negative integer.");
+    }
+    if (!net.attrs || attrIndex >= net.attrs.length) {
+      throw new RangeError(
+        "Attribute index " + attrIndex + " is out of range for a network with " +
+          (net.attrs ? net.attrs.length : 0) + " attribute vector(s)."
+      );
+    }
+    return validateAttributeVector(net.attrs[attrIndex], net.n, "Network attribute " + attrIndex);
+  }
+
+  function outDegreeWithout(net, node, i, j) {
+    let degree = 0;
+    for (let k = 0; k < net.n; k++) {
+      if (k === node || (node === i && k === j)) continue;
+      if (net.has(node, k)) degree++;
+    }
+    return degree;
+  }
+
+  function inDegreeWithout(net, node, i, j) {
+    let degree = 0;
+    for (let k = 0; k < net.n; k++) {
+      if (k === node || (k === i && node === j)) continue;
+      if (net.has(k, node)) degree++;
+    }
+    return degree;
+  }
 
   // Recompute every registered term's statistic from scratch. O(n^2).
   // Used for initialization/reset and for the on-screen readout; the
   // sampler itself never needs this (it only ever needs change statistics).
   Net.prototype.statistics = function (terms) {
+    if (terms && terms._isERGMModel) return terms.statistics(this);
     terms = terms || TERMS;
     const out = {};
     for (const name in terms) out[name] = terms[name].stat(this);
@@ -181,13 +318,15 @@
       stat: function (net) {
         let s = 0;
         const n = net.n;
+        const attr = attributeVector(net, 0);
         for (let i = 0; i < n; i++)
           for (let j = 0; j < n; j++)
-            if (i !== j && net.has(i, j) && net.attr[i] === net.attr[j]) s++;
+            if (i !== j && net.has(i, j) && attr[i] === attr[j]) s++;
         return s;
       },
       delta: function (net, i, j) {
-        return net.attr[i] === net.attr[j] ? 1 : 0;
+        const attr = attributeVector(net, 0);
+        return attr[i] === attr[j] ? 1 : 0;
       },
     },
 
@@ -208,35 +347,446 @@
         return net.has(j, i) ? 1 : 0;
       },
     },
+
+    // Number of vertices with no incident directed ties.
+    isolates: {
+      stat: function (net) {
+        let s = 0;
+        for (let v = 0; v < net.n; v++) {
+          let degree = 0;
+          for (let k = 0; k < net.n; k++) {
+            if (k !== v && (net.has(v, k) || net.has(k, v))) degree++;
+          }
+          if (degree === 0) s++;
+        }
+        return s;
+      },
+      delta: function (net, i, j) {
+        let change = 0;
+        if (outDegreeWithout(net, i, i, j) + inDegreeWithout(net, i, i, j) === 0) change--;
+        if (outDegreeWithout(net, j, i, j) + inDegreeWithout(net, j, i, j) === 0) change--;
+        return change;
+      },
+    },
+
+    // In- and out-two-stars, respectively.
+    istar2: {
+      stat: function (net) {
+        let s = 0;
+        for (let v = 0; v < net.n; v++) {
+          const d = inDegreeWithout(net, v, -1, -1);
+          s += d * (d - 1) / 2;
+        }
+        return s;
+      },
+      delta: function (net, i, j) {
+        return inDegreeWithout(net, j, i, j);
+      },
+    },
+    ostar2: {
+      stat: function (net) {
+        let s = 0;
+        for (let v = 0; v < net.n; v++) {
+          const d = outDegreeWithout(net, v, -1, -1);
+          s += d * (d - 1) / 2;
+        }
+        return s;
+      },
+      delta: function (net, i, j) {
+        return outDegreeWithout(net, i, i, j);
+      },
+    },
+
+    density: {
+      stat: function (net) {
+        const dyads = net.n * (net.n - 1);
+        return dyads > 0 ? TERMS.edges.stat(net) / dyads : 0;
+      },
+      delta: function (net) {
+        const dyads = net.n * (net.n - 1);
+        return dyads > 0 ? 1 / dyads : 0;
+      },
+    },
+
+    idegree15: {
+      stat: function (net) {
+        let s = 0;
+        for (let v = 0; v < net.n; v++) s += Math.pow(inDegreeWithout(net, v, -1, -1), 1.5);
+        return s;
+      },
+      delta: function (net, i, j) {
+        const d = inDegreeWithout(net, j, i, j);
+        return Math.pow(d + 1, 1.5) - Math.pow(d, 1.5);
+      },
+    },
+    odegree15: {
+      stat: function (net) {
+        let s = 0;
+        for (let v = 0; v < net.n; v++) s += Math.pow(outDegreeWithout(net, v, -1, -1), 1.5);
+        return s;
+      },
+      delta: function (net, i, j) {
+        const d = outDegreeWithout(net, i, i, j);
+        return Math.pow(d + 1, 1.5) - Math.pow(d, 1.5);
+      },
+    },
   };
+
+  // Parameterized terms register factories here. A factory receives the
+  // complete descriptor ({term, id, ...parameters}) and returns the same
+  // stat/delta shape as a fixed term, plus an optional validate(net) hook.
+  // Keeping this registry public mirrors TERMS and lets later term families
+  // plug into createModel() without changing the compiler.
+  const TERM_FACTORIES = Object.create(null);
+
+  function validateDegreeParameter(spec, name) {
+    if (!Number.isInteger(spec.degree) || spec.degree < 0) {
+      throw new RangeError(name + " `degree` must be a non-negative integer.");
+    }
+  }
+
+  function validateFactoryKeys(spec, allowed, name) {
+    Object.keys(spec).forEach(function (key) {
+      if (allowed.indexOf(key) < 0) throw new RangeError(name + " does not accept parameter `" + key + "`.");
+    });
+  }
+
+  // Attribute terms all add a value associated with the candidate tie. Their
+  // change statistic is therefore that same value, while the whole-network
+  // statistic sums it over present loopless ties. Attribute vector validation
+  // deliberately happens both through the model hook and here, so direct
+  // callers of an instance's stat/delta functions cannot bypass it.
+  function attributeIndexFromSpec(spec, name) {
+    const attrIndex = spec.attr === undefined ? 0 : spec.attr;
+    if (!Number.isInteger(attrIndex) || attrIndex < 0) {
+      throw new RangeError(name + " `attr` must be a non-negative integer.");
+    }
+    return attrIndex;
+  }
+
+  function finiteAttributeContribution(value, name) {
+    if (!Number.isFinite(value)) {
+      throw new RangeError(name + " produced a non-finite attribute contribution.");
+    }
+    return value;
+  }
+
+  function attributeTerm(spec, name, contribution) {
+    const attrIndex = attributeIndexFromSpec(spec, name);
+
+    function value(net, i, j) {
+      return finiteAttributeContribution(contribution(attributeVector(net, attrIndex), i, j), name);
+    }
+
+    return {
+      stat: function (net) {
+        let s = 0;
+        for (let i = 0; i < net.n; i++) {
+          for (let j = 0; j < net.n; j++) {
+            if (i !== j && net.has(i, j)) {
+              s = finiteAttributeContribution(s + value(net, i, j), name);
+            }
+          }
+        }
+        return s;
+      },
+      delta: function (net, i, j) {
+        return value(net, i, j);
+      },
+      validate: function (net) {
+        const attr = attributeVector(net, attrIndex);
+        // Ensure every possible candidate tie has a finite real contribution
+        // before a Gibbs score can use it. In particular this rules out an
+        // overflow from an otherwise valid numeric attribute vector.
+        for (let i = 0; i < net.n; i++) {
+          for (let j = 0; j < net.n; j++) {
+            if (i !== j) finiteAttributeContribution(contribution(attr, i, j), name);
+          }
+        }
+      },
+    };
+  }
+
+  function validateAbsDiffExponent(spec) {
+    if (spec.alpha !== undefined && (typeof spec.alpha !== "number" || !Number.isFinite(spec.alpha) || spec.alpha <= 0)) {
+      throw new RangeError("absdiff `alpha` must be a positive finite number.");
+    }
+    return spec.alpha === undefined ? 1 : spec.alpha;
+  }
+
+  function validateDiffExponent(spec) {
+    if (spec.alpha !== undefined && (!Number.isInteger(spec.alpha) || spec.alpha <= 0)) {
+      throw new RangeError("diff `alpha` must be a positive integer.");
+    }
+    return spec.alpha === undefined ? 1 : spec.alpha;
+  }
+
+  TERM_FACTORIES.absdiff = function (spec) {
+    validateFactoryKeys(spec, ["term", "id", "attr", "alpha"], "absdiff");
+    const alpha = validateAbsDiffExponent(spec);
+    return attributeTerm(spec, "absdiff", function (attr, i, j) {
+      return Math.pow(Math.abs(attr[i] - attr[j]), alpha);
+    });
+  };
+
+  TERM_FACTORIES.diff = function (spec) {
+    validateFactoryKeys(spec, ["term", "id", "attr", "alpha", "tailHead"], "diff");
+    const alpha = validateDiffExponent(spec);
+    const tailHead = spec.tailHead === undefined ? true : spec.tailHead;
+    if (typeof tailHead !== "boolean") {
+      throw new TypeError("diff `tailHead` must be a boolean.");
+    }
+    return attributeTerm(spec, "diff", function (attr, i, j) {
+      const sign = tailHead ? 1 : -1;
+      return Math.pow(sign * (attr[i] - attr[j]), alpha);
+    });
+  };
+
+  TERM_FACTORIES.nodeicov = function (spec) {
+    validateFactoryKeys(spec, ["term", "id", "attr"], "nodeicov");
+    return attributeTerm(spec, "nodeicov", function (attr, i, j) {
+      return attr[j];
+    });
+  };
+
+  TERM_FACTORIES.nodeocov = function (spec) {
+    validateFactoryKeys(spec, ["term", "id", "attr"], "nodeocov");
+    return attributeTerm(spec, "nodeocov", function (attr, i, j) {
+      return attr[i];
+    });
+  };
+
+  TERM_FACTORIES.nodecov = function (spec) {
+    validateFactoryKeys(spec, ["term", "id", "attr"], "nodecov");
+    return attributeTerm(spec, "nodecov", function (attr, i, j) {
+      return attr[i] + attr[j];
+    });
+  };
+
+  // The fixed string term remains the original attr[0] homophily counter.
+  // A descriptor can select any attribute vector and use a distinct model ID.
+  TERM_FACTORIES.nodematch = function (spec) {
+    validateFactoryKeys(spec, ["term", "id", "attr"], "nodematch");
+    return attributeTerm(spec, "nodematch", function (attr, i, j) {
+      return attr[i] === attr[j] ? 1 : 0;
+    });
+  };
+
+  TERM_FACTORIES.idegree = function (spec) {
+    validateFactoryKeys(spec, ["term", "id", "degree"], "idegree");
+    validateDegreeParameter(spec, "idegree");
+    return {
+      stat: function (net) {
+        let s = 0;
+        for (let v = 0; v < net.n; v++) if (inDegreeWithout(net, v, -1, -1) === spec.degree) s++;
+        return s;
+      },
+      delta: function (net, i, j) {
+        const d = inDegreeWithout(net, j, i, j);
+        return (d + 1 === spec.degree ? 1 : 0) - (d === spec.degree ? 1 : 0);
+      },
+    };
+  };
+
+  TERM_FACTORIES.odegree = function (spec) {
+    validateFactoryKeys(spec, ["term", "id", "degree"], "odegree");
+    validateDegreeParameter(spec, "odegree");
+    return {
+      stat: function (net) {
+        let s = 0;
+        for (let v = 0; v < net.n; v++) if (outDegreeWithout(net, v, -1, -1) === spec.degree) s++;
+        return s;
+      },
+      delta: function (net, i, j) {
+        const d = outDegreeWithout(net, i, i, j);
+        return (d + 1 === spec.degree ? 1 : 0) - (d === spec.degree ? 1 : 0);
+      },
+    };
+  };
+
+  function hasOwn(obj, key) {
+    return Object.prototype.hasOwnProperty.call(obj, key);
+  }
+
+  function validateInstanceId(id, index) {
+    const prefix = "Model entry " + index;
+    if (typeof id !== "string" || id.trim() === "") {
+      throw new TypeError(prefix + " must have a non-empty string `id`.");
+    }
+    if (id === "__proto__" || id === "prototype" || id === "constructor") {
+      throw new RangeError(prefix + ' uses reserved id "' + id + '".');
+    }
+  }
+
+  function validateTermDefinition(definition, label) {
+    if (!definition || typeof definition.stat !== "function" || typeof definition.delta !== "function") {
+      throw new TypeError(label + " must provide stat(net) and delta(net, i, j) functions.");
+    }
+    if (definition.validate !== undefined && typeof definition.validate !== "function") {
+      throw new TypeError(label + " validate property must be a function when supplied.");
+    }
+  }
+
+  function normalizeTermInstance(spec, index) {
+    let termName;
+    let id;
+    let descriptor;
+    let definition;
+
+    if (typeof spec === "string") {
+      termName = spec;
+      id = spec;
+      descriptor = { term: termName, id: id };
+      if (!hasOwn(TERMS, termName)) {
+        if (hasOwn(TERM_FACTORIES, termName)) {
+          throw new TypeError('Parameterized term "' + termName + '" requires a descriptor with an `id`.');
+        }
+        throw new RangeError('Unknown ERGM term "' + termName + '" at model entry ' + index + ".");
+      }
+      definition = TERMS[termName];
+    } else {
+      if (!spec || typeof spec !== "object" || Array.isArray(spec)) {
+        throw new TypeError("Model entry " + index + " must be a term name or descriptor object.");
+      }
+      termName = spec.term;
+      id = spec.id;
+      if (typeof termName !== "string" || termName.trim() === "") {
+        throw new TypeError("Model entry " + index + " must have a non-empty string `term`.");
+      }
+      validateInstanceId(id, index);
+      descriptor = Object.assign({}, spec);
+
+      if (hasOwn(TERM_FACTORIES, termName)) {
+        if (typeof TERM_FACTORIES[termName] !== "function") {
+          throw new TypeError('ERGM term factory "' + termName + '" is not a function.');
+        }
+        definition = TERM_FACTORIES[termName](descriptor);
+      } else if (hasOwn(TERMS, termName)) {
+        const keys = Object.keys(descriptor);
+        for (let k = 0; k < keys.length; k++) {
+          if (keys[k] !== "term" && keys[k] !== "id") {
+            throw new RangeError(
+              'Fixed term "' + termName + '" does not accept parameter `' + keys[k] + "`."
+            );
+          }
+        }
+        definition = TERMS[termName];
+      } else {
+        throw new RangeError('Unknown ERGM term "' + termName + '" at model entry ' + index + ".");
+      }
+    }
+
+    validateInstanceId(id, index);
+    validateTermDefinition(definition, 'ERGM term "' + termName + '"');
+    Object.freeze(descriptor);
+    return Object.freeze({
+      id: id,
+      term: termName,
+      spec: descriptor,
+      stat: definition.stat,
+      delta: definition.delta,
+      validate: definition.validate || null,
+    });
+  }
+
+  function validateInstances(net, instances) {
+    for (let k = 0; k < instances.length; k++) {
+      if (instances[k].validate) instances[k].validate(net);
+    }
+  }
+
+  function createModel(specs, opts) {
+    if (!Array.isArray(specs)) {
+      throw new TypeError("ERGM.createModel(specs) requires an array.");
+    }
+    const sampler = resolveSampler(opts);
+    const samplerName = opts && opts.sampler !== undefined ? opts.sampler : "gibbs";
+
+    const seen = Object.create(null);
+    const instances = new Array(specs.length);
+    for (let k = 0; k < specs.length; k++) {
+      const instance = normalizeTermInstance(specs[k], k);
+      if (seen[instance.id]) {
+        throw new RangeError('Duplicate ERGM model id "' + instance.id + '".');
+      }
+      seen[instance.id] = true;
+      instances[k] = instance;
+    }
+    Object.freeze(instances);
+
+    const model = {
+      terms: instances,
+      validate: function (net) {
+        validateInstances(net, instances);
+        return model;
+      },
+      statistics: function (net) {
+        validateInstances(net, instances);
+        const out = {};
+        for (let k = 0; k < instances.length; k++) {
+          out[instances[k].id] = instances[k].stat(net);
+        }
+        return out;
+      },
+      sampler: samplerName,
+      step: function (net, theta, rng) {
+        validateInstances(net, instances);
+        return sampler(net, theta, rng, instances);
+      },
+      simulate: function (net, theta, steps, rng, onStep) {
+        validateInstances(net, instances);
+        return runSimulation(net, theta, steps, rng, onStep, instances, sampler);
+      },
+    };
+    Object.defineProperty(model, "_isERGMModel", { value: true });
+    return Object.freeze(model);
+  }
 
   // theta may be a plain object ({edges, nodematch, mutual}) or an array in
   // this order. Read fresh on every call (not cached) because the widget's
   // sliders mutate a single live theta object in place -- a cached lookup
   // would go stale the instant a slider moves mid-run.
-  const TERM_ORDER = ["edges", "nodematch", "mutual"];
+  const TERM_ORDER = [
+    "edges", "nodematch", "mutual", "isolates", "istar2", "ostar2", "density", "idegree15", "odegree15",
+  ];
 
   function thetaValue(theta, name, idx) {
-    const v = Array.isArray(theta) ? theta[idx] : theta[name];
+    const v = Array.isArray(theta) ? theta[idx] : theta && hasOwn(theta, name) ? theta[name] : undefined;
     return v || 0;
   }
 
-  // One Gibbs update on a uniformly random ordered pair (i, j), i != j.
-  // Returns a small record describing what happened, so a caller (e.g. the
-  // widget) can do an incremental UI update instead of a full redraw.
-  function step(net, theta, rng) {
-    const n = net.n;
-    let i = Math.floor(rng() * n);
-    let j = Math.floor(rng() * (n - 1));
-    if (j >= i) j++; // uniform i != j without rejection sampling
-
+  // theta . delta_ij(y): the log-odds of y_ij = 1 given the rest of the graph.
+  function changeScore(net, theta, i, j, instances) {
     let score = 0;
-    for (let k = 0; k < TERM_ORDER.length; k++) {
-      const name = TERM_ORDER[k];
-      const v = thetaValue(theta, name, k);
-      if (v) score += v * TERMS[name].delta(net, i, j);
+    if (instances) {
+      for (let k = 0; k < instances.length; k++) {
+        const v = thetaValue(theta, instances[k].id, k);
+        if (v) score += v * instances[k].delta(net, i, j);
+      }
+    } else {
+      for (let k = 0; k < TERM_ORDER.length; k++) {
+        const name = TERM_ORDER[k];
+        const v = thetaValue(theta, name, k);
+        if (v) score += v * TERMS[name].delta(net, i, j);
+      }
     }
-    const p = 1 / (1 + Math.exp(-score));
+    return score;
+  }
+
+  // Uniform ordered pair i != j without rejection sampling.
+  function randomDyad(n, rng) {
+    const i = Math.floor(rng() * n);
+    let j = Math.floor(rng() * (n - 1));
+    if (j >= i) j++;
+    return [i, j];
+  }
+
+  // Gibbs: redraw y_ij from its full conditional. `p` is P(y_ij = 1 | rest).
+  function gibbsStep(net, theta, rng, instances) {
+    const dyad = randomDyad(net.n, rng);
+    const i = dyad[0];
+    const j = dyad[1];
+    const p = 1 / (1 + Math.exp(-changeScore(net, theta, i, j, instances)));
 
     const was = net.has(i, j);
     const on = rng() < p;
@@ -245,77 +795,92 @@
     return { i: i, j: j, p: p, was: was, on: on, changed: on !== was };
   }
 
-  // theta . delta_ij for the current state of the rest of the graph.
-  function dyadScore(net, theta, i, j) {
-    let score = 0;
-    for (let k = 0; k < TERM_ORDER.length; k++) {
-      const name = TERM_ORDER[k];
-      const v = thetaValue(theta, name, k);
-      if (v) score += v * TERMS[name].delta(net, i, j);
+  // Tie / no-tie (TNT) Metropolis-Hastings, ergm's default proposal for
+  // unconstrained networks (MH_TNT in ergm's C code). With probability
+  // TNT_TIE_PROB the proposal toggles off an existing tie drawn uniformly
+  // from the edge list; otherwise it toggles a uniformly random dyad. Half of
+  // all proposals therefore land on existing ties, which on a sparse network
+  // a uniform dyad pick almost never does, so ties turn over much faster.
+  const TNT_TIE_PROB = 0.5;
+
+  // log q(y | y') / q(y' | y) for toggling one dyad, given the edge count E
+  // and dyad count D of the current graph y. A specific tie is proposed with
+  // probability c/E + (1-c)/D and a specific empty dyad with (1-c)/D, except
+  // that with E = 0 the dyad branch is forced (probability 1/D).
+  function tntLogProposalRatio(nEdges, nDyads, removing) {
+    const c = TNT_TIE_PROB;
+    const odds = c / (1 - c);
+    if (removing) {
+      return nEdges === 1
+        ? -Math.log(c * nDyads + (1 - c))
+        : Math.log(nEdges / (nEdges + odds * nDyads));
     }
-    return score;
+    return nEdges === 0
+      ? Math.log(c * nDyads + (1 - c))
+      : Math.log1p((odds * nDyads) / (nEdges + 1));
   }
 
-  // Uniform ordered pair (i, j), i != j, whose tie state equals `present`.
-  // Rejection sampling; gives up (returns null) if the graph is empty/full.
-  function randomDyad(net, present, rng) {
+  // TNT: always proposes flipping y_ij. `p` is the probability that the
+  // flip was accepted.
+  function tntStep(net, theta, rng, instances) {
     const n = net.n;
-    for (let tries = 0; tries < 10000; tries++) {
-      const i = Math.floor(rng() * n);
-      let j = Math.floor(rng() * (n - 1));
-      if (j >= i) j++;
-      if (net.has(i, j) === present) return [i, j];
+    const nEdges = net._nEdges;
+    let i, j;
+    if (nEdges === 0 || rng() < 1 - TNT_TIE_PROB) {
+      const dyad = randomDyad(n, rng);
+      i = dyad[0];
+      j = dyad[1];
+    } else {
+      const k = net._edges[Math.floor(rng() * nEdges)];
+      i = Math.floor(k / n);
+      j = k - i * n;
     }
-    return null;
+
+    const was = net.has(i, j);
+    const score = changeScore(net, theta, i, j, instances);
+    const logRatio = (was ? -score : score) + tntLogProposalRatio(nEdges, n * (n - 1), was);
+    const p = logRatio >= 0 ? 1 : Math.exp(logRatio);
+    const on = rng() < p ? !was : was;
+    if (on !== was) net.set(i, j, on);
+
+    return { i: i, j: j, p: p, was: was, on: on, changed: on !== was };
   }
 
-  // One Metropolis-Hastings update that keeps the EDGE COUNT FIXED: pick an
-  // existing tie and an empty dyad uniformly, and propose moving the tie
-  // from one to the other. This samples from the ERGM conditional on its
-  // number of edges, where the `edges` coefficient cancels (so whatever
-  // value theta.edges holds is irrelevant here). The proposal is symmetric
-  // -- 1/E * 1/(D - E) both ways -- so the acceptance probability is just
-  // min(1, exp(theta . [g(y') - g(y)])). The change is computed in two
-  // steps (remove, then add on the reduced graph) so that terms such as
-  // `mutual` see the right state when the two dyads share nodes.
-  function stepSwap(net, theta, rng) {
-    const from = randomDyad(net, true, rng);
-    const to = randomDyad(net, false, rng);
-    if (!from || !to) return { changed: false, toggles: [] };
+  const SAMPLERS = { gibbs: gibbsStep, tnt: tntStep };
 
-    const drop = dyadScore(net, theta, from[0], from[1]);
-    net.set(from[0], from[1], false);
-    const add = dyadScore(net, theta, to[0], to[1]);
-
-    if (Math.log(rng()) < add - drop) {
-      net.set(to[0], to[1], true);
-      return {
-        changed: true,
-        toggles: [
-          { i: from[0], j: from[1], on: false },
-          { i: to[0], j: to[1], on: true },
-        ],
-      };
+  // opts.sampler is "gibbs" (default) or "tnt".
+  function resolveSampler(opts) {
+    const name = opts && opts.sampler !== undefined ? opts.sampler : "gibbs";
+    if (typeof name !== "string" || !hasOwn(SAMPLERS, name)) {
+      throw new RangeError('Unknown ERGM sampler "' + name + '"; use "gibbs" or "tnt".');
     }
-    net.set(from[0], from[1], true); // rejected: put the tie back
-    return { changed: false, toggles: [] };
+    return SAMPLERS[name];
   }
 
-  // Run `steps` updates. Optional `onStep(record, k)` callback fires after
-  // each one (used by the animated widget); returning `false` stops early.
-  // `constraint` selects the sampler: undefined/null is the Gibbs sampler on
-  // the full graph space; "edges" holds the edge count fixed (stepSwap).
-  function simulate(net, theta, steps, rng, onStep, constraint) {
-    const stepFun = constraint === "edges" ? stepSwap : step;
+  // One sampler update (Gibbs by default, or TNT with {sampler: "tnt"}).
+  // Returns a small record describing what happened, so a caller (e.g. the
+  // widget) can do an incremental UI update instead of a full redraw.
+  function step(net, theta, rng, opts) {
+    return resolveSampler(opts)(net, theta, rng, null);
+  }
+
+  function runSimulation(net, theta, steps, rng, onStep, instances, sampler) {
     let k = 0;
     for (; k < steps; k++) {
-      const rec = stepFun(net, theta, rng);
+      const rec = sampler(net, theta, rng, instances);
       if (onStep && onStep(rec, k) === false) {
         k++;
         break;
       }
     }
     return k;
+  }
+
+  // Run `steps` sampler updates. Optional `onStep(record, k)` callback fires
+  // after each one (used by the animated widget); returning `false` stops
+  // early. `opts.sampler` selects "gibbs" (default) or "tnt".
+  function simulate(net, theta, steps, rng, onStep, opts) {
+    return runSimulation(net, theta, steps, rng, onStep, null, resolveSampler(opts));
   }
 
   // Build a simple Bernoulli (Erdos-Renyi-style) random directed graph with
@@ -344,9 +909,11 @@
     makeRNG: makeRNG,
     Net: Net,
     TERMS: TERMS,
+    TERM_FACTORIES: TERM_FACTORIES,
     TERM_ORDER: TERM_ORDER,
+    createModel: createModel,
+    SAMPLERS: Object.freeze(Object.keys(SAMPLERS)),
     step: step,
-    stepSwap: stepSwap,
     simulate: simulate,
     bernoulli: bernoulli,
   };

@@ -14,3 +14,18 @@ George G. Vega Yon, Ph.D., is an Associate Research Professor in the Division of
 
 https://ggvy.cl
 
+## Updating ergm-js
+
+The live demo uses a local copy of [ergm-js](https://github.com/gvegayon/ergm-js)
+and its vendored browser dependencies. Refresh them from the upstream GitHub
+release tag with:
+
+```sh
+make update-ergm-js                     # version 0.4.0
+make update-ergm-js ERGM_JS_VERSION=0.4.0  # choose a release version
+make                                    # regenerate docs/ for GitHub Pages
+```
+
+The update downloads all files before replacing the local copy. It requires
+`curl` and does not require npm. After changing versions, test the live
+simulation demo before publishing.

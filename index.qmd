@@ -20,9 +20,7 @@ format:
       data-background-opacity: '0.1'
       data-background-size: 'contain'
     self-contained-math: false
-    # Loads the ergm-js demo used by the two "live" slides. This copy of
-    # ergm-js adds a fixed-edge-count sampler (`constraint: "edges"`), which
-    # the nsi-sep2026 copy does not have.
+    # Load ergm-js for the live simulation demonstration.
     include-in-header:
       - text: |
           <script src="ergm-js/vendor/graphology.umd.min.js"></script>
@@ -57,10 +55,6 @@ $$
 $$
 :::
 
-<!-- Keep this slide first: the block above defines the math macros for the
-     whole deck. Same map as the nsi-sep2026 talk, with today's topic (ERGM
-     methods) highlighted. The point for this audience is the breadth: where
-     a collaboration could start. [1:30 | 1:30] -->
 
 ```{mermaid}
 {{< include fig/research_map.mmd >}}
@@ -73,38 +67,12 @@ $$
 
 ## Today {data-menu-title="Roadmap"}
 
-<!-- TIMING CONTRACT (content before the first heading becomes an empty
-     slide, so this lives here). (45-minute slot, designed to ~43:00)
-       Opening (map + roadmap)      3:00   ->  3:00
-       Part 1  What is an ERGM     14:00   -> 17:00
-       Part 2  Conditioning         6:00   -> 23:00
-       Part 3  Information          9:00   -> 32:00
-       Part 4  Simulation study     9:00   -> 41:00
-       Closing                      2:00   -> 43:00
-     The per-slide [budget | clock] comments after the research map are from
-     the 40-minute version: add ~3:00 to each clock. If running long, cut
-     "Reading the coefficients" (its point is on the ERGMs slide) and "Why
-     fits fail".
-     Notation: the paper's (notation.tex is a KaTeX port of
-     notation-paper.tex).
-     Sources: ../../research/ergm-cond-consistency/experiment-loglik/report.md
-     (Part 3) and report/report.md (Part 4). Figures: scripts/figures.R. -->
-
-<!-- [1:00 | 1:00] -->
-
-::: {style="font-size: 125%;"}
-> Many network models are hard to fit. If we stop modeling **how many** ties there are, do we lose anything about **how** they are arranged?
-:::
 
 ::: {.incremental}
-1. **What is an ERGM?** A statistical model for why ties form, and why fitting it is hard.
-2. **Conditioning on the edge count.** What it is, and what it could cost.
-3. **How much information do we lose?** The likelihood, split in two.
-4. **Does it work in practice?** A simulation study with about 10,000 samples of networks.
-:::
-
-::: {.fragment style="font-size: 80%; color: #666;"}
-Everything from part 3 on is **preliminary**.
+1. **What is an ERGM?**
+2. **Conditioning on the edge count.**
+3. **How much information do we lose?**
+4. **Does it work in practice?**
 :::
 
 
@@ -112,9 +80,8 @@ Everything from part 3 on is **preliminary**.
 
 ## Why model a network? {.compact data-menu-title="Why model networks"}
 
-<!-- [1:30 | 3:30] From the Significance section of the proposal. -->
 
-Seeing a pattern in a network is easy. Saying **what produced it** is not.
+We want to do more than describe or draw a network; we want to **explain it**. 
 
 ::: {.columns}
 ::: {.column width="33%" .fragment}
@@ -128,7 +95,7 @@ Contact networks, vaccination behavior, health-care teams.
 ::: {.column width="33%" .fragment}
 ### {{< fa brain >}} Neuroscience
 
-Are two brain regions connected beyond what their location predicts?
+What connectivity patterns characterize a healthy brain? Do diseases alter them?
 
 Whole-brain connectivity from fMRI [@simpson_exponential_2011].
 :::
@@ -136,7 +103,7 @@ Whole-brain connectivity from fMRI [@simpson_exponential_2011].
 ::: {.column width="33%" .fragment}
 ### {{< fa dna >}} Biology
 
-Do genes that regulate each other also share regulators?
+What patterns of interaction are typical of a protein network?
 
 Protein--protein and gene-regulatory networks.
 :::
@@ -147,24 +114,39 @@ In a network, ties depend on each other. Regression assumes they do not. Exponen
 :::
 
 
-## The model in one equation {data-menu-title="ERGM equation"}
+## ERGMs {.compact}
 
-<!-- [1:30 | 5:30] Walk the colors: data, parameters, statistics, constant,
-     support. Figure: scripts/parts-of-ergm.R. -->
+Exponential-family Random Graph Models (ERGMs or ERG Models) provide a parametric representation of the distribution of $\graph \in \GRAPH$.
 
-![](fig/parts-of-ergm.svg){width="85%" fig-align="center"}
+::: {style="font-size: 80%"}
+$$
+\Pr{\GRAPH}{\Graph = \graph; \params} = \frac{\exp{\t{\params}\textcolor{green}{\s{\graph}}}}{\textcolor{red}{\normconst{\params}}},\quad\graph \in\GRAPH\qquad
+\textcolor{red}{\normconst{\params}}  = \sum_{\graph'\in\GRAPH}\exp{\t{\params}\textcolor{green}{\s{\graph'}}}
+$$
+:::
 
 ::: {.incremental}
-- A network is **one draw** from a distribution over all possible networks, $\GRAPH$.
-- Networks with more of the features we count are more (or less) likely, depending on the sign of $\params$.
-- It is the same family as logistic regression, with the whole network as the outcome [@Hunter2008].
+- $\textcolor{green}{\s{\graph}}$ is the key: it captures the essential features of the network structure.
+- $\textcolor{red}{\eta}$ (the normalizing constant)[^ergmitos] is intractable for most networks-- $O\left(2^{n^2}\right)$ possible networks for $n$ nodes.
+- Simulation is efficient via the **conditional distribution** of a dyad given the rest of the network (a logit model!):
+
+::: {.fragment}
+
+$$
+\Prcond{\GRAPH}{\Graph_{ij}{=}1}{\Graph_{-ij}; \params}
+= \frac{1}{1 + \exp{-\t{\params}\textcolor{purple}{\delta_{ij}}}}
+$$
+
+where [$\textcolor{purple}{\delta_{ij} = \s{\Graph_{ij}^{+}} - \s{\Graph_{ij}^{-}}}$]{style="font-size: 80%"} is how much each statistic changes when the tie $i \to j$ is added.
 :::
+
+:::
+
+[^ergmitos]: Unless you care about small networks (which we do: @yon2019exponential; @ergmito; @defm; @vegayonDiscreteExponentialFamilyModels2022).
 
 
 ## What goes in $\s{\graph}$: counting structures {.compact data-menu-title="Sufficient statistics"}
 
-<!-- [1:30 | 7:00] These five (plus edges) are the terms of today's
-     experiments. Figures from the tabulergm R package. -->
 
 Each statistic counts a **local structure**. Its coefficient says whether the network has more or fewer of them than chance, given everything else in the model.
 
@@ -228,92 +210,8 @@ And always **edges**, $\sum_{i\neq j} y_{ij}$: how many ties there are. It plays
 The last three are **geometrically weighted**: each additional shared partner (or tie) counts a little less than the one before, which behaves better than raw counts of triangles and stars [@snijders_new_2006]. Figures drawn with `tabulergm` [@tabulergm].
 :::
 
-
-## ERGMs {.compact}
-
-<!-- [2:00 | 9:00] The "ERGMs" slide of the nsi-sep2026 deck, in the paper's
-     notation. -->
-
-ERGMs provide a parametric representation of the distribution of $\graph \in \GRAPH$.
-
-::: {style="font-size: 80%"}
-$$
-\begin{aligned}
-\Pr{\GRAPH}{\Graph = \graph; \params} & = \frac{\exp{\t{\params}\textcolor{green}{\s{\graph}}}}{\textcolor{red}{\normconst{\params}}},\quad\graph \in\GRAPH \\
-\textcolor{red}{\normconst{\params}} & = \sum_{\graph'\in\GRAPH}\exp{\t{\params}\textcolor{green}{\s{\graph'}}}
-\end{aligned}
-$$
-:::
-
-::: {.incremental}
-- $\textcolor{green}{\s{\graph}}$ is the key: it captures the essential features of the network structure.
-- $\textcolor{red}{\eta}$ (the normalizing constant)[^ergmitos] is intractable for most networks, so estimation requires simulation.
-- Simulation is efficient via the **conditional distribution** of a dyad given the rest of the network (a logit model!):
-
-::: {style="font-size: 80%" .fragment}
-
-$$
-\Prcond{\GRAPH}{\Graph_{ij}{=}1}{\Graph_{-ij}; \params}
-= \frac{1}{1 + \exp{-\t{\params}\textcolor{purple}{\delta_{ij}}}}
-$$
-
-where [$\textcolor{purple}{\delta_{ij} = \s{\Graph_{ij}^{+}} - \s{\Graph_{ij}^{-}}}$]{style="font-size: 80%"} is how much each statistic changes when the tie $i \to j$ is added.
-:::
-
-:::
-
-[^ergmitos]: Unless you care about small networks (which we do: @yon2019exponential; @ergmito; @defm; @vegayonDiscreteExponentialFamilyModels2022).
-
-
-## Reading the coefficients {.semi data-menu-title="Interpretation"}
-
-<!-- [1:00 | 10:00] The bridge to something the audience already knows. -->
-
-Because the conditional is a logit, each coefficient is a **log-odds ratio**, holding the rest of the network fixed:
-
-::: {.incremental}
-- $\theta_{\text{homophily}} = 1$: a tie between two alike nodes has $e^{1} \approx 2.7$ times the odds of a tie between two unlike ones.
-- $\theta_{\text{mutual}} = 2$: a tie that reciprocates an existing one has $e^{2} \approx 7.4$ times the odds.
-- $\theta_{\text{edges}} = -3$: the baseline. A tie that creates nothing else has probability $\approx 0.05$.
-:::
-
-::: {.takeaway .fragment}
-A logistic regression in which each tie's predictors are the other ties.
-:::
-
-
-## An ERGM, live {.compact data-menu-title="Demo: ERGM"}
-
-<!-- [2:00 | 10:30] Press Run. Raise homophily: the colors separate. Raise
-     mutual: arrows pair up. Then push edges up and watch it fill -- that is
-     the segue to degeneracy. -->
-
-```{=html}
-<div class="ergm-widget" id="ergm-demo" style="font-size: 130%;"></div>
-<script>ERGMWidget.mount(
-  document.getElementById("ergm-demo"), {
-    height: 400,
-    model: ["edges", "nodematch", "mutual"],
-    theta: {edges: -3, nodematch: 0, mutual: 0},
-    stepsPerFrame: 20,
-    n: 60,
-    controls: {n: false, meanDegree: false}
-    }
-);</script>
-```
-
-$$
-\Pr{\GRAPH}{\Graph = \graph; \params} = \frac{\exp{\theta_{\text{edges}}\,\sk{\graph}{\text{edges}} + \theta_{\text{homophily}}\,\sk{\graph}{\text{homophily}} + \theta_{\text{mutual}}\,\sk{\graph}{\text{mutual}}}}{\normconst{\params}}
-$$
-
-::: {.takeaway}
-Simulating is easy: revisit one pair at a time with the logistic formula. The normalizing constant never shows up.
-:::
-
-
 ## Fitting is the hard part {.semi data-menu-title="Estimation"}
 
-<!-- [1:30 | 12:00] -->
 
 ::: {.columns}
 ::: {.column width="55%"}
@@ -332,10 +230,10 @@ $$
 ::: {.column width="45%" .fragment}
 **The loop**
 
-1. Guess $\params$.
+1. Guess $\params$ (usually using Maximum Pseudo-Likelihood, MPLE).
 2. Simulate networks from the model at $\params$.
-3. Compare their statistics with the observed ones.
-4. Update $\params$; go back to 2.
+3. Approximate a ratio of $\normconst{\params}/\normconst{\params_0}$ (~~LLM~~ LLN).
+4. Update $\params$ via a Newton-Raphson step; go back to 2.
 :::
 :::
 
@@ -344,9 +242,52 @@ This only works if the simulated networks look something like the observed one. 
 :::
 
 
+## Reading the coefficients {.semi data-menu-title="Interpretation"}
+
+
+Because the conditional is a logit, each coefficient is a **log-odds ratio**, holding the rest of the network fixed:
+
+::: {.incremental}
+- $\theta_{\text{homophily}} = 1$: a tie between two alike nodes has $e^{1} \approx 2.7$ times the odds of a tie between two unlike ones.
+- $\theta_{\text{mutual}} = 2$: a tie that reciprocates an existing one has $e^{2} \approx 7.4$ times the odds.
+- $\theta_{\text{edges}} = -3$: the baseline. A tie that creates nothing else has probability $\approx 0.05$.
+:::
+
+::: {.takeaway .fragment}
+A logistic regression in which each tie's predictors are the other ties.
+:::
+
+
+## An ERGM, live {.compact data-menu-title="Demo: ERGM"}
+
+
+```{=html}
+<div class="ergm-widget" id="ergm-demo" style="font-size: 130%;"></div>
+<script>ERGMWidget.mount(
+  document.getElementById("ergm-demo"), {
+    height: 400,
+    model: ["edges", "nodematch", "mutual"],
+    theta: {edges: -3, nodematch: 0, mutual: 0},
+    stepsPerFrame: 20,
+    n: 60,
+    controls: {n: true, meanDegree: false}
+    }
+);</script>
+```
+
+$$
+\Pr{\GRAPH}{\Graph = \graph; \params} = \frac{\exp{\theta_{\text{edges}}\,\sk{\graph}{\text{edges}} + \theta_{\text{homophily}}\,\sk{\graph}{\text{homophily}} + \theta_{\text{mutual}}\,\sk{\graph}{\text{mutual}}}}{\normconst{\params}}
+$$
+
+$$
+\Prcond{\GRAPH}{\Graph_{ij}{=}1}{\Graph_{-ij}; \params}
+= \frac{1}{1 + \exp{-\t{\params}\textcolor{purple}{\delta_{ij}}}}
+$$
+
+
+
 ## Degeneracy {.compact data-menu-title="Degeneracy"}
 
-<!-- [2:00 | 14:00] Figure 1 of the proposal. Point at the two corners. -->
 
 ::: {.columns}
 ::: {.column width="50%"}
@@ -370,17 +311,18 @@ The trouble runs along one direction: **the number of ties**. What if we take th
 
 ## Fix what you do not want to model {.compact data-menu-title="Conditional ERGM"}
 
-<!-- [2:00 | 17:00] k is the edges term; c is the observed number of ties. -->
 
 Let $\sk{\graph}{k}$ be the number of ties. Only consider networks with **exactly as many ties as the one we observed**, $\textcolor{#c0491f}{c}$:
 
 ::: {style="font-size: 85%"}
 $$
+\begin{aligned}
 \Prcond{\GRAPH}{\Graph = \graph}{\sk{\Graph}{k} = \textcolor{#c0491f}{c};\ \params}
-= \frac{\exp{\t{\params}\s{\graph}}}{\normconst{\params \mid \sn{k} = \textcolor{#c0491f}{c}}}
-= \frac{\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\exp{\t{\params_{-k}}\sk{\graph}{-k}}}
-       {\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c}\exp{\t{\params_{-k}}\sk{\graph'}{-k}}}
-= \frac{\exp{\t{\params_{-k}}\sk{\graph}{-k}}}{\normconst{\params_{-k} \mid \sn{k} = \textcolor{#c0491f}{c}}}
+& = \frac{\exp{\t{\params}\s{\graph}}}{\normconst{\params \mid \sn{k} = \textcolor{#c0491f}{c}}} \\
+& = \frac{\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\exp{\t{\params_{-k}}\sk{\graph}{-k}}}
+       {\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c}\exp{\t{\params_{-k}}\sk{\graph'}{-k}}} \\
+& = \frac{\exp{\t{\params_{-k}}\sk{\graph}{-k}}}{\normconst{\params_{-k} \mid \sn{k} = \textcolor{#c0491f}{c}}}
+\end{aligned}
 $$
 :::
 
@@ -399,44 +341,8 @@ $\normconst{\params \mid \sn{k} = c} = \sum_{\graph' \in \GRAPH:\, \sk{\graph'}{
 With several networks, each keeps its own edge count, so every network's density drops out at once.
 :::
 
-
-## The conditional model, live {.compact data-menu-title="Demo: conditional"}
-
-<!-- [1:30 | 17:30] Press Run and read the stats box: "edges" never moves.
-     Each step moves one tie from an occupied pair to an empty one. The mean
-     out-degree slider + Reset sets the (fixed) number of ties. -->
-
-```{=html}
-<div class="ergm-widget" id="ergm-demo-cond" style="font-size: 130%;"></div>
-<script>ERGMWidget.mount(
-  document.getElementById("ergm-demo-cond"), {
-    height: 400,
-    model: ["nodematch", "mutual"],
-    theta: {nodematch: 0, mutual: 0},
-    constraint: "edges",
-    stepsPerFrame: 20,
-    n: 60,
-    meanDegree: 4,
-    controls: {n: false, meanDegree: true}
-    }
-);</script>
-```
-
-Same model, no edges term. Each step **moves** a tie instead of adding or deleting one:
-
-$$
-\Pr{}{\text{accept the move}} = \min\left\{1,\ \exp{\t{\params_{-k}}\left[\sk{\graph_{\text{new}}}{-k} - \sk{\graph_{\text{old}}}{-k}\right]}\right\}
-$$
-
-::: {.takeaway}
-The number of ties never changes, so the chain cannot drift to the empty or the complete network.
-:::
-
-
 ## What could it cost? {data-menu-title="The two questions"}
 
-<!-- [1:30 | 20:00] The factorization as written in the paper. This is the
-     spine of the rest of the talk. -->
 
 The full model is the conditional model **times** the model for the edge count:
 
@@ -468,8 +374,6 @@ When we actually fit both models, which one **converges**, how **fast**, and how
 
 ## One design for both questions {.compact data-menu-title="Study design"}
 
-<!-- [1:00 | 20:00] Do NOT read the table. Three things: seven models, small
-     networks in groups of 1 to 20, truth is known because we simulate. -->
 
 We simulate networks from the **full** ERGM (so the unconditional model is the correct one), with known coefficients.
 
@@ -505,8 +409,6 @@ We simulate networks from the **full** ERGM (so the unconditional model is the c
 
 ## Splitting the log-likelihood {.semi data-menu-title="Likelihood decomposition"}
 
-<!-- [2:00 | 23:00] Everything in this part is evaluated AT the true
-     parameter, by simulation only -- no model is fit. -->
 
 Taking logs of the factorization, at the **true** parameter:
 
@@ -530,8 +432,6 @@ The edge count carries a fraction of a percent of the log-likelihood. But that i
 
 ## The right yardstick: Fisher information {.compact data-menu-title="Information identity"}
 
-<!-- [2:00 | 25:00] Say it in words: the full model ALREADY pays for not
-     knowing the edges coefficient. The fair comparison is against that. -->
 
 How precisely can each model pin down $\params_{-k}$? Write $S_k = \sk{\Graph}{k}$ for the edge count and $S_{-k} = \sk{\Graph}{-k}$ for the other statistics.
 
@@ -572,7 +472,6 @@ Conditioning loses information only where the expected statistics **bend** with 
 
 ## Results: triangles lose almost nothing {.results background-color="#fdf6f2" .compact data-menu-title="Information: mutual + gwesp"}
 
-<!-- [1:30 | 25:30] Line = median sample, band = 10th to 90th percentile. -->
 
 ::: {.columns}
 ::: {.column width="62%"}
@@ -598,8 +497,6 @@ In the typical sample, the edge count knows nothing about clustering, homophily 
 
 ## Results: but it depends on the term {.results background-color="#fdf6f2" .compact data-menu-title="Information: all models"}
 
-<!-- [2:00 | 27:30] Read top to bottom: the first four blocks hug zero, the
-     bottom four do not. -->
 
 ::: {.columns}
 ::: {.column width="70%"}
@@ -630,7 +527,6 @@ Two-paths and degrees grow with the **square** of the edge count: that is the be
 
 ## How far to trust these numbers {.compact data-menu-title="Information: checks"}
 
-<!-- [1:30 | 29:00] -->
 
 ::: {.columns .cols-gap}
 ::: {.column width="50%"}
@@ -662,7 +558,6 @@ So far: for the most common specification, conditioning is nearly free on paper.
 
 ## Two ways to fit the same networks {.semi data-menu-title="Simulation: arms"}
 
-<!-- [1:30 | 30:30] -->
 
 ::: {.columns}
 ::: {.column width="50%"}
@@ -690,7 +585,6 @@ So far: for the most common specification, conditioning is nearly free on paper.
 
 ## Results: the short version {.results background-color="#fdf6f2" .compact data-menu-title="Simulation: headline"}
 
-<!-- [1:30 | 32:00] Table 2 of the report, last row. -->
 
 All models and sample sizes pooled (10,179 samples, each fit both ways):
 
@@ -741,7 +635,6 @@ Conditional vs. unconditional. Accuracy and coverage among converged fits.
 
 ## Results: more networks, same story {.results background-color="#fdf6f2" .compact data-menu-title="Simulation: by M"}
 
-<!-- [1:30 | 33:30] The third panel is the consistency picture. -->
 
 ![](fig/sim-by-m.png){width="100%"}
 
@@ -754,7 +647,6 @@ Conditional vs. unconditional. Accuracy and coverage among converged fits.
 
 ## Results: model by model {.results background-color="#fdf6f2" .compact data-menu-title="Simulation: by model"}
 
-<!-- [1:30 | 35:00] -->
 
 ![](fig/sim-by-experiment.png){width="100%"}
 
@@ -767,7 +659,6 @@ Conditional vs. unconditional. Accuracy and coverage among converged fits.
 
 ## Where both models struggle: density {.compact data-menu-title="Simulation: density"}
 
-<!-- [1:30 | 36:30] Table 3c of the report + appendix A1. -->
 
 ::: {.columns}
 ::: {.column width="60%"}
@@ -793,7 +684,6 @@ This is not a failure of conditioning: there is nothing left to estimate. See [\
 
 ## Why fits fail {.compact data-menu-title="Simulation: failures"}
 
-<!-- [1:30 | 38:00] Tables 3b and 8b of the report. -->
 
 Share of fits by cause of failure, range over $M \in \{1, 5, 10, 20\}$:
 
@@ -817,7 +707,6 @@ Share of fits by cause of failure, range over $M \in \{1, 5, 10, 20\}$:
 
 ## Does conditioning on edge counts help? {.compact data-menu-title="Summary"}
 
-<!-- [1:00 | 39:00] -->
 
 ::: {.columns .cols-gap}
 ::: {.column width="50%"}
@@ -848,7 +737,6 @@ If density is a nuisance in your question, do not estimate it. If it is the ques
 
 ## What comes next {.compact .where-next data-menu-title="Next steps"}
 
-<!-- [1:00 | 40:00] -->
 
 :::: {.columns}
 
@@ -906,8 +794,6 @@ Division of Epidemiology<br>University of Utah
 :::
 
 ::: {.column width="50%"}
-<!-- Same research map as the opening slide: bookends the talk and leaves
-     the collaboration areas on screen during questions. -->
 ```{mermaid}
 {{< include fig/research_map.mmd >}}
 ```
@@ -917,6 +803,17 @@ Division of Epidemiology<br>University of Utah
 
 
 # Appendix {visibility="uncounted" background-color="#00707a"}
+
+## The model in one equation {data-menu-title="ERGM equation"}
+
+
+![](fig/parts-of-ergm.svg){width="85%" fig-align="center"}
+
+::: {.incremental}
+- A network is **one draw** from a distribution over all possible networks, $\GRAPH$.
+- Networks with more of the features we count are more (or less) likely, depending on the sign of $\params$.
+- It is the same family as logistic regression, with the whole network as the outcome [@Hunter2008].
+:::
 
 ## The information identity {#information-algebra .compact visibility="uncounted" data-menu-title="Information: algebra"}
 
