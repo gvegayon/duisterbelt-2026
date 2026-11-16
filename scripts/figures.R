@@ -1,12 +1,15 @@
-# Figures for the deck, drawn from the AGGREGATE tables of the two reports in
-# research/ergm-cond-consistency (no fits or networks are read here):
+# Figures of the simulation results, drawn from the aggregate tables in
+# data/ (built by scripts/tables.R on CHPC, or by
+# scripts/tables-from-reports.R from the two reports; see data/README.md).
+# No fit or network is read here.
 #
-#   - report/report.md, Table 2 (conditional vs unconditional MCMLE) and
-#     Table 3c (mutual_gwesp by density);
-#   - experiment-loglik/report.md, section 5 (information lost, all designs).
+#   sim-by-m.png, sim-by-experiment.png   data/sim_compare.csv
+#   sim-density.png                       data/sim_by_density.csv
+#   info-loss.png                         data/info_loss.csv
+#   info-mutual-gwesp.png                 data/info_mutual_gwesp_bins.csv
+#                                         (only when tables.R has run)
 #
-# The numbers are transcribed by hand, so re-check them against the reports if
-# those are re-rendered. Run from the deck's root: Rscript scripts/figures.R
+# Run from the deck's root: Rscript scripts/figures.R
 
 library(ggplot2)
 
@@ -41,22 +44,13 @@ save_fig <- function(p, file, width, height) {
 }
 
 # ---------------------------------------------------------------------------
-# Table 2 of report/report.md
+# Conditional vs unconditional (Table 2 of report/report.md)
 # ---------------------------------------------------------------------------
-tab2 <- read.csv(text = "
-group,samples,conv_cond,conv_uncond,time_cond,time_uncond,bias_cond,bias_uncond,mae_cond,mae_uncond,cov_cond,cov_uncond
-mutual_gwesp,1899,72,67,33,72,0.01,0.00,0.12,0.13,94,93
-mutual_gwdsp,1300,61,55,41,55,0.01,0.02,0.13,0.15,87,84
-mutual_gwesp_size,1186,82,78,21,48,-0.01,-0.01,0.15,0.13,94,93
-undirected_gwesp,1983,66,63,11,32,0.03,0.03,0.14,0.14,94,94
-undirected_gwesp_gwnsp,1111,52,47,160,187,0.00,0.02,0.14,0.16,92,81
-undirected_gwdegree_gwesp,817,55,42,20,28,0.05,0.07,0.21,0.22,95,96
-undirected_gwesp_curved,1883,53,41,55,97,0.00,-0.01,0.24,0.26,89,89
-M1,2361,50,43,4,5,0.06,0.07,0.34,0.35,94,91
-M5,2440,64,55,20,40,0.01,0.02,0.18,0.18,92,91
-M10,2625,66,59,48,100,0.01,0.00,0.13,0.13,92,89
-M20,2753,66,59,120,240,0.01,0.01,0.10,0.11,92,89
-", strip.white = TRUE)
+tab2 <- read.csv("data/sim_compare.csv")
+tab2 <- tab2[tab2$group != "all", ]
+# Shares as percentages, as the panel titles say.
+for (v in c("conv_cond", "conv_uncond", "cov_cond", "cov_uncond"))
+  tab2[[v]] <- 100 * tab2[[v]]
 
 # Long format: one row per (group, measure, model).
 measures <- c(
@@ -165,19 +159,22 @@ p_e <- ggplot(by_e, aes(value, label)) +
 save_fig(p_e, "sim-by-experiment.png", 13, 4.4)
 
 # ---------------------------------------------------------------------------
-# Table 3c of report/report.md: mutual_gwesp by observed density (bins with
-# at least 40 fits per model).
+# mutual_gwesp by observed density (Table 3c of report/report.md), bins with
+# at least 40 fits per model.
 # ---------------------------------------------------------------------------
-dens <- read.csv(text = "
-density,conv_cond,conv_uncond,mae_cond,mae_uncond
-0-0.05,54,40,0.11,0.11
-0.05-0.1,94,84,0.08,0.08
-0.1-0.2,88,77,0.06,0.08
-0.2-0.3,69,65,0.08,0.08
-0.3-0.4,61,59,0.14,0.14
-0.4-0.5,70,67,0.43,0.41
-0.5-0.6,93,91,0.79,0.75
-", strip.white = TRUE)
+dens <- read.csv("data/sim_by_density.csv")
+dens <- dens[dens$experiment == "mutual_gwesp", ]
+# Bins with at least 40 fits in each model.
+keep <- tapply(dens$fits, dens$dband, min) >= 40
+dens <- dens[dens$dband %in% names(keep)[keep], ]
+dens <- data.frame(
+  density     = dens$dband[dens$model == "cond"],
+  conv_cond   = 100 * dens$conv[dens$model == "cond"],
+  conv_uncond = 100 * dens$conv[dens$model == "uncond"],
+  mae_cond    = dens$mae[dens$model == "cond"],
+  mae_uncond  = dens$mae[dens$model == "uncond"]
+)
+dens$density <- gsub("\u2013", "-", dens$density)
 
 dens_long <- rbind(
   data.frame(
@@ -225,53 +222,17 @@ p_d <- ggplot(
 save_fig(p_d, "sim-density.png", 10, 4.2)
 
 # ---------------------------------------------------------------------------
-# Section 5 of experiment-loglik/report.md: information lost by conditioning
-# (expected version), median and 90th percentile over identified samples.
+# Information lost by conditioning (section 5 of experiment-loglik/report.md),
+# median and 90th percentile over the identified samples.
 # ---------------------------------------------------------------------------
-info <- read.csv(text = "
-design,param,M,loss_median,loss_p90
-mutual_gwesp,gwesp,1,0.003,0.079
-mutual_gwesp,gwesp,5,0.005,0.163
-mutual_gwesp,mutual,1,0.001,0.007
-mutual_gwesp,mutual,5,0.002,0.018
-mutual_gwesp,nodematch,1,0.001,0.013
-mutual_gwesp,nodematch,5,0.003,0.050
-mutual_gwdsp,gwdsp,1,0.006,0.152
-mutual_gwdsp,gwdsp,5,0.014,0.702
-mutual_gwdsp,mutual,1,0.001,0.048
-mutual_gwdsp,mutual,5,0.002,0.461
-mutual_gwdsp,nodematch,1,0.001,0.016
-mutual_gwdsp,nodematch,5,0.003,0.076
-mutual_gwesp_size,gwesp,1,0.005,0.150
-mutual_gwesp_size,gwesp,5,0.048,0.767
-mutual_gwesp_size,gwesp x log n,5,0.068,0.936
-mutual_gwesp_size,mutual,1,0.002,0.023
-mutual_gwesp_size,mutual,5,0.006,0.055
-mutual_gwesp_size,nodematch,1,0.002,0.026
-mutual_gwesp_size,nodematch,5,0.011,0.139
-undirected_gwesp,gwesp,1,0.002,0.057
-undirected_gwesp,gwesp,5,0.003,0.060
-undirected_gwesp,nodematch,1,0.001,0.007
-undirected_gwesp,nodematch,5,0.002,0.030
-undirected_gwesp_gwnsp,gwesp,1,0.017,0.291
-undirected_gwesp_gwnsp,gwesp,5,0.068,0.797
-undirected_gwesp_gwnsp,gwnsp,1,0.025,0.732
-undirected_gwesp_gwnsp,gwnsp,5,0.306,0.921
-undirected_gwesp_gwnsp,nodematch,1,0.002,0.255
-undirected_gwesp_gwnsp,nodematch,5,0.025,0.490
-undirected_gwdegree_gwesp,gwdegree,1,0.020,0.212
-undirected_gwdegree_gwesp,gwdegree,5,0.032,0.382
-undirected_gwdegree_gwesp,gwesp,1,0.003,0.043
-undirected_gwdegree_gwesp,gwesp,5,0.002,0.054
-undirected_gwdegree_gwesp,nodematch,1,0.001,0.008
-undirected_gwdegree_gwesp,nodematch,5,0.002,0.029
-undirected_gwesp_curved,gwesp,1,0.002,0.060
-undirected_gwesp_curved,gwesp,5,0.003,0.078
-undirected_gwesp_curved,gwesp decay,1,0.003,0.089
-undirected_gwesp_curved,gwesp decay,5,0.003,0.140
-undirected_gwesp_curved,nodematch,1,0.001,0.010
-undirected_gwesp_curved,nodematch,5,0.002,0.031
-", strip.white = TRUE)
+info <- read.csv("data/info_loss.csv")
+relabel <- c(
+  nodematch.x = "nodematch",
+  gwesp.decay = "gwesp decay",
+  gwesp.logn  = "gwesp x log n"
+)
+hit <- info$param %in% names(relabel)
+info$param[hit] <- relabel[info$param[hit]]
 
 info$design <- factor(labs_e[info$design], levels = rev(labs_e))
 info$param  <- factor(
@@ -317,3 +278,29 @@ p_i <- ggplot(info, aes(y = design, colour = Mlab, shape = Mlab)) +
   )
 
 save_fig(p_i, "info-loss.png", 12, 7.6)
+
+# ---------------------------------------------------------------------------
+# mutual_gwesp by target density (the info-figure of the loglik report).
+# Needs data/info_mutual_gwesp_bins.csv, which only scripts/tables.R writes;
+# without it, fig/info-mutual-gwesp.png is the report's own rendering.
+# ---------------------------------------------------------------------------
+if (file.exists("data/info_mutual_gwesp_bins.csv")) {
+  bins <- read.csv("data/info_mutual_gwesp_bins.csv")
+  bins$param <- factor(
+    ifelse(bins$param == "nodematch.x", "nodematch", bins$param),
+    c("nodematch", "mutual", "gwesp")
+  )
+  bins$Mlab <- paste("M =", bins$M)
+  pcols <- c(nodematch = "#7fb8bd", mutual = muted, gwesp = accent)
+  p_b <- ggplot(bins, aes(dmid, med, colour = param, fill = param)) +
+    geom_ribbon(aes(ymin = lo, ymax = hi), alpha = 0.15, colour = NA) +
+    geom_line(linewidth = 0.9) +
+    geom_point(size = 2.4) +
+    facet_wrap(~Mlab) +
+    scale_colour_manual(values = pcols) +
+    scale_fill_manual(values = pcols) +
+    scale_y_continuous(labels = function(x) paste0(100 * x, "%")) +
+    labs(x = "Target density", y = "Information lost by conditioning") +
+    theme_deck()
+  save_fig(p_b, "info-mutual-gwesp.png", 10, 5.2)
+}

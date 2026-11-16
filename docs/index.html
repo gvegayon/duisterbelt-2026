@@ -463,16 +463,6 @@ mindmap
 <p>With several networks, each keeps its own edge count, so every network’s density drops out at once.</p>
 </div>
 </section>
-<section id="simulating-a-conditional-model" class="slide level2 compact" data-menu-title="Conditional simulation">
-<h2>Simulating a conditional model</h2>
-<p>To keep the edge count fixed, a proposal <strong>moves</strong> a tie from an occupied dyad to an empty one. With a symmetric proposal, accept the move with probability:</p>
-<p><span class="math display">
-{\mathbb{P}_{}\left\{\text{accept the move}\right\} } = \min\left\{1,\ \text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}\left[s_{-k}\left(\mathbf{y}_{\text{new}}\right) - s_{-k}\left(\mathbf{y}_{\text{old}}\right)\right]\right\}\right\}
-</span></p>
-<div class="takeaway">
-<p>The number of ties never changes, so the chain cannot drift to the empty or the complete network.</p>
-</div>
-</section>
 <section id="what-could-it-cost" class="slide level2" data-menu-title="The two questions">
 <h2>What could it cost?</h2>
 <p>The full model is the conditional model <strong>times</strong> the model for the edge count:</p>
@@ -706,7 +696,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <div class="finding fragment">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c2066612062756c6c73657965203e7d7d-just-as-accurate"><i class="fa-solid fa-bullseye" aria-label="bullseye"></i><br>Just as accurate</h3>
 <p><span class="badge badge-strong"><strong>0.15</strong> vs 0.16</span></p>
-<p>Median absolute error; bias 0.01 in both</p>
+<p>Median absolute error; bias 0.01 and 0.01</p>
 </div>
 <div class="finding fragment">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c206661206172726f77732d6c6566742d72696768742d746f2d6c696e65203e7d7d-honest-intervals"><i class="fa-solid fa-arrows-left-right-to-line" aria-label="arrows-left-right-to-line"></i><br>Honest intervals</h3>
@@ -764,10 +754,10 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <p>Share of fits by cause of failure, range over <span class="math inline">M \in \{1, 5, 10, 20\}</span>:</p>
 <table class="caption-top">
 <colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
+<col style="width: 26%">
+<col style="width: 36%">
+<col style="width: 19%">
+<col style="width: 16%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -779,40 +769,40 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Directed, <code>gwesp</code></td>
+<td style="text-align: left;"><code>gwesp (directed)</code></td>
 <td style="text-align: left;">Chain did not mix</td>
-<td style="text-align: right;">3–8%</td>
-<td style="text-align: right;"><strong>0–1%</strong></td>
+<td style="text-align: right;">3%–8%</td>
+<td style="text-align: right;">0%–1%</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">Non-finite standard error</td>
-<td style="text-align: right;">15–32%</td>
-<td style="text-align: right;">17–32%</td>
+<td style="text-align: right;">15%–32%</td>
+<td style="text-align: right;">17%–32%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">Timed out</td>
-<td style="text-align: right;">1–8%</td>
-<td style="text-align: right;">2–5%</td>
+<td style="text-align: right;">1%–8%</td>
+<td style="text-align: right;">2%–5%</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Undirected, <code>gwdegree + gwesp</code></td>
+<td style="text-align: left;"><code>gwdegree + gwesp</code></td>
 <td style="text-align: left;">Chain did not mix</td>
-<td style="text-align: right;">24–36%</td>
-<td style="text-align: right;"><strong>0–21%</strong></td>
+<td style="text-align: right;">24%–36%</td>
+<td style="text-align: right;">0%–21%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">Non-finite standard error</td>
-<td style="text-align: right;">20–35%</td>
-<td style="text-align: right;">25–39%</td>
+<td style="text-align: right;">20%–35%</td>
+<td style="text-align: right;">25%–39%</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">Timed out</td>
-<td style="text-align: right;">1–5%</td>
-<td style="text-align: right;">5–12%</td>
+<td style="text-align: right;">1%–5%</td>
+<td style="text-align: right;">5%–12%</td>
 </tr>
 </tbody>
 </table>
@@ -821,6 +811,43 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <li class="fragment">It does nothing for <strong>non-finite standard errors</strong>. Those are mostly samples whose coefficients cannot be estimated by either model (the “not identified” samples of part 3).</li>
 <li class="fragment">Still, 38% of conditional fits fail. Strong coefficients in small networks are a hard test by design.</li>
 </ul>
+</section>
+<section id="when-the-full-model-fails" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: rescue">
+<h2>When the full model fails</h2>
+<!-- [1:30] The paired question: of the samples where the unconditional fit
+     fails, how many does the conditional fit recover? And the reverse, as a
+     control. Figure and numbers: report/cond-failures.md of the research
+     repository (Figure 1, Table 1); copied by `make figs-from-repo`. -->
+<p>Paired on the sample: both models fit to the same networks, 10,179 samples.</p>
+<p><a href="fig/cond-failures-outcomes.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/cond-failures-outcomes.png" style="width:80.0%"></a></p>
+<ul>
+<li class="fragment"><strong>Conditional only</strong> (orange) outnumbers <strong>full only</strong> (green) at every density below 0.5: 7% against 2% of samples overall (exact McNemar, <span class="math inline">p &lt; 0.001</span>). <!-- - Most failures are shared (**neither**): at $M = 1$ and $5$, a third of them are samples whose drawn coefficients cannot be estimated by either model. --></li>
+</ul>
+<div class="takeaway fragment">
+<p>When the full model fails, the conditional one converges in <strong>17%</strong> of the samples. When the conditional one fails, the full model converges in only <strong>5%</strong>.</p>
+</div>
+</section>
+<section id="converged-is-not-the-same-as-usable" class="slide level2 compact" data-menu-title="Simulation: usable fits">
+<h2>Converged is not the same as usable</h2>
+<!-- [1:30] A rescue only counts if the rescued fit is accurate. Figure and
+     numbers: report/cond-failures.md of the research repository (Figure 4,
+     Table 4); copied by `make figs-from-repo`. -->
+<div class="columns">
+<div class="column" style="width:58%;">
+<p><a href="fig/cond-failures-error.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img data-src="fig/cond-failures-error.png" style="width:100.0%"></a></p>
+<div style="font-size: 80%; color: #666;">
+<p>Absolute error of the GW coefficients of converged fits. Solid: both models converged. Dashed: only this model converged.</p>
+</div>
+</div><div class="column" style="width:42%;">
+<ul>
+<li class="fragment">When both converge, the two models are <strong>indistinguishable</strong>: median absolute error 0.15, 95% intervals cover 92–93%.</li>
+<li class="fragment"><strong>Full model, after the conditional failed</strong> (261 estimates): median error <strong>0.89</strong>, coverage <strong>66%</strong>.</li>
+<li class="fragment"><strong>Conditional, after the full model failed</strong> (856 estimates): median error <strong>0.20</strong>, coverage <strong>89%</strong>.</li>
+</ul>
+</div></div>
+<div class="takeaway fragment">
+<p>The full model’s rare rescues converge to the wrong place. The conditional model’s rescues are close to normal fits.</p>
+</div>
 </section></section>
 <section>
 <section id="closing" class="title-slide slide level1 center" data-background-color="#00707a">
@@ -870,9 +897,6 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <p>How many networks does a study need? Conditional models make the simulations behind a power analysis feasible (<a href="#/power-analysis">&lt;example&gt;</a>).</p>
 <p>Applications: brain networks from fMRI, gene-interaction networks.</p>
 </div></div>
-<div class="fragment" style="margin-top: 1em;">
-<p>All of it as open-source R packages built on <code>ergm</code>.</p>
-</div>
 </section>
 <section id="thank-you" class="slide level2 center" data-menu-title="Thank you">
 <h2>Thank you!</h2>
@@ -949,7 +973,7 @@ mindmap
 <h2>The model in one equation</h2>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:85.0%"></a></p>
+<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:85.0%"></a></p>
 </figure>
 </div>
 <ul>
@@ -960,6 +984,19 @@ mindmap
 </section>
 <section id="information-algebra" class="slide level2 compact" data-visibility="uncounted" data-menu-title="Information: algebra">
 <h2>The information identity</h2>
+<div class="callout callout-caution callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Caution</strong></p>
+</div>
+<div class="callout-content">
+<p>This slide has not been verified by a human reader.</p>
+</div>
+</div>
+</div>
 <p>One network, edges coefficient <span class="math inline">\theta_k</span> unknown. <span class="math inline">S_k = s_{k}\left(\mathbf{Y}\right)</span>: edge count; <span class="math inline">S_{-k} = s_{-k}\left(\mathbf{Y}\right)</span>: the other statistics; <span class="math inline">m(S_k) = {\mathbb{E}\left\{S_{-k}\vphantom{S_k}\right|\left.\vphantom{S_{-k}}S_k\right\}}</span>; <span class="math inline">B = \text{Cov}\left\{S_{-k},\, S_k\right\} / \text{Var}\left\{S_k\right\}</span>.</p>
 <ol type="1">
 <li><p>The law of total covariance gives <span class="math inline">\text{Var}\left\{S_{-k}\right\} = {\mathbb{E}\left\{\text{Var}\left\{S_{-k}\vphantom{S_k}\right|\left.\vphantom{S_{-k}}S_k\right\}\right\}} + \text{Var}\left\{m(S_k)\right\} = I_{\text{cond}} + \text{Var}\left\{m(S_k)\right\}</span>.</p></li>
@@ -988,10 +1025,10 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{S_{-k}\right\} - B\,\text{Va
 <p><span class="math inline">l_{\text{cond}}</span> needs <span class="math inline">\eta\left(\boldsymbol{\theta}\mid s_{k} = c\right)</span>, a sum over all networks with <span class="math inline">c</span> edges. We bridge from the uniform distribution (<span class="math inline">\boldsymbol{\theta}_{-k} = 0</span>, where the sum is known) to the true parameter, forward and in reverse. If a chain only lags, the two directions bracket the value and the gap closes with effort.</p>
 <table class="caption-top">
 <colgroup>
+<col style="width: 50%">
 <col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
+<col style="width: 11%">
+<col style="width: 13%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1037,6 +1074,14 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{S_{-k}\right\} - B\,\text{Va
 <h2>Densities above 0.5</h2>
 <p>From an earlier design with target densities up to 0.9; all models and <span class="math inline">M</span> pooled.</p>
 <table class="caption-top">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 10%">
+<col style="width: 16%">
+<col style="width: 12%">
+<col style="width: 21%">
+<col style="width: 10%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Terms</th>
@@ -1183,7 +1228,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{S_{-k}\right\} - B\,\text{Va
 </div><div class="column" style="width:55%;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/experiment2_gof_bias.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-13" title="Bias in the predicted distribution of shortest paths"><img data-src="fig/experiment2_gof_bias.svg" style="width:100.0%" alt="Bias in the predicted distribution of shortest paths"></a></p>
+<p><a href="fig/experiment2_gof_bias.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-15" title="Bias in the predicted distribution of shortest paths"><img data-src="fig/experiment2_gof_bias.svg" style="width:100.0%" alt="Bias in the predicted distribution of shortest paths"></a></p>
 <figcaption>Bias in the predicted distribution of shortest paths</figcaption>
 </figure>
 </div>
@@ -1199,7 +1244,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{S_{-k}\right\} - B\,\text{Va
 </blockquote>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/power-rejoinder.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-14" title="Figure 1 adapted from @krivitskyRejoinderDiscussionTale2023: empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."><img data-src="fig/power-rejoinder.svg" class="" style="width:65.0%" alt="Figure 1 adapted from Krivitsky et al. (2023): empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."></a></p>
+<p><a href="fig/power-rejoinder.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-16" title="Figure 1 adapted from @krivitskyRejoinderDiscussionTale2023: empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."><img data-src="fig/power-rejoinder.svg" class="" style="width:65.0%" alt="Figure 1 adapted from Krivitsky et al. (2023): empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."></a></p>
 <figcaption>Figure 1 adapted from <span class="citation" data-cites="krivitskyRejoinderDiscussionTale2023">Krivitsky et al. (<a href="#/references" role="doc-biblioref" onclick="">2023</a>)</span>: empirical power for detecting a gender homophily effect (<span class="math inline">\theta_{\text{homophily}} = 1.1</span>) as a function of the number of networks, each with 8 nodes and 20 edges.</figcaption>
 </figure>
 </div>
@@ -1452,6 +1497,44 @@ Vega Yon, George G., Andrew Slaughter, and Kayla de la Haye. 2021. <span>“Expo
         ]
       });
     </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")

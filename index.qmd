@@ -45,9 +45,21 @@ date: 2026-12-01
 date-format: "MMMM YYYY"
 aspectratio: 169
 fig-format: png
+# The R chunks only read the aggregate tables in data/ (scripts/deck.R).
+execute:
+  echo: false
+  warning: false
+  message: false
 ---
 
 ## The research map {data-menu-title="Research map"}
+
+```{r}
+#| label: setup
+# Every table and result number of the deck comes from data/ through these
+# helpers; data/README.md says how data/ is built.
+source("scripts/deck.R")
+```
 
 ::: {.hidden}
 $$
@@ -586,14 +598,14 @@ So far: for the most common specification, conditioning is nearly free on paper.
 ## Results: the short version {.results background-color="#fdf6f2" .compact data-menu-title="Simulation: headline"}
 
 
-All models and sample sizes pooled (10,179 samples, each fit both ways):
+All models and sample sizes pooled (`r big(cmp_all$samples)` samples, each fit both ways):
 
 ::: {.findings-grid .headline}
 
 ::: {.finding .fragment}
 ### {{< fa circle-check >}}<br>Converges more often
 
-[**62%** vs 55%]{.badge .badge-strong}
+[**`r pct(cmp_all$conv_cond)`** vs `r pct(cmp_all$conv_uncond)`]{.badge .badge-strong}
 
 In every one of the seven models
 :::
@@ -601,7 +613,7 @@ In every one of the seven models
 ::: {.finding .fragment}
 ### {{< fa stopwatch >}}<br>Faster
 
-[**31 s** vs 56 s]{.badge .badge-strong}
+[**`r num(cmp_all$time_cond, 0)` s** vs `r num(cmp_all$time_uncond, 0)` s]{.badge .badge-strong}
 
 About half the time with five or more networks
 :::
@@ -609,15 +621,15 @@ About half the time with five or more networks
 ::: {.finding .fragment}
 ### {{< fa bullseye >}}<br>Just as accurate
 
-[**0.15** vs 0.16]{.badge .badge-strong}
+[**`r num(cmp_all$mae_cond)`** vs `r num(cmp_all$mae_uncond)`]{.badge .badge-strong}
 
-Median absolute error; bias 0.01 in both
+Median absolute error; bias `r num(cmp_all$bias_cond)` and `r num(cmp_all$bias_uncond)`
 :::
 
 ::: {.finding .fragment}
 ### {{< fa arrows-left-right-to-line >}}<br>Honest intervals
 
-[**92%** vs 90%]{.badge .badge-strong}
+[**`r pct(cmp_all$cov_cond)`** vs `r pct(cmp_all$cov_uncond)`]{.badge .badge-strong}
 
 Coverage of 95% intervals
 :::
@@ -687,19 +699,63 @@ This is not a failure of conditioning: there is nothing left to estimate. See [\
 
 Share of fits by cause of failure, range over $M \in \{1, 5, 10, 20\}$:
 
-| Model | Cause | Unconditional | Conditional |
-|:--|:--|--:|--:|
-| Directed, `gwesp` | Chain did not mix | 3--8% | **0--1%** |
-| | Non-finite standard error | 15--32% | 17--32% |
-| | Timed out | 1--8% | 2--5% |
-| Undirected, `gwdegree + gwesp` | Chain did not mix | 24--36% | **0--21%** |
-| | Non-finite standard error | 20--35% | 25--39% |
-| | Timed out | 1--5% | 5--12% |
+```{r}
+#| output: asis
+print(tab_failures())
+```
 
 ::: {.incremental}
 - Conditioning nearly removes the failures in which **the chain does not mix**: the degeneracy story of part 1.
 - It does nothing for **non-finite standard errors**. Those are mostly samples whose coefficients cannot be estimated by either model (the "not identified" samples of part 3).
-- Still, 38% of conditional fits fail. Strong coefficients in small networks are a hard test by design.
+- Still, `r pct(1 - cmp_all$conv_cond)` of conditional fits fail. Strong coefficients in small networks are a hard test by design.
+:::
+
+
+## When the full model fails {.results background-color="#fdf6f2" .compact data-menu-title="Simulation: rescue"}
+
+<!-- [1:30] The paired question: of the samples where the unconditional fit
+     fails, how many does the conditional fit recover? And the reverse, as a
+     control. Figure and numbers: report/cond-failures.md of the research
+     repository (Figure 1, Table 1); copied by `make figs-from-repo`. -->
+
+Paired on the sample: both models fit to the same networks, 10,179 samples.
+
+![](fig/cond-failures-outcomes.png){width="80%"}
+
+::: {.incremental}
+- **Conditional only** (orange) outnumbers **full only** (green) at every density below 0.5: 7% against 2% of samples overall (exact McNemar, $p < 0.001$).
+<!-- - Most failures are shared (**neither**): at $M = 1$ and $5$, a third of them are samples whose drawn coefficients cannot be estimated by either model. -->
+:::
+
+::: {.takeaway .fragment}
+When the full model fails, the conditional one converges in **17%** of the samples. When the conditional one fails, the full model converges in only **5%**.
+:::
+
+
+## Converged is not the same as usable {.compact data-menu-title="Simulation: usable fits"}
+
+<!-- [1:30] A rescue only counts if the rescued fit is accurate. Figure and
+     numbers: report/cond-failures.md of the research repository (Figure 4,
+     Table 4); copied by `make figs-from-repo`. -->
+
+::: {.columns}
+::: {.column width="58%"}
+![](fig/cond-failures-error.png){width="100%"}
+
+::: {style="font-size: 80%; color: #666;"}
+Absolute error of the GW coefficients of converged fits. Solid: both models converged. Dashed: only this model converged.
+:::
+:::
+
+::: {.column width="42%" .incremental}
+- When both converge, the two models are **indistinguishable**: median absolute error 0.15, 95% intervals cover 92--93%.
+- **Full model, after the conditional failed** (261 estimates): median error **0.89**, coverage **66%**.
+- **Conditional, after the full model failed** (856 estimates): median error **0.20**, coverage **89%**.
+:::
+:::
+
+::: {.takeaway .fragment}
+The full model's rare rescues converge to the wrong place. The conditional model's rescues are close to normal fits.
 :::
 
 
@@ -770,10 +826,6 @@ Applications: brain networks from fMRI, gene-interaction networks.
 
 ::::
 
-::: {.fragment style="margin-top: 1em;"}
-All of it as open-source R packages built on `ergm`.
-:::
-
 
 ## Thank you! {.center data-menu-title="Thank you"}
 
@@ -817,6 +869,10 @@ Division of Epidemiology<br>University of Utah
 
 ## The information identity {#information-algebra .compact visibility="uncounted" data-menu-title="Information: algebra"}
 
+::: {.callout-caution}
+This slide has not been verified by a human reader.
+:::
+
 One network, edges coefficient $\theta_k$ unknown. $S_k = \sk{\Graph}{k}$: edge count; $S_{-k} = \sk{\Graph}{-k}$: the other statistics; $m(S_k) = \ExpectedCond{S_{-k}}{S_k}$; $B = \Cov{S_{-k}}{S_k} / \Var{S_k}$.
 
 1. The law of total covariance gives $\Var{S_{-k}} = \Expected{\VarCond{S_{-k}}{S_k}} + \Var{m(S_k)} = I_{\text{cond}} + \Var{m(S_k)}$.
@@ -848,11 +904,10 @@ Go [\<back\>](#the-right-yardstick-fisher-information)
 
 $l_{\text{cond}}$ needs $\normconst{\params \mid \sn{k} = c}$, a sum over all networks with $c$ edges. We bridge from the uniform distribution ($\params_{-k} = 0$, where the sum is known) to the true parameter, forward and in reverse. If a chain only lags, the two directions bracket the value and the gap closes with effort.
 
-| Networks (10 each) | Gap, effort $\times 1$ | $\times 8$ | $\times 64$ |
-|:--|--:|--:|--:|
-| Positive `gwesp` | 1.24 | 0.21 | 0.09 |
-| Negative `gwesp` | 179 | 94 | 76 |
-| Negative `gwesp`, $\hat{l}_{\text{cond}} > 0$ | 2,613 | 2,414 | 2,318 |
+```{r}
+#| output: asis
+print(tab_bridges())
+```
 
 ::: {style="font-size: 85%; color: #666;"}
 Median gap between the forward and reverse bridges, in nats.
@@ -870,16 +925,10 @@ Go [\<back\>](#how-far-to-trust-these-numbers)
 
 From an earlier design with target densities up to 0.9; all models and $M$ pooled.
 
-| Terms | Density | Model | Converged | Median abs. error | Coverage |
-|:--|:--|:--|--:|--:|--:|
-| Geometrically weighted | 0.5--0.6 | Unconditional | 35% | 0.89 | 89% |
-| | | Conditional | 44% | 1.40 | 93% |
-| | 0.7--0.8 | Unconditional | 28% | 4.95 | 36% |
-| | | Conditional | 14% | 14.30 | 95% |
-| Homophily and mutual | 0.5--0.6 | Unconditional | 45% | 0.04 | 93% |
-| | | Conditional | 55% | 0.04 | 95% |
-| | 0.7--0.8 | Unconditional | 31% | 0.04 | 94% |
-| | | Conditional | 20% | 0.05 | 95% |
+```{r}
+#| output: asis
+print(tab_dense())
+```
 
 - The weighted terms cannot be estimated by either model. The conditional model says so (wide intervals, 95% coverage); the unconditional one is confidently wrong.
 - Homophily and reciprocity stay accurate at any density, whenever a fit converges.
