@@ -29,7 +29,7 @@ format:
           <script src="ergm-js/src/ergm-widget.js"></script>
 mermaid:
   theme: neutral
-html-math-method: katex
+html-math-method: mathjax
 highlight-style: espresso
 # papers.bib and software.bib are copies of the generated files in
 # ../nsi-sep2026/bib; other.bib is specific to this deck.
@@ -52,7 +52,7 @@ execute:
   message: false
 ---
 
-## The research map {data-menu-title="Research map"}
+## Today {data-menu-title="Roadmap"}
 
 ```{r}
 #| label: setup
@@ -68,17 +68,6 @@ $$
 :::
 
 
-```{mermaid}
-{{< include fig/research_map.mmd >}}
-```
-
-::: {style="font-size: 80%; color: #666;"}
-**Note**: I owe much of the diversity in my work to my collaborators: **it is not a one-person show!**
-:::
-
-
-## Today {data-menu-title="Roadmap"}
-
 
 ::: {.incremental}
 1. **What is an ERGM?**
@@ -87,6 +76,9 @@ $$
 4. **Does it work in practice?**
 :::
 
+::: {.absolute bottom="0" right="0" style="font-size: 80%; color: #666;"}
+Supported by NLM/NIH Award Number R21LM015164. The content is solely the responsibility of the authors and does not necessarily represent the official views of the NIH.
+:::
 
 # Part 1 -- What is an ERGM? {background-color="#00707a"}
 
@@ -222,38 +214,6 @@ And always **edges**, $\sum_{i\neq j} y_{ij}$: how many ties there are. It plays
 The last three are **geometrically weighted**: each additional shared partner (or tie) counts a little less than the one before, which behaves better than raw counts of triangles and stars [@snijders_new_2006]. Figures drawn with `tabulergm` [@tabulergm].
 :::
 
-## Fitting is the hard part {.semi data-menu-title="Estimation"}
-
-
-::: {.columns}
-::: {.column width="55%"}
-The normalizing constant adds over **every possible network**:
-
-$$
-\normconst{\params} = \sum_{\graph' \in \GRAPH} \exp{\t{\params}\s{\graph'}}
-$$
-
-::: {.incremental}
-- A directed network with $n$ nodes has $2^{n(n-1)}$ possible configurations. With $n = 10$, that is $2^{90} \approx 10^{27}$.
-- So the likelihood is **approximated by simulation** (Markov chain Monte Carlo maximum likelihood, MCMC-MLE).
-:::
-:::
-
-::: {.column width="45%" .fragment}
-**The loop**
-
-1. Guess $\params$ (usually using Maximum Pseudo-Likelihood, MPLE).
-2. Simulate networks from the model at $\params$.
-3. Approximate a ratio of $\normconst{\params}/\normconst{\params_0}$ (~~LLM~~ LLN).
-4. Update $\params$ via a Newton-Raphson step; go back to 2.
-:::
-:::
-
-::: {.takeaway .fragment}
-This only works if the simulated networks look something like the observed one. Often they do not.
-:::
-
-
 ## Reading the coefficients {.semi data-menu-title="Interpretation"}
 
 
@@ -277,19 +237,23 @@ A logistic regression in which each tie's predictors are the other ties.
 <div class="ergm-widget" id="ergm-demo" style="font-size: 130%;"></div>
 <script>ERGMWidget.mount(
   document.getElementById("ergm-demo"), {
-    height: 400,
+    height: 300,
     model: ["edges", "nodematch", "mutual"],
     theta: {edges: -3, nodematch: 0, mutual: 0},
     stepsPerFrame: 20,
     n: 60,
-    controls: {n: true, meanDegree: false}
+    controls: {n: false, meanDegree: false}
     }
 );</script>
 ```
 
+Probability function:
+
 $$
 \Pr{\GRAPH}{\Graph = \graph; \params} = \frac{\exp{\theta_{\text{edges}}\,\sk{\graph}{\text{edges}} + \theta_{\text{homophily}}\,\sk{\graph}{\text{homophily}} + \theta_{\text{mutual}}\,\sk{\graph}{\text{mutual}}}}{\normconst{\params}}
 $$
+
+Conditional probability of a tie (for simulation):
 
 $$
 \Prcond{\GRAPH}{\Graph_{ij}{=}1}{\Graph_{-ij}; \params}
@@ -324,33 +288,30 @@ The trouble runs along one direction: **the number of ties**. What if we take th
 ## Fix what you do not want to model {.compact data-menu-title="Conditional ERGM"}
 
 
+- The edges coefficient, $\theta_k$, **cancels**. There is one parameter less, and it is the troublesome one.
+- The empty and the complete network are no longer possible outcomes.
+<!-- - It is the idea behind **conditional logistic regression** (matched case--control studies), applied to networks [@snijders_conditional_2010; @pattison_conditional_2013]. -->
+<!-- - Sometimes it is simply the truth: surveys that cap the number of friends you can name, or brain networks thresholded to a fixed density. -->
+
+::: {.takeaway}
+With several networks, each keeps its own edge count, so every network's density drops out at once.
+:::
+
 Let $\sk{\graph}{k}$ be the number of ties. Only consider networks with **exactly as many ties as the one we observed**, $\textcolor{#c0491f}{c}$:
 
 ::: {style="font-size: 85%"}
 $$
 \begin{aligned}
 \Prcond{\GRAPH}{\Graph = \graph}{\sk{\Graph}{k} = \textcolor{#c0491f}{c};\ \params}
-& = \frac{\exp{\t{\params}\s{\graph}}}{\normconst{\params \mid \sn{k} = \textcolor{#c0491f}{c}}} \\
-& = \frac{\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\exp{\t{\params_{-k}}\sk{\graph}{-k}}}
-       {\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c}\exp{\t{\params_{-k}}\sk{\graph'}{-k}}} \\
-& = \frac{\exp{\t{\params_{-k}}\sk{\graph}{-k}}}{\normconst{\params_{-k} \mid \sn{k} = \textcolor{#c0491f}{c}}}
+& \class{fragment}{= \frac{\exp{\t{\params}\s{\graph}}}{\normconst{\params \mid \sn{k} = \textcolor{#c0491f}{c}}}} %
+\class{fragment}{= \frac{\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\exp{\t{\params_{-k}}\sk{\graph}{-k}}}{\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c}\exp{\t{\params_{-k}}\sk{\graph'}{-k}}}} \\
+& \class{fragment}{= \frac{\exp{\t{\params_{-k}}\sk{\graph}{-k}}}{\normconst{\params_{-k} \mid \sn{k} = \textcolor{#c0491f}{c}}}}
 \end{aligned}
 $$
 :::
 
 ::: {style="font-size: 85%; color: #666;"}
 $\normconst{\params \mid \sn{k} = c} = \sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c} \exp{\t{\params}\s{\graph'}}$ is the normalizing constant over the networks with $c$ ties; $-k$ means "all terms but the $k$-th".
-:::
-
-::: {.incremental}
-- The edges coefficient, $\theta_k$, **cancels**. There is one parameter less, and it is the troublesome one.
-- The empty and the complete network are no longer possible outcomes.
-- It is the idea behind **conditional logistic regression** (matched case--control studies), applied to networks [@snijders_conditional_2010; @pattison_conditional_2013].
-- Sometimes it is simply the truth: surveys that cap the number of friends you can name, or brain networks thresholded to a fixed density.
-:::
-
-::: {.takeaway .fragment}
-With several networks, each keeps its own edge count, so every network's density drops out at once.
 :::
 
 ## What could it cost? {data-menu-title="The two questions"}
@@ -866,6 +827,37 @@ Division of Epidemiology<br>University of Utah
 - Networks with more of the features we count are more (or less) likely, depending on the sign of $\params$.
 - It is the same family as logistic regression, with the whole network as the outcome [@Hunter2008].
 :::
+
+## Fitting is the hard part {.semi data-menu-title="Estimation"}
+
+::: {.columns}
+::: {.column width="55%"}
+The normalizing constant adds over **every possible network**:
+
+$$
+\normconst{\params} = \sum_{\graph' \in \GRAPH} \exp{\t{\params}\s{\graph'}}
+$$
+
+::: {.incremental}
+- A directed network with $n$ nodes has $2^{n(n-1)}$ possible configurations. With $n = 10$, that is $2^{90} \approx 10^{27}$.
+- So the likelihood is **approximated by simulation** (Markov chain Monte Carlo maximum likelihood, MCMC-MLE).
+:::
+:::
+
+::: {.column width="45%" .fragment}
+**The loop**
+
+1. Guess $\params$ (usually using Maximum Pseudo-Likelihood, MPLE).
+2. Simulate networks from the model at $\params$.
+3. Approximate a ratio of $\normconst{\params}/\normconst{\params_0}$ (~~LLM~~ LLN).
+4. Update $\params$ via a Newton-Raphson step; go back to 2.
+:::
+:::
+
+::: {.takeaway .fragment}
+This only works if the simulated networks look something like the observed one. Often they do not.
+:::
+
 
 ## The information identity {#information-algebra .compact visibility="uncounted" data-menu-title="Information: algebra"}
 
