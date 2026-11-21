@@ -73,7 +73,7 @@ $$
 
 
 ::: {.incremental}
-1. **What is an ERGM?**
+1. **Statistical inference in networks**
 2. **Conditioning on the edge count.**
 3. **How much information do we lose?**
 4. **Does it work in practice?**
@@ -83,79 +83,77 @@ $$
 Supported by NLM/NIH Award Number R21LM015164. The content is solely the responsibility of the authors and does not necessarily represent the official views of the NIH.
 :::
 
-# Part 1 -- What is an ERGM? {background-color="#00707a"}
-
-## Why model a network? {.compact data-menu-title="Why model networks"}
+# Part 1 -- Statistical inference in networks {background-color="#00707a"}
 
 
-We want to do more than describe or draw a network; we want to **explain it**. 
+## Public health: physicians who share patients {.compact data-menu-title="Application: physician networks"}
 
 ::: {.columns}
-::: {.column width="33%" .fragment}
-### {{< fa people-group >}} Public health
-
-Do people befriend those who share their behavior, or is it that friends of friends tend to meet?
-
-Contact networks, vaccination behavior, health-care teams.
+::: {.column width="58%"}
+![Physicians at two Indiana hospitals, tied when they share Medicare patients, coloured by specialty. Fig. 3 of @moen_analysis_2016.](fig/app-moen2016-physicians.jpg){width="100%"}
 :::
 
-::: {.column width="33%" .fragment}
-### {{< fa brain >}} Neuroscience
+::: {.column width="42%"}
+**Question:** do physicians share patients with others of the **same specialty** (homophily), and does the network explain differences in evidence-based care?
 
-What connectivity patterns characterize a healthy brain? Do diseases alter them?
+**ERGM:** edges + degree + homophily on specialty and other traits, one network per hospital.
 
-Whole-brain connectivity from fMRI [@simpson_exponential_2011].
+::: {.fragment}
+**But:** "ERGMs do not converge or yield plausible estimates for our physician network when including [...] geometric weighted edgewise shared-partner network statistics" [@moen_analysis_2016].
+
+So clustering was left out.
+:::
+:::
 :::
 
-::: {.column width="33%" .fragment}
-### {{< fa dna >}} Biology
 
-What patterns of interaction are typical of a protein network?
+## Neuroscience: whole-brain connectivity {.compact data-menu-title="Application: brain networks"}
 
-Protein--protein and gene-regulatory networks.
+::: {.columns}
+::: {.column width="55%"}
+![A functional brain network (fMRI, 90 regions) drawn in brain space. Fig. 1 of @simpson_exponential_2011, CC BY.](fig/app-simpson2011-brain.png){width="100%"}
+:::
+
+::: {.column width="45%"}
+**Question:** which local patterns produce the brain's global organisation?
+
+**Finding:** after edges, **clustering** (`gwesp`) is the strongest term [@simpson_exponential_2011].
+
+::: {.fragment}
+**Many brains at once:** @lehmann_characterising_2021 fit ERGMs to the networks of a whole group (young vs older adults) and find group differences in `gwnsp`.
+
+The networks come from **thresholding** correlations at a chosen average degree: the analyst, not the brain, sets the density. A natural case for conditioning on the edge count.
+:::
+:::
+:::
+
+
+## Biology: gene regulation {.compact data-menu-title="Application: gene regulation"}
+
+::: {.columns}
+::: {.column width="62%"}
+![The *E. coli* regulatory network; node size by in-degree (a) and out-degree (b); self-regulating operons in red. Fig. 5 of @stivala_testing_2021, CC BY.](fig/app-stivala2021-ecoli.png){width="100%"}
+:::
+
+::: {.column width="38%"}
+**Question:** are some motifs, such as the **feed-forward loop**, more common than chance?
+
+**ERGM:** the motifs are model terms, tested together while accounting for degree.
+
+**Finding:** feed-forward loops (transitive triangles) are over-represented in *E. coli* and yeast regulatory networks [@stivala_testing_2021].
 :::
 :::
 
 ::: {.takeaway .fragment}
-In a network, ties depend on each other. Regression assumes they do not. Exponential-family Random Graph Models (ERGMs) are built for the dependence.
+Across fields, the question is the same: which local structures, clustering above all, explain the network? Those are the terms that make ERGMs hard to fit.
 :::
 
 
-## ERGMs {.compact}
 
-Exponential-family Random Graph Models (ERGMs or ERG Models) provide a parametric representation of the distribution of $\graph \in \GRAPH$.
-
-::: {style="font-size: 80%"}
-$$
-\Pr{\GRAPH}{\Graph = \graph; \params} = \frac{\exp{\t{\params}\textcolor{green}{\s{\graph}}}}{\textcolor{red}{\normconst{\params}}},\quad\graph \in\GRAPH\qquad
-\textcolor{red}{\normconst{\params}}  = \sum_{\graph'\in\GRAPH}\exp{\t{\params}\textcolor{green}{\s{\graph'}}}
-$$
-:::
-
-::: {.incremental}
-- $\textcolor{green}{\s{\graph}}$ is the key: it captures the essential features of the network structure.
-- $\textcolor{red}{\eta}$ (the normalizing constant)[^ergmitos] is intractable for most networks-- $O\left(2^{n^2}\right)$ possible networks for $n$ nodes.
-- Simulation is efficient via the **conditional distribution** of a dyad given the rest of the network (a logit model!):
-
-::: {.fragment}
-
-$$
-\Prcond{\GRAPH}{\Graph_{ij}{=}1}{\Graph_{-ij}; \params}
-= \frac{1}{1 + \exp{-\t{\params}\textcolor{purple}{\delta_{ij}}}}
-$$
-
-where [$\textcolor{purple}{\delta_{ij} = \s{\Graph_{ij}^{+}} - \s{\Graph_{ij}^{-}}}$]{style="font-size: 80%"} is how much each statistic changes when the tie $i \to j$ is added.
-:::
-
-:::
-
-[^ergmitos]: Unless you care about small networks (which we do: @yon2019exponential; @ergmito; @defm; @vegayonDiscreteExponentialFamilyModels2022).
+## Sufficient Statistics: Counting Structures {.compact data-menu-title="Sufficient statistics"}
 
 
-## What goes in $\s{\graph}$: counting structures {.compact data-menu-title="Sufficient statistics"}
-
-
-Each statistic counts a **local structure**. Its coefficient says whether the network has more or fewer of them than chance, given everything else in the model.
+Each statistic counts a **local structure**. Its coefficient says whether the network has more or fewer of them than chance, given everything else in the model. Besides of the **edges** term (density), the most common are:
 
 ::: {.columns .terms-row}
 ::: {.column width="20%" .fragment}
@@ -209,13 +207,43 @@ Each statistic counts a **local structure**. Its coefficient says whether the ne
 :::
 :::
 
-::: {.fragment}
-And always **edges**, $\sum_{i\neq j} y_{ij}$: how many ties there are. It plays the role of the intercept.
+::: {.takeaway .fragment}
+This is what Exponential-family Random Graph Models (ERGMs) do: they measure the **excess or deficit of local structures** 
 :::
 
-::: {.fragment style="font-size: 85%; color: #666;"}
+::: { style="font-size: 85%; color: #666;"}
 The last three are **geometrically weighted**: each additional shared partner (or tie) counts a little less than the one before, which behaves better than raw counts of triangles and stars [@snijders_new_2006]. Figures drawn with `tabulergm` [@tabulergm].
 :::
+
+## ERGMs {.compact}
+
+Exponential-family Random Graph Models (ERGMs or ERG Models) provide a parametric representation of the distribution of $\graph \in \GRAPH$.
+
+::: {style="font-size: 80%"}
+$$
+\Pr{\GRAPH}{\Graph = \graph; \params} = \frac{\exp{\t{\params}\textcolor{green}{\s{\graph}}}}{\textcolor{red}{\normconst{\params}}},\quad\graph \in\GRAPH\qquad
+\textcolor{red}{\normconst{\params}}  = \sum_{\graph'\in\GRAPH}\exp{\t{\params}\textcolor{green}{\s{\graph'}}}
+$$
+:::
+
+::: {.incremental}
+- $\textcolor{green}{\s{\graph}}$ is the key: it captures the essential features of the network structure.
+- $\textcolor{red}{\eta}$ (the normalizing constant)[^ergmitos] is intractable for most networks-- $O\left(2^{n^2}\right)$ possible networks for $n$ nodes.
+- Simulation is efficient via the **conditional distribution** of a dyad given the rest of the network (a logit model!):
+
+::: {.fragment}
+
+$$
+\Prcond{\GRAPH}{\Graph_{ij}{=}1}{\Graph_{-ij}; \params}
+= \frac{1}{1 + \exp{-\t{\params}\textcolor{purple}{\delta_{ij}}}}
+$$
+
+where [$\textcolor{purple}{\delta_{ij} = \s{\Graph_{ij}^{+}} - \s{\Graph_{ij}^{-}}}$]{style="font-size: 80%"} is how much each statistic changes when the tie $i \to j$ is added.
+:::
+
+:::
+
+[^ergmitos]: Unless you care about small networks (which we do: @yon2019exponential; @ergmito; @defm; @vegayonDiscreteExponentialFamilyModels2022).
 
 ## Reading the coefficients {.semi data-menu-title="Interpretation"}
 
@@ -233,7 +261,7 @@ A logistic regression in which each tie's predictors are the other ties.
 :::
 
 
-## An ERGM, live {.compact data-menu-title="Demo: ERGM"}
+## Simulation ERGMs {.compact data-menu-title="Demo: ERGM"}
 
 
 ```{=html}
@@ -892,6 +920,41 @@ Division of Epidemiology<br>University of Utah
 
 
 # Appendix {visibility="uncounted" background-color="#00707a"}
+
+## Why model a network? {.compact data-menu-title="Why model networks"}
+
+
+We want to do more than describe or draw a network; we want to **explain it**. 
+
+::: {.columns}
+::: {.column width="33%" .fragment}
+### {{< fa people-group >}} Public health
+
+Do people befriend those who share their behavior, or is it that friends of friends tend to meet?
+
+Contact networks, vaccination behavior, health-care teams.
+:::
+
+::: {.column width="33%" .fragment}
+### {{< fa brain >}} Neuroscience
+
+What connectivity patterns characterize a healthy brain? Do diseases alter them?
+
+Whole-brain connectivity from fMRI [@simpson_exponential_2011].
+:::
+
+::: {.column width="33%" .fragment}
+### {{< fa dna >}} Biology
+
+What patterns of interaction are typical of a protein network?
+
+Protein--protein and gene-regulatory networks.
+:::
+:::
+
+::: {.takeaway .fragment}
+In a network, ties depend on each other. Regression assumes they do not. Exponential-family Random Graph Models (ERGMs) are built for the dependence.
+:::
 
 ## The model in one equation {data-menu-title="ERGM equation"}
 

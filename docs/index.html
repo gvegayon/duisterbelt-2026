@@ -192,7 +192,7 @@
 <p>$$</p>
 </div>
 <ol type="1">
-<li class="fragment"><strong>What is an ERGM?</strong></li>
+<li class="fragment"><strong>Statistical inference in networks</strong></li>
 <li class="fragment"><strong>Conditioning on the edge count.</strong></li>
 <li class="fragment"><strong>How much information do we lose?</strong></li>
 <li class="fragment"><strong>Does it work in practice?</strong></li>
@@ -202,29 +202,102 @@
 </div>
 </section>
 <section>
-<section id="part-1-what-is-an-ergm" class="title-slide slide level1 center" data-background-color="#00707a">
-<h1>Part 1 – What is an ERGM?</h1>
+<section id="part-1-statistical-inference-in-networks" class="title-slide slide level1 center" data-background-color="#00707a">
+<h1>Part 1 – Statistical inference in networks</h1>
 
 </section>
-<section id="why-model-a-network" class="slide level2 compact" data-menu-title="Why model networks">
-<h2>Why model a network?</h2>
-<p>We want to do more than describe or draw a network; we want to <strong>explain it</strong>.</p>
+<section id="public-health-physicians-who-share-patients" class="slide level2 compact" data-menu-title="Application: physician networks">
+<h2>Public health: physicians who share patients</h2>
 <div class="columns">
-<div class="column fragment" style="width:33%;">
-<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c2066612070656f706c652d67726f7570203e7d7d-public-health"><i class="fa-solid fa-people-group" aria-label="people-group"></i> Public health</h3>
-<p>Do people befriend those who share their behavior, or is it that friends of friends tend to meet?</p>
-<p>Contact networks, vaccination behavior, health-care teams.</p>
-</div><div class="column fragment" style="width:33%;">
-<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20666120627261696e203e7d7d-neuroscience"><i class="fa-solid fa-brain" aria-label="brain"></i> Neuroscience</h3>
-<p>What connectivity patterns characterize a healthy brain? Do diseases alter them?</p>
-<p>Whole-brain connectivity from fMRI <span class="citation" data-cites="simpson_exponential_2011">(<a href="#/references" role="doc-biblioref" onclick="">Simpson et al. 2011</a>)</span>.</p>
-</div><div class="column fragment" style="width:33%;">
-<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20666120646e61203e7d7d-biology"><i class="fa-solid fa-dna" aria-label="dna"></i> Biology</h3>
-<p>What patterns of interaction are typical of a protein network?</p>
-<p>Protein–protein and gene-regulatory networks.</p>
+<div class="column" style="width:58%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="fig/app-moen2016-physicians.jpg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Physicians at two Indiana hospitals, tied when they share Medicare patients, coloured by specialty. Fig. 3 of @moen_analysis_2016."><img data-src="fig/app-moen2016-physicians.jpg" style="width:100.0%" alt="Physicians at two Indiana hospitals, tied when they share Medicare patients, coloured by specialty. Fig. 3 of Moen et al. (2016)."></a></p>
+<figcaption>Physicians at two Indiana hospitals, tied when they share Medicare patients, coloured by specialty. Fig. 3 of <span class="citation" data-cites="moen_analysis_2016">Moen et al. (<a href="#/references" role="doc-biblioref" onclick="">2016</a>)</span>.</figcaption>
+</figure>
+</div>
+</div><div class="column" style="width:42%;">
+<p><strong>Question:</strong> do physicians share patients with others of the <strong>same specialty</strong> (homophily), and does the network explain differences in evidence-based care?</p>
+<p><strong>ERGM:</strong> edges + degree + homophily on specialty and other traits, one network per hospital.</p>
+<div class="fragment">
+<p><strong>But:</strong> “ERGMs do not converge or yield plausible estimates for our physician network when including […] geometric weighted edgewise shared-partner network statistics” <span class="citation" data-cites="moen_analysis_2016">(<a href="#/references" role="doc-biblioref" onclick="">Moen et al. 2016</a>)</span>.</p>
+<p>So clustering was left out.</p>
+</div>
+</div></div>
+</section>
+<section id="neuroscience-whole-brain-connectivity" class="slide level2 compact" data-menu-title="Application: brain networks">
+<h2>Neuroscience: whole-brain connectivity</h2>
+<div class="columns">
+<div class="column" style="width:55%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="fig/app-simpson2011-brain.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="A functional brain network (fMRI, 90 regions) drawn in brain space. Fig. 1 of @simpson_exponential_2011, CC BY."><img data-src="fig/app-simpson2011-brain.png" style="width:100.0%" alt="A functional brain network (fMRI, 90 regions) drawn in brain space. Fig. 1 of Simpson et al. (2011), CC BY."></a></p>
+<figcaption>A functional brain network (fMRI, 90 regions) drawn in brain space. Fig. 1 of <span class="citation" data-cites="simpson_exponential_2011">Simpson et al. (<a href="#/references" role="doc-biblioref" onclick="">2011</a>)</span>, CC BY.</figcaption>
+</figure>
+</div>
+</div><div class="column" style="width:45%;">
+<p><strong>Question:</strong> which local patterns produce the brain’s global organisation?</p>
+<p><strong>Finding:</strong> after edges, <strong>clustering</strong> (<code>gwesp</code>) is the strongest term <span class="citation" data-cites="simpson_exponential_2011">(<a href="#/references" role="doc-biblioref" onclick="">Simpson et al. 2011</a>)</span>.</p>
+<div class="fragment">
+<p><strong>Many brains at once:</strong> <span class="citation" data-cites="lehmann_characterising_2021">Lehmann et al. (<a href="#/references" role="doc-biblioref" onclick="">2021</a>)</span> fit ERGMs to the networks of a whole group (young vs older adults) and find group differences in <code>gwnsp</code>.</p>
+<p>The networks come from <strong>thresholding</strong> correlations at a chosen average degree: the analyst, not the brain, sets the density. A natural case for conditioning on the edge count.</p>
+</div>
+</div></div>
+</section>
+<section id="biology-gene-regulation" class="slide level2 compact" data-menu-title="Application: gene regulation">
+<h2>Biology: gene regulation</h2>
+<div class="columns">
+<div class="column" style="width:62%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="fig/app-stivala2021-ecoli.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="The E. coli regulatory network; node size by in-degree (a) and out-degree (b); self-regulating operons in red. Fig. 5 of @stivala_testing_2021, CC BY."><img data-src="fig/app-stivala2021-ecoli.png" style="width:100.0%" alt="The E. coli regulatory network; node size by in-degree (a) and out-degree (b); self-regulating operons in red. Fig. 5 of Stivala and Lomi (2021), CC BY."></a></p>
+<figcaption>The <em>E. coli</em> regulatory network; node size by in-degree (a) and out-degree (b); self-regulating operons in red. Fig. 5 of <span class="citation" data-cites="stivala_testing_2021">Stivala and Lomi (<a href="#/references" role="doc-biblioref" onclick="">2021</a>)</span>, CC BY.</figcaption>
+</figure>
+</div>
+</div><div class="column" style="width:38%;">
+<p><strong>Question:</strong> are some motifs, such as the <strong>feed-forward loop</strong>, more common than chance?</p>
+<p><strong>ERGM:</strong> the motifs are model terms, tested together while accounting for degree.</p>
+<p><strong>Finding:</strong> feed-forward loops (transitive triangles) are over-represented in <em>E. coli</em> and yeast regulatory networks <span class="citation" data-cites="stivala_testing_2021">(<a href="#/references" role="doc-biblioref" onclick="">Stivala and Lomi 2021</a>)</span>.</p>
 </div></div>
 <div class="takeaway fragment">
-<p>In a network, ties depend on each other. Regression assumes they do not. Exponential-family Random Graph Models (ERGMs) are built for the dependence.</p>
+<p>Across fields, the question is the same: which local structures, clustering above all, explain the network? Those are the terms that make ERGMs hard to fit.</p>
+</div>
+</section>
+<section id="sufficient-statistics-counting-structures" class="slide level2 compact" data-menu-title="Sufficient statistics">
+<h2>Sufficient Statistics: Counting Structures</h2>
+<p>Each statistic counts a <strong>local structure</strong>. Its coefficient says whether the network has more or fewer of them than chance, given everything else in the model. Besides of the <strong>edges</strong> term (density), the most common are:</p>
+<div class="columns terms-row">
+<div class="column fragment" style="width:20%;">
+<p><a href="fig/term-mutual.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img data-src="fig/term-mutual.png" height="130"></a></p>
+<h3 id="mutual-ties">Mutual ties</h3>
+<p><code>mutual</code></p>
+<p>“I name you, you name me”</p>
+</div><div class="column fragment" style="width:20%;">
+<p><a href="fig/term-nodematch.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img data-src="fig/term-nodematch.png" height="130"></a></p>
+<h3 id="homophily">Homophily</h3>
+<p><code>nodematch</code></p>
+<p>“We are alike”</p>
+</div><div class="column fragment" style="width:20%;">
+<p><a href="fig/term-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img data-src="fig/term-gwesp.png" height="130"></a></p>
+<h3 id="closure">Closure</h3>
+<p><code>gwesp</code></p>
+<p>“Our friends are friends”</p>
+</div><div class="column fragment" style="width:20%;">
+<p><a href="fig/term-gwdsp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img data-src="fig/term-gwdsp.png" height="130"></a></p>
+<h3 id="shared-partners">Shared partners</h3>
+<p><code>gwdsp</code></p>
+<p>“We know the same people”</p>
+</div><div class="column fragment" style="width:20%;">
+<p><a href="fig/term-gwdegree.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="fig/term-gwdegree.png" height="130"></a></p>
+<h3 id="popularity">Popularity</h3>
+<p><code>gwdegree</code></p>
+<p>“Some have many ties”</p>
+</div></div>
+<div class="takeaway fragment">
+<p>This is what Exponential-family Random Graph Models (ERGMs) do: they measure the <strong>excess or deficit of local structures</strong></p>
+</div>
+<div style="font-size: 85%; color: #666;">
+<p>The last three are <strong>geometrically weighted</strong>: each additional shared partner (or tie) counts a little less than the one before, which behaves better than raw counts of triangles and stars <span class="citation" data-cites="snijders_new_2006">(<a href="#/references" role="doc-biblioref" onclick="">Snijders et al. 2006</a>)</span>. Figures drawn with <code>tabulergm</code> <span class="citation" data-cites="tabulergm">(<a href="#/references" role="doc-biblioref" onclick="">Vega Yon 2026b</a>)</span>.</p>
 </div>
 </section>
 <section id="ergms" class="slide level2 compact">
@@ -249,43 +322,6 @@
 <p>where <span style="font-size: 80%"><span class="math inline">\(\textcolor{purple}{\delta_{ij} = s\left(\mathbf{Y}_{ij}^{+}\right) - s\left(\mathbf{Y}_{ij}^{-}\right)}\)</span></span> is how much each statistic changes when the tie <span class="math inline">\(i \to j\)</span> is added.</p>
 </div>
 <aside><ol class="aside-footnotes"><li id="fn1"><p>Unless you care about small networks (which we do: <span class="citation" data-cites="yon2019exponential">Vega Yon et al. (<a href="#/references" role="doc-biblioref" onclick="">2021</a>)</span>; <span class="citation" data-cites="ergmito">Vega Yon and Haye (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span>; <span class="citation" data-cites="defm">Vega Yon (<a href="#/references" role="doc-biblioref" onclick="">2026a</a>)</span>; <span class="citation" data-cites="vegayonDiscreteExponentialFamilyModels2022">Vega Yon et al. (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span>).</p></li></ol></aside></section>
-<section id="what-goes-in-sleftmathbfyright-counting-structures" class="slide level2 compact" data-menu-title="Sufficient statistics">
-<h2>What goes in <span class="math inline">\(s\left(\mathbf{y}\right)\)</span>: counting structures</h2>
-<p>Each statistic counts a <strong>local structure</strong>. Its coefficient says whether the network has more or fewer of them than chance, given everything else in the model.</p>
-<div class="columns terms-row">
-<div class="column fragment" style="width:20%;">
-<p><a href="fig/term-mutual.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img data-src="fig/term-mutual.png" height="130"></a></p>
-<h3 id="mutual-ties">Mutual ties</h3>
-<p><code>mutual</code></p>
-<p>“I name you, you name me”</p>
-</div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-nodematch.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img data-src="fig/term-nodematch.png" height="130"></a></p>
-<h3 id="homophily">Homophily</h3>
-<p><code>nodematch</code></p>
-<p>“We are alike”</p>
-</div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img data-src="fig/term-gwesp.png" height="130"></a></p>
-<h3 id="closure">Closure</h3>
-<p><code>gwesp</code></p>
-<p>“Our friends are friends”</p>
-</div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-gwdsp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img data-src="fig/term-gwdsp.png" height="130"></a></p>
-<h3 id="shared-partners">Shared partners</h3>
-<p><code>gwdsp</code></p>
-<p>“We know the same people”</p>
-</div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-gwdegree.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img data-src="fig/term-gwdegree.png" height="130"></a></p>
-<h3 id="popularity">Popularity</h3>
-<p><code>gwdegree</code></p>
-<p>“Some have many ties”</p>
-</div></div>
-<div class="fragment">
-<p>And always <strong>edges</strong>, <span class="math inline">\(\sum_{i\neq j} y_{ij}\)</span>: how many ties there are. It plays the role of the intercept.</p>
-</div>
-<div class="fragment" style="font-size: 85%; color: #666;">
-<p>The last three are <strong>geometrically weighted</strong>: each additional shared partner (or tie) counts a little less than the one before, which behaves better than raw counts of triangles and stars <span class="citation" data-cites="snijders_new_2006">(<a href="#/references" role="doc-biblioref" onclick="">Snijders et al. 2006</a>)</span>. Figures drawn with <code>tabulergm</code> <span class="citation" data-cites="tabulergm">(<a href="#/references" role="doc-biblioref" onclick="">Vega Yon 2026b</a>)</span>.</p>
-</div>
-</section>
 <section id="reading-the-coefficients" class="slide level2 semi" data-menu-title="Interpretation">
 <h2>Reading the coefficients</h2>
 <p>Because the conditional is a logit, each coefficient is a <strong>log-odds ratio</strong>, holding the rest of the network fixed:</p>
@@ -298,8 +334,8 @@
 <p>A logistic regression in which each tie’s predictors are the other ties.</p>
 </div>
 </section>
-<section id="an-ergm-live" class="slide level2 compact" data-menu-title="Demo: ERGM">
-<h2>An ERGM, live</h2>
+<section id="simulation-ergms" class="slide level2 compact" data-menu-title="Demo: ERGM">
+<h2>Simulation ERGMs</h2>
 <div class="ergm-widget" id="ergm-demo" style="font-size: 130%;"></div>
 <script>ERGMWidget.mount(
   document.getElementById("ergm-demo"), {
@@ -325,7 +361,7 @@
 <h2>Degeneracy</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<p><a href="fig/ergm-distributions.webp" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img data-src="fig/ergm-distributions.webp" style="width:95.0%"></a></p>
+<p><a href="fig/ergm-distributions.webp" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img data-src="fig/ergm-distributions.webp" style="width:95.0%"></a></p>
 </div><div class="column" style="width:50%;">
 <ul>
 <li class="fragment">Each dot is a possible network: its share of ties (x) and of triangles (y).</li>
@@ -707,7 +743,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <h2>Results: triangles lose almost nothing</h2>
 <div class="columns">
 <div class="column" style="width:64%;">
-<p><a href="fig/info-mutual-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img data-src="fig/info-mutual-gwesp.png" style="width:100.0%"></a></p>
+<p><a href="fig/info-mutual-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img data-src="fig/info-mutual-gwesp.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Directed model with homophily, mutual and gwesp. One point per sample where <code>gwesp</code> is identified; curves are densities.</p>
 </div>
@@ -726,7 +762,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <h2>Results: but it depends on the term</h2>
 <div class="columns">
 <div class="column" style="width:66%;">
-<p><a href="fig/info-terms.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="fig/info-terms.png" style="width:100.0%"></a></p>
+<p><a href="fig/info-terms.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="fig/info-terms.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Three undirected models (all with homophily); each row is one of the model’s coefficients. One point per sample where it is identified.</p>
 </div>
@@ -899,7 +935,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="results-more-networks-same-story" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: by M">
 <h2>Results: more networks, same story</h2>
-<p><a href="fig/sim-by-m.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img data-src="fig/sim-by-m.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-by-m.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/sim-by-m.png" style="width:100.0%"></a></p>
 <ul>
 <li class="fragment"><strong>Consistency.</strong> The error falls from 0.33 with one network to 0.10 with twenty, at the same rate in both models.</li>
 <li class="fragment"><strong>Time.</strong> The gap widens with <span class="math inline">\(M\)</span>: a converged fit of twenty networks takes 1.4 minutes against 3.1.</li>
@@ -908,7 +944,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="results-model-by-model" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: by model">
 <h2>Results: model by model</h2>
-<p><a href="fig/sim-by-experiment.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img data-src="fig/sim-by-experiment.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-by-experiment.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img data-src="fig/sim-by-experiment.png" style="width:100.0%"></a></p>
 <ul>
 <li class="fragment">The gain in convergence is largest with an estimated decay (+12 points). With <code>gwesp + gwnsp</code> there is none: 40% against 39%.</li>
 <li class="fragment">With two-path and degree terms the conditional fits <strong>time out more often</strong>: 40% against 34% with <code>gwnsp</code>, 28% against 12% with <code>gwdegree</code>.</li>
@@ -919,7 +955,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <h2>Where both models struggle: density</h2>
 <div class="columns">
 <div class="column" style="width:60%;">
-<p><a href="fig/sim-density.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="fig/sim-density.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-density.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img data-src="fig/sim-density.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Directed model with homophily, mutual and gwesp; all <span class="math inline">\(M\)</span>.</p>
 </div>
@@ -1054,7 +1090,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <p>Paired on the sample: both models fit to the same networks, 13,989 samples.</p>
 <div class="columns">
 <div class="column" style="width:58%;">
-<p><a href="fig/cond-failures-outcomes.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/cond-failures-outcomes.png" style="width:100.0%"></a></p>
+<p><a href="fig/cond-failures-outcomes.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img data-src="fig/cond-failures-outcomes.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p><strong>Conditional only</strong> (red) outnumbers <strong>full only</strong> (green) at every density below 0.5: 8% against 3% of samples (exact McNemar, <span class="math inline">\(p &lt; 0.001\)</span>).</p>
 </div>
@@ -1101,7 +1137,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
      Table 4, positive clustering rows); copied by `make figs-from-repo`. -->
 <div class="columns">
 <div class="column" style="width:58%;">
-<p><a href="fig/cond-failures-error.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img data-src="fig/cond-failures-error.png" style="width:100.0%"></a></p>
+<p><a href="fig/cond-failures-error.png" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img data-src="fig/cond-failures-error.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Positive clustering. Absolute error of the GW coefficients of converged fits. Solid: both models converged. Dashed: only this model converged.</p>
 </div>
@@ -1236,11 +1272,32 @@ mindmap
 <h1>Appendix</h1>
 
 </section>
+<section id="why-model-a-network" class="slide level2 compact" data-menu-title="Why model networks">
+<h2>Why model a network?</h2>
+<p>We want to do more than describe or draw a network; we want to <strong>explain it</strong>.</p>
+<div class="columns">
+<div class="column fragment" style="width:33%;">
+<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c2066612070656f706c652d67726f7570203e7d7d-public-health"><i class="fa-solid fa-people-group" aria-label="people-group"></i> Public health</h3>
+<p>Do people befriend those who share their behavior, or is it that friends of friends tend to meet?</p>
+<p>Contact networks, vaccination behavior, health-care teams.</p>
+</div><div class="column fragment" style="width:33%;">
+<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20666120627261696e203e7d7d-neuroscience"><i class="fa-solid fa-brain" aria-label="brain"></i> Neuroscience</h3>
+<p>What connectivity patterns characterize a healthy brain? Do diseases alter them?</p>
+<p>Whole-brain connectivity from fMRI <span class="citation" data-cites="simpson_exponential_2011">(<a href="#/references" role="doc-biblioref" onclick="">Simpson et al. 2011</a>)</span>.</p>
+</div><div class="column fragment" style="width:33%;">
+<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20666120646e61203e7d7d-biology"><i class="fa-solid fa-dna" aria-label="dna"></i> Biology</h3>
+<p>What patterns of interaction are typical of a protein network?</p>
+<p>Protein–protein and gene-regulatory networks.</p>
+</div></div>
+<div class="takeaway fragment">
+<p>In a network, ties depend on each other. Regression assumes they do not. Exponential-family Random Graph Models (ERGMs) are built for the dependence.</p>
+</div>
+</section>
 <section id="the-model-in-one-equation" class="slide level2" data-menu-title="ERGM equation">
 <h2>The model in one equation</h2>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:85.0%"></a></p>
+<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-17"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:85.0%"></a></p>
 </figure>
 </div>
 <ul>
@@ -1550,7 +1607,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{S_{-k}\right\} - B\,\text{Va
 </div><div class="column" style="width:55%;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/experiment2_gof_bias.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-15" title="Bias in the predicted distribution of shortest paths"><img data-src="fig/experiment2_gof_bias.svg" style="width:100.0%" alt="Bias in the predicted distribution of shortest paths"></a></p>
+<p><a href="fig/experiment2_gof_bias.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-18" title="Bias in the predicted distribution of shortest paths"><img data-src="fig/experiment2_gof_bias.svg" style="width:100.0%" alt="Bias in the predicted distribution of shortest paths"></a></p>
 <figcaption>Bias in the predicted distribution of shortest paths</figcaption>
 </figure>
 </div>
@@ -1566,7 +1623,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{S_{-k}\right\} - B\,\text{Va
 </blockquote>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/power-rejoinder.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-16" title="Figure 1 adapted from @krivitskyRejoinderDiscussionTale2023: empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."><img data-src="fig/power-rejoinder.svg" class="" style="width:65.0%" alt="Figure 1 adapted from Krivitsky et al. (2023): empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."></a></p>
+<p><a href="fig/power-rejoinder.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-19" title="Figure 1 adapted from @krivitskyRejoinderDiscussionTale2023: empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."><img data-src="fig/power-rejoinder.svg" class="" style="width:65.0%" alt="Figure 1 adapted from Krivitsky et al. (2023): empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."></a></p>
 <figcaption>Figure 1 adapted from <span class="citation" data-cites="krivitskyRejoinderDiscussionTale2023">Krivitsky et al. (<a href="#/references" role="doc-biblioref" onclick="">2023</a>)</span>: empirical power for detecting a gender homophily effect (<span class="math inline">\(\theta_{\text{homophily}} = 1.1\)</span>) as a function of the number of networks, each with 8 nodes and 20 edges.</figcaption>
 </figure>
 </div>
@@ -1586,6 +1643,12 @@ Krivitsky, Pavel N., Pietro Coletti, and Niel Hens. 2023. <span>“Rejoinder to 
 <div id="ref-krivitsky_adjusting_2011" class="csl-entry" role="listitem">
 Krivitsky, Pavel N., Mark S. Handcock, and Martina Morris. 2011. <span>“Adjusting for Network Size and Composition Effects in Exponential-Family Random Graph Models.”</span> <em>Statistical Methodology</em> 8 (4): 319–39. <a href="https://doi.org/10.1016/j.stamet.2011.01.005">https://doi.org/10.1016/j.stamet.2011.01.005</a>.
 </div>
+<div id="ref-lehmann_characterising_2021" class="csl-entry" role="listitem">
+Lehmann, B. C. L., R. N. Henson, L. Geerligs, Cam-CAN, and S. R. White. 2021. <span>“Characterising Group-Level Brain Connectivity: <span>A</span> Framework Using <span>Bayesian</span> Exponential Random Graph Models.”</span> <em>NeuroImage</em> 225 (January): 117480. <a href="https://doi.org/10.1016/j.neuroimage.2020.117480">https://doi.org/10.1016/j.neuroimage.2020.117480</a>.
+</div>
+<div id="ref-moen_analysis_2016" class="csl-entry" role="listitem">
+Moen, Erika L., Andrea M. Austin, Julie P. Bynum, Jonathan S. Skinner, and A. James O’Malley. 2016. <span>“An Analysis of Patient-Sharing Physician Networks and Implantable Cardioverter Defibrillator Therapy.”</span> <em>Health Services and Outcomes Research Methodology</em> 16 (3): 132–53. <a href="https://doi.org/10.1007/s10742-016-0152-x">https://doi.org/10.1007/s10742-016-0152-x</a>.
+</div>
 <div id="ref-schweinberger_instability_2011" class="csl-entry" role="listitem">
 Schweinberger, Michael. 2011. <span>“Instability, Sensitivity, and Degeneracy of Discrete Exponential Families.”</span> <em>Journal of the American Statistical Association</em> 106 (496): 1361–70. <a href="https://doi.org/10.1198/jasa.2011.tm10747">https://doi.org/10.1198/jasa.2011.tm10747</a>.
 </div>
@@ -1594,6 +1657,9 @@ Simpson, Sean L., Satoru Hayasaka, and Paul J. Laurienti. 2011. <span>“Exponen
 </div>
 <div id="ref-snijders_new_2006" class="csl-entry" role="listitem">
 Snijders, Tom A. B., Philippa E. Pattison, Garry L. Robins, and Mark S. Handcock. 2006. <span>“New Specifications for Exponential Random Graph Models.”</span> <em>Sociological Methodology</em> 36 (1): 99–153. <a href="https://doi.org/10.1111/j.1467-9531.2006.00176.x">https://doi.org/10.1111/j.1467-9531.2006.00176.x</a>.
+</div>
+<div id="ref-stivala_testing_2021" class="csl-entry" role="listitem">
+Stivala, Alex, and Alessandro Lomi. 2021. <span>“Testing Biological Network Motif Significance with Exponential Random Graph Models.”</span> <em>Applied Network Science</em> 6 (1): 91. <a href="https://doi.org/10.1007/s41109-021-00434-y">https://doi.org/10.1007/s41109-021-00434-y</a>.
 </div>
 <div id="ref-vegayonPowerMulticollinearitySmall2023a" class="csl-entry" role="listitem">
 Vega Yon, George G. 2023. <span>“Power and Multicollinearity in Small Networks: A Discussion of <span>‘Tale of Two Datasets: Representativeness and Generalisability of Inference for Samples of Networks’</span> by Krivitsky, Coletti, and Hens.”</span> <em>Journal of the American Statistical Association</em> 118 (544): 2228–31. <a href="https://doi.org/10.1080/01621459.2023.2252041">https://doi.org/10.1080/01621459.2023.2252041</a>.
