@@ -1,0 +1,13 @@
+"failed_model","pairs","type","n","share"
+"cond",387,"timeout",247,0.638242894056848
+"cond",387,"non-finite SE",99,0.255813953488372
+"cond",387,"MCMC did not mix",22,0.0568475452196382
+"cond",387,"ergm d2e bug",0,0
+"cond",387,"other numerical error",19,0.0490956072351421
+"cond",387,"ok",0,0
+"uncond",1120,"timeout",578,0.516071428571429
+"uncond",1120,"non-finite SE",32,0.0285714285714286
+"uncond",1120,"MCMC did not mix",391,0.349107142857143
+"uncond",1120,"ergm d2e bug",29,0.0258928571428571
+"uncond",1120,"other numerical error",90,0.0803571428571429
+"uncond",1120,"ok",0,0

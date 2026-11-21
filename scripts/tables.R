@@ -73,7 +73,25 @@ cmp <- do.call(rbind, lapply(cmp, function(x) {
   names(x)[1] <- "group"
   x
 }))
+# Median time of the converged fits only. The report's time (over all fits,
+# timeouts at the limit) mixes speed with how often a model times out; this
+# one is the speed of a fit that works.
+fit1 <- res[!duplicated(res[c("sample", "arm")]) & res$ok, ]
+time_ok <- function(f, m) stats::median(f$time[f$model == m])
+grp <- c(
+  split(fit1, as.character(fit1$experiment)),
+  split(fit1, paste0("M", fit1$M)),
+  list(all = fit1)
+)
+cmp$time_ok_cond   <- vapply(grp[cmp$group], time_ok, 1, m = "cond")
+cmp$time_ok_uncond <- vapply(grp[cmp$group], time_ok, 1, m = "uncond")
 write_csv(cmp, "sim_compare")
+
+# Quality of the GW coefficients beyond convergence (report, "Beyond
+# convergence", Table 12): converged, usable (SE <= 1, |est| <= 10) and
+# accurate (usable, interval covers the truth and excludes 0), by the sign of
+# the clustering coefficient.
+write_csv(quality_table(quality_cols(res[res$role == "GW", ])), "sim_quality")
 
 # By observed density, GW coefficients (Tables 3c-9c).
 dens <- do.call(rbind, lapply(exps, function(e) {
@@ -173,16 +191,30 @@ paired_by <- function(x, by, ok_u, ok_c) {
     )
   }))
 }
+# Sign of the sample's clustering coefficient, and whether each fit is usable
+# (every GW coefficient converged with SE <= 1 and |est| <= 10), as in
+# report/cond-failures.qmd.
+q <- quality_cols(res)
+q <- q[q$role == "GW", ]
+use <- tapply(q$usable, paste(q$sample, q$arm), all)
+w$usable.u <- unname(use[paste(w$sample, "uncond")])
+w$usable.c <- unname(use[paste(w$sample, "cond")])
+w$clustering <- q$clustering[match(w$sample, q$sample)]
 paired <- rbind(
   cbind(definition = "finite", rbind(
     paired_by(w, "experiment", "ok.u", "ok.c"),
     paired_by(w, "M", "ok.u", "ok.c"),
     paired_by(w, "dband", "ok.u", "ok.c"),
+    paired_by(w, "clustering", "ok.u", "ok.c"),
     paired_by(w, "all", "ok.u", "ok.c")
   )),
   cbind(definition = "defined", rbind(
     paired_by(w, "experiment", "defined.u", "defined.c"),
     paired_by(w, "all", "defined.u", "defined.c")
+  )),
+  cbind(definition = "usable", rbind(
+    paired_by(w, "clustering", "usable.u", "usable.c"),
+    paired_by(w, "all", "usable.u", "usable.c")
   ))
 )
 write_csv(paired, "sim_paired")
@@ -230,8 +262,67 @@ write_csv(
   utils::read.csv(file.path(ll, "calibration", "summary.csv")),
   "bridges"
 )
+
+# The `mutual_gwesp` figure by target density and sign of the clustering
+# coefficient (theta_gwesp), from the per-sample export of the loglik
+# experiment in data/loglik and data/samples (no CHPC needed). Median and
+# 10th-90th percentiles of the loss over identified samples; the samples
+# where the conditional model does not identify a coefficient are counted
+# in info_gwesp_sign instead.
+lfile <- file.path(repo, "data", "loglik", "mutual_gwesp.csv")
+sfile <- file.path(repo, "data", "samples", "mutual_gwesp.csv")
+if (file.exists(lfile) && file.exists(sfile)) {
+  smp <- utils::read.csv(sfile)
+  mg  <- merge(
+    utils::read.csv(lfile),
+    smp[c("M", "r", "ref_density", "theta_gwesp")],
+    by = c("M", "r")
+  )
+  mg$identified <- as.logical(mg$identified)
+  mg$clustering <- ifelse(mg$theta_gwesp > 0, "positive", "negative")
+  qq <- function(x, p) stats::quantile(x, p, names = FALSE, na.rm = TRUE)
+  sign_rows <- function(g) {
+    l <- g$loss[g$identified]
+    data.frame(
+      param      = g$param[1],
+      M          = g$M[1],
+      clustering = g$clustering[1],
+      samples    = nrow(g),
+      not_id     = sum(!g$identified),
+      med        = stats::median(l, na.rm = TRUE),
+      p90        = qq(l, 0.9),
+      over_5     = mean(l > 0.05, na.rm = TRUE)
+    )
+  }
+  write_csv(
+    do.call(rbind, lapply(
+      split(mg, mg[c("param", "M", "clustering")], drop = TRUE),
+      sign_rows
+    )),
+    "info_gwesp_sign"
+  )
+  cuts <- c(0.05, 0.1, 0.15, 0.2, 0.3, 0.5)
+  mg <- mg[mg$identified & is.finite(mg$loss), ]
+  mg$dbin <- cut(mg$ref_density, cuts, include.lowest = TRUE)
+  mids <- (head(cuts, -1) + cuts[-1]) / 2
+  bins <- do.call(rbind, lapply(
+    split(mg, mg[c("M", "dbin", "param", "clustering")], drop = TRUE),
+    function(g) data.frame(
+      M          = g$M[1],
+      dmid       = mids[as.integer(g$dbin[1])],
+      param      = g$param[1],
+      clustering = g$clustering[1],
+      samples    = nrow(g),
+      med        = stats::median(g$loss),
+      lo         = qq(g$loss, 0.1),
+      hi         = qq(g$loss, 0.9)
+    )
+  ))
+  write_csv(bins, "info_mutual_gwesp_bins")
+}
+
 if (!dir.exists(file.path(ll, "results-v3"))) {
-  cat("no experiment-loglik/results-v3: info_loss and its bins not written\n")
+  cat("no experiment-loglik/results-v3: info_loss not written\n")
   quit(save = "no")
 }
 old_wd <- setwd(ll)
@@ -283,24 +374,4 @@ info <- do.call(rbind, lapply(
   }
 ))
 write_csv(info[order(match(info$design, exps), info$param, info$M), ], "info_loss")
-
-# The figure of `mutual_gwesp` by target density (bins of 0.05): median and
-# 10th-90th percentiles over samples, as in the loglik report's info-figure.
-mg <- des[des$design == "mutual_gwesp" & is.finite(des$loss), ]
-mg$dbin <- cut(mg$ref_dens, seq(0.05, 0.5, by = 0.05), include.lowest = TRUE)
-bins <- do.call(rbind, lapply(
-  split(mg, list(mg$M, mg$dbin, mg$param), drop = TRUE),
-  function(g) {
-    lim <- as.numeric(strsplit(gsub("[^0-9.,]", "", g$dbin[1]), ",")[[1]])
-    data.frame(
-      M     = g$M[1],
-      dmid  = mean(lim),
-      param = g$param[1],
-      med   = stats::median(g$loss),
-      lo    = q(g$loss, 0.1),
-      hi    = q(g$loss, 0.9)
-    )
-  }
-))
-write_csv(bins, "info_mutual_gwesp_bins")
 

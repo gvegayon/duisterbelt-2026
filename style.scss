@@ -450,3 +450,52 @@ $results-wash:   #fdf6f2;
 // Five term cards: reserve two lines for every title so a title that wraps
 // ("Shared partners") does not push its card's text below its neighbours'.
 .reveal .terms-row h3 { font-size: 0.95em; min-height: 2.4em; }
+
+// ---------------------------------------------------------------------------
+// Diagrams (fig/diag-*.svg). They are inlined through raw HTML blocks rather
+// than linked with ![](), for two reasons: inline SVG inherits the deck font,
+// and its <g> groups can carry reveal `fragment` classes. All colour lives
+// here, so the SVG files hold geometry only. Sizes inside the SVGs are in
+// viewBox units; the SVG is scaled to its container's width.
+.reveal svg.diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: .3em auto 0;
+  overflow: visible;
+  font-family: inherit;
+
+  text          { fill: #374151; font-size: 21px; }
+  text.small    { font-size: 17px; }
+  .muted        { fill: $muted; }
+  .accent       { fill: $accent; font-weight: 600; }
+  .rust         { fill: $results-accent; font-weight: 600; }
+
+  .axis         { stroke: #9ca3af; stroke-width: 1.5; fill: none; }
+  .arrowhead    { fill: #9ca3af; }
+  .bars rect    { fill: #cbd5e1; }
+  .slice-bar    { fill: $results-accent; }
+  .slice-band   { fill: rgba($results-accent, .14); stroke: $results-accent; stroke-width: 1.5; }
+  .slice-box    { fill: rgba($results-accent, .05); stroke: $results-accent; stroke-width: 1.5; }
+  .funnel       { stroke: $results-accent; stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+  .cross line   { stroke: $results-accent; stroke-width: 4; stroke-linecap: round; }
+  .observed-ring { fill: none; stroke: $results-accent; stroke-width: 2; stroke-dasharray: 4 3; }
+
+  .node         { fill: $accent; }
+  .tie line, line.tie { stroke: #9ca3af; stroke-width: 2.5; }
+  .tie-new      { stroke: $results-accent; stroke-width: 5; stroke-linecap: round; }
+  .tie-gone     { stroke: $muted; stroke-width: 3; stroke-dasharray: 3 5; stroke-linecap: round; }
+
+  .curve        { stroke: $accent; stroke-width: 4; fill: none; stroke-linecap: round; }
+  .fit          { stroke: #374151; stroke-width: 2; stroke-dasharray: 7 6; fill: none; }
+  .hump         { stroke: #9ca3af; stroke-width: 2; fill: rgba(#9ca3af, .15); }
+  .gap line     { stroke: $results-accent; stroke-width: 4; stroke-linecap: round; }
+
+  .step         { stroke: #9ca3af; stroke-width: 2.5; fill: none; }
+  .box          { fill: #fff; stroke: #d1d5db; stroke-width: 2; }
+  .box-start    { fill: mix($accent, #fff, 12%); stroke: $accent; }
+  .box-hot      { stroke: $results-accent; stroke-width: 3; }
+}
+
+// The sampler panels sit under a column h3; the step text says it all.
+.reveal svg.diagram.sampler { max-width: 360px; margin: 0 0 .2em; }

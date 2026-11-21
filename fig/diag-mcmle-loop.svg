@@ -1,0 +1,37 @@
+<!-- Appendix "Fitting is the hard part": the MCMC-MLE loop as a cycle. The
+     simulation step carries the rust outline because it is where degenerate
+     models break the loop (the slide's takeaway) and the one step the
+     conditional model changes (the move sampler). -->
+<svg class="diagram loop" viewBox="0 0 460 350" role="img"
+     aria-label="MCMC-MLE loop: start from the MPLE guess, then repeat simulate networks, approximate the ratio of normalizing constants, and take a Newton-Raphson step.">
+  <defs>
+    <marker id="loop-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="arrowhead"/>
+    </marker>
+  </defs>
+  <!-- Start -->
+  <rect class="box box-start" x="130" y="4" width="200" height="50" rx="25"/>
+  <text x="230" y="35" text-anchor="middle">Guess θ (MPLE)</text>
+  <line class="step" x1="230" y1="56" x2="230" y2="94" marker-end="url(#loop-arrow)"/>
+
+  <!-- The loop -->
+  <rect class="box box-hot" x="120" y="98" width="220" height="58" rx="10"/>
+  <text x="230" y="124" text-anchor="middle">Simulate networks</text>
+  <text x="230" y="146" text-anchor="middle" class="small muted">from the model at θ</text>
+
+  <rect class="box" x="250" y="226" width="205" height="58" rx="10"/>
+  <text x="352" y="252" text-anchor="middle">Approximate</text>
+  <text x="352" y="274" text-anchor="middle" class="small muted">η(θ)/η(θ₀) by the <tspan text-decoration="line-through">LLM</tspan> LLN</text>
+
+  <rect class="box" x="5" y="226" width="205" height="58" rx="10"/>
+  <text x="107" y="252" text-anchor="middle">Update θ</text>
+  <text x="107" y="274" text-anchor="middle" class="small muted">Newton–Raphson step</text>
+
+  <path class="step" d="M300,158 Q345,185 350,222" marker-end="url(#loop-arrow)"/>
+  <line class="step" x1="248" y1="255" x2="214" y2="255" marker-end="url(#loop-arrow)"/>
+  <path class="step" d="M105,224 Q112,185 158,160" marker-end="url(#loop-arrow)"/>
+  <text x="230" y="210" text-anchor="middle" class="small muted">repeat</text>
+
+  <text x="230" y="320" text-anchor="middle" class="small rust">The outlined step breaks when the simulated</text>
+  <text x="230" y="342" text-anchor="middle" class="small rust">networks look nothing like the data</text>
+</svg>

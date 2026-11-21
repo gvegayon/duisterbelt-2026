@@ -18,7 +18,10 @@ format:
     title-slide-attributes:
       data-background-image: 'fig/Zoom-Background_PrideU.jpg'
       data-background-opacity: '0.1'
-      data-background-size: 'contain'
+      # `cover` fills the whole screen at any window shape (cropping a sliver
+      # of the photo); `contain` left empty bands around it.
+      data-background-size: 'cover'
+      data-background-position: 'center'
     self-contained-math: false
     # Load ergm-js for the live simulation demonstration.
     include-in-header:
@@ -285,6 +288,16 @@ The trouble runs along one direction: **the number of ties**. What if we take th
 
 # Part 2 -- Conditioning on the edge count {background-color="#00707a"}
 
+## Take the edge count away {.compact data-menu-title="Conditioning, in a picture"}
+
+```{=html}
+{{< include fig/diag-conditioning.svg >}}
+```
+
+::: {.takeaway .fragment fragment-index="3"}
+The model no longer decides **how many** ties there are, only **where** they go.
+:::
+
 ## Fix what you do not want to model {.compact data-menu-title="Conditional ERGM"}
 
 
@@ -443,50 +456,66 @@ Conditioning loses information only where the expected statistics **bend** with 
 :::
 
 
+## What a bend looks like {.compact data-menu-title="Information: the bend"}
+
+How the expected value of another statistic changes with the edge count (schematic):
+
+```{=html}
+{{< include fig/diag-bend.svg >}}
+```
+
+::: {.takeaway .fragment fragment-index="3"}
+The full model can use the curve; the conditional model sees only the straight part. What it loses is the variance of the gap, $\Var{m(S_k) - B\,S_k}$.
+:::
+
+
 ## Results: triangles lose almost nothing {.results background-color="#fdf6f2" .compact data-menu-title="Information: mutual + gwesp"}
 
 
 ::: {.columns}
-::: {.column width="62%"}
+::: {.column width="64%"}
 ![](fig/info-mutual-gwesp.png){width="100%"}
 
 ::: {style="font-size: 80%; color: #666;"}
-Directed model with homophily, mutual and gwesp. Line: median sample. Band: 10th to 90th percentile. 500 samples per panel.
+Directed model with homophily, mutual and gwesp. One point per sample where `gwesp` is identified; curves are densities.
 :::
 :::
 
-::: {.column width="38%" .incremental}
-- The **median loss is at most 1.2%** for every coefficient, at every density.
-- Homophily and reciprocity: nothing to see.
-- The band for `gwesp` opens in **sparse** networks: in the worst cell, 18% of samples lose more than 5%.
-- More networks ($M = 5$) do not make it go away.
+::: {.column width="36%" .incremental}
+- **Median loss under `r pct(ceiling(100 * max(ibins$med)) / 100)`** in every cell. Homophily and reciprocity: nothing to see.
+- **Positive clustering, sparse networks**: a second hump at 20--100%. `r pct(irow(1, "positive")$over_5)` of samples lose more than 5%, `r pct(irow(5, "positive")$over_5)` with five networks.
+- **Negative clustering**: the loss is small or total. The conditional model cannot identify `gwesp` in `r pct(inonid("negative"))` of samples.
 :::
 :::
 
 ::: {.takeaway .fragment}
-In the typical sample, the edge count knows nothing about clustering, homophily or reciprocity that the rest of the network does not.
+The typical sample loses almost nothing. When conditioning costs, it costs on `gwesp`: in sparse, clustered networks, and by erasing it when clustering is negative.
 :::
 
 
-## Results: but it depends on the term {.results background-color="#fdf6f2" .compact data-menu-title="Information: all models"}
+## Results: but it depends on the term {.results background-color="#fdf6f2" .compact data-menu-title="Information: by term"}
 
 
 ::: {.columns}
-::: {.column width="70%"}
-![](fig/info-loss.png){width="100%"}
+::: {.column width="66%"}
+![](fig/info-terms.png){width="100%"}
+
+::: {style="font-size: 80%; color: #666;"}
+Three undirected models (all with homophily); each row is one of the model's coefficients. One point per sample where it is identified.
+:::
 :::
 
-::: {.column width="30%"}
+::: {.column width="34%"}
 ::: {.fragment}
 ### Loses little
 
-`gwesp`, homophily and reciprocity: median below 1%.
+Homophily and `gwesp`: median below `r pct(max(iloss("undirected_gwesp", c("gwesp", "nodematch.x"), 5)), 1)`.
 :::
 
 ::: {.fragment}
 ### Loses more
 
-`gwnsp` (median **31%** with five networks), `gwdsp`, `gwdegree`, and a `gwesp` effect that varies with network size.
+`gwdegree`: median `r pct(iloss("undirected_gwdegree_gwesp", "gwdegree", 5), 1)` with five networks. `gwnsp`: **`r pct(iloss("undirected_gwesp_gwnsp", "gwnsp", 5))`**, and it drags `gwesp` with it. `gwdsp` and size effects (not shown) also lose more.
 :::
 
 ::: {.fragment}
@@ -529,22 +558,28 @@ So far: for the most common specification, conditioning is nearly free on paper.
 
 # Part 4 -- Does it work in practice? {background-color="#00707a"}
 
-## Two ways to fit the same networks {.semi data-menu-title="Simulation: arms"}
+## Two ways to fit the same networks {.compact data-menu-title="Simulation: arms"}
 
 
 ::: {.columns}
 ::: {.column width="50%"}
 ### Unconditional
 
-- Estimates edges and its size effect, as in the model that generated the data.
-- The **correctly specified** model: this is its home turf.
+```{=html}
+{{< include fig/diag-sampler-toggle.svg >}}
+```
+
+Estimates edges and its size effect: the **correctly specified** model, on its home turf.
 :::
 
 ::: {.column width="50%"}
 ### Conditional
 
-- Drops edges; fixes **each network's** edge count.
-- Needs a new sampler: move a tie *within* a network (`condergm`, built on `ergm` and `ergm.multi`).
+```{=html}
+{{< include fig/diag-sampler-move.svg >}}
+```
+
+Drops edges; **each network** keeps its edge count (`condergm`, built on `ergm` and `ergm.multi`).
 :::
 :::
 
@@ -568,15 +603,15 @@ All models and sample sizes pooled (`r big(cmp_all$samples)` samples, each fit b
 
 [**`r pct(cmp_all$conv_cond)`** vs `r pct(cmp_all$conv_uncond)`]{.badge .badge-strong}
 
-In every one of the seven models
+In six of the seven models; tied with `gwnsp`
 :::
 
 ::: {.finding .fragment}
 ### {{< fa stopwatch >}}<br>Faster
 
-[**`r num(cmp_all$time_cond, 0)` s** vs `r num(cmp_all$time_uncond, 0)` s]{.badge .badge-strong}
+[**`r num(cmp_all$time_ok_cond, 0)` s** vs `r num(cmp_all$time_ok_uncond, 0)` s]{.badge .badge-strong}
 
-About half the time with five or more networks
+Median time of a converged fit, faster in every model
 :::
 
 ::: {.finding .fragment}
@@ -602,7 +637,7 @@ The conditional model matches or beats the correctly specified one on every meas
 :::
 
 ::: {.absolute bottom="0" right="0" style="font-size: 80%; color: #666;"}
-Conditional vs. unconditional. Accuracy and coverage among converged fits.
+Conditional vs. unconditional. Time, accuracy and coverage among converged fits.
 :::
 
 
@@ -612,9 +647,9 @@ Conditional vs. unconditional. Accuracy and coverage among converged fits.
 ![](fig/sim-by-m.png){width="100%"}
 
 ::: {.incremental}
-- **Consistency.** The error falls from 0.34 with one network to 0.10 with twenty, at the same rate in both models.
-- **Time.** The gap widens with $M$: 2 minutes against 4 with twenty networks.
-- **Coverage.** The unconditional intervals get slightly too narrow as $M$ grows; the conditional ones hold at 92%.
+- **Consistency.** The error falls from `r num(cg("M1")$mae_cond)` with one network to `r num(cg("M20")$mae_cond)` with twenty, at the same rate in both models.
+- **Time.** The gap widens with $M$: a converged fit of twenty networks takes `r num(cg("M20")$time_ok_cond / 60, 1)` minutes against `r num(cg("M20")$time_ok_uncond / 60, 1)`.
+- **Coverage.** The unconditional intervals get slightly too narrow as $M$ grows; the conditional ones hold at `r pct(cg("M20")$cov_cond)`.
 :::
 
 
@@ -624,9 +659,9 @@ Conditional vs. unconditional. Accuracy and coverage among converged fits.
 ![](fig/sim-by-experiment.png){width="100%"}
 
 ::: {.incremental}
-- The gain in convergence is largest where fitting is hardest: degree terms (+13 points) and an estimated decay (+12 points).
-- With `gwesp + gwnsp`, the unconditional intervals cover the truth 81% of the time; the conditional ones, 92%.
-- Recall part 3: `gwnsp` was the term that **lost the most information**. It does not show up as worse estimates here.
+- The gain in convergence is largest with an estimated decay (+`r gain("undirected_gwesp_curved")` points). With `gwesp + gwnsp` there is none: `r pct(cg("undirected_gwesp_gwnsp")$conv_cond)` against `r pct(cg("undirected_gwesp_gwnsp")$conv_uncond)`.
+- With two-path and degree terms the conditional fits **time out more often**: `r pct(timeout_share("undirected_gwesp_gwnsp", "cond"))` against `r pct(timeout_share("undirected_gwesp_gwnsp", "uncond"))` with `gwnsp`, `r pct(timeout_share("undirected_gwdegree_gwesp", "cond"))` against `r pct(timeout_share("undirected_gwdegree_gwesp", "uncond"))` with `gwdegree`.
+- Recall part 3: these terms **lose the most information**. That costs precision, not convergence: with positive clustering, the conditional model alone is usable on 20% of the samples losing 5% or more, against 4% under 1%.
 :::
 
 
@@ -668,7 +703,31 @@ print(tab_failures())
 ::: {.incremental}
 - Conditioning nearly removes the failures in which **the chain does not mix**: the degeneracy story of part 1.
 - It does nothing for **non-finite standard errors**. Those are mostly samples whose coefficients cannot be estimated by either model (the "not identified" samples of part 3).
+- Timeouts grow with $M$ in both models, slightly more for the conditional one: hard models are slow either way.
 - Still, `r pct(1 - cmp_all$conv_cond)` of conditional fits fail. Strong coefficients in small networks are a hard test by design.
+:::
+
+
+## Beyond convergence: the sign of clustering {.results background-color="#fdf6f2" .compact data-menu-title="Simulation: by clustering sign"}
+
+<!-- Numbers: report/report.qmd, "Beyond convergence" (Table 12), rebuilt
+     into data/sim_quality.csv by scripts/tables.R. -->
+
+Every GW coefficient, graded; failed fits count. Conditional **vs** unconditional:
+
+```{r}
+#| output: asis
+print(tab_quality())
+```
+
+::: {.incremental}
+- The design draws clustering **negative half the time**. In applied social networks it is almost always positive (McMillan, Felmlee and Ashford, 2022).
+- With negative clustering both models fail most of the time: those samples add noise to the comparison, not signal.
+- When both models give usable coefficients, the conditional standard errors are only `r pct(qrow("all")$se_ratio - 1)` larger (median ratio), in line with the small information losses of part 3.
+:::
+
+::: {.takeaway .fragment}
+In the case that matters in practice, the gap widens: `r round(100 * (qrow("positive")$acc_cond - qrow("positive")$acc_uncond))` more points of accurate coefficients with conditioning.
 :::
 
 
@@ -677,19 +736,36 @@ print(tab_failures())
 <!-- [1:30] The paired question: of the samples where the unconditional fit
      fails, how many does the conditional fit recover? And the reverse, as a
      control. Figure and numbers: report/cond-failures.md of the research
-     repository (Figure 1, Table 1); copied by `make figs-from-repo`. -->
+     repository (Figure 1, Table 1); rates by sign rebuilt into
+     data/sim_paired.csv by scripts/tables.R. -->
 
-Paired on the sample: both models fit to the same networks, 10,179 samples.
+Paired on the sample: both models fit to the same networks, `r big(paired_all$samples)` samples.
 
-![](fig/cond-failures-outcomes.png){width="80%"}
+::: {.columns}
+::: {.column width="58%"}
+![](fig/cond-failures-outcomes.png){width="100%"}
 
-::: {.incremental}
-- **Conditional only** (orange) outnumbers **full only** (green) at every density below 0.5: 7% against 2% of samples overall (exact McNemar, $p < 0.001$).
-<!-- - Most failures are shared (**neither**): at $M = 1$ and $5$, a third of them are samples whose drawn coefficients cannot be estimated by either model. -->
+::: {style="font-size: 80%; color: #666;"}
+**Conditional only** (red) outnumbers **full only** (green) at every density below 0.5: `r pct(paired_all$only_cond / paired_all$samples)` against `r pct(paired_all$only_uncond / paired_all$samples)` of samples (exact McNemar, $p < 0.001$).
+:::
+:::
+
+::: {.column width="42%"}
+How often a model works when the other did not, conditional **vs** full:
+
+```{r}
+#| output: asis
+print(tab_rescue())
+```
+
+::: {style="font-size: 80%; color: #666;"}
+Usable: every GW coefficient with SE ≤ 1 and |estimate| ≤ 10.
+:::
+:::
 :::
 
 ::: {.takeaway .fragment}
-When the full model fails, the conditional one converges in **17%** of the samples. When the conditional one fails, the full model converges in only **5%**.
+With positive clustering, the conditional model rescues **`r pct(prow("finite", "positive")$cond_given_uncond_failed)`** of the full model's failures; the reverse, `r pct(prow("finite", "positive")$uncond_given_cond_failed)`. With negative clustering neither rescues the other.
 :::
 
 
@@ -697,26 +773,26 @@ When the full model fails, the conditional one converges in **17%** of the sampl
 
 <!-- [1:30] A rescue only counts if the rescued fit is accurate. Figure and
      numbers: report/cond-failures.md of the research repository (Figure 4,
-     Table 4); copied by `make figs-from-repo`. -->
+     Table 4, positive clustering rows); copied by `make figs-from-repo`. -->
 
 ::: {.columns}
 ::: {.column width="58%"}
 ![](fig/cond-failures-error.png){width="100%"}
 
 ::: {style="font-size: 80%; color: #666;"}
-Absolute error of the GW coefficients of converged fits. Solid: both models converged. Dashed: only this model converged.
+Positive clustering. Absolute error of the GW coefficients of converged fits. Solid: both models converged. Dashed: only this model converged.
 :::
 :::
 
 ::: {.column width="42%" .incremental}
-- When both converge, the two models are **indistinguishable**: median absolute error 0.15, 95% intervals cover 92--93%.
-- **Full model, after the conditional failed** (261 estimates): median error **0.89**, coverage **66%**.
-- **Conditional, after the full model failed** (856 estimates): median error **0.20**, coverage **89%**.
+- When both converge, the two models are **indistinguishable**: median absolute error 0.16, 95% intervals cover 92--93%.
+- **Full model, after the conditional failed** (305 estimates): median error **1.00**, coverage **53%**. Keeping only the usable ones does not help (0.41, 45%).
+- **Conditional, after the full model failed** (976 estimates): median error **0.16**, coverage **91%**: a normal fit.
 :::
 :::
 
 ::: {.takeaway .fragment}
-The full model's rare rescues converge to the wrong place. The conditional model's rescues are close to normal fits.
+The full model's rare rescues are confidently wrong, even when their standard errors look fine. The conditional model's rescues are as good as any other fit.
 :::
 
 
@@ -730,7 +806,7 @@ The full model's rare rescues converge to the wrong place. The conditional model
 ### Yes
 
 ::: {.incremental}
-- It **converges more often**, in about **half the time**.
+- It **converges more often**, and a converged fit takes about **half the time**.
 - It is **as accurate** as the correctly specified full model, with intervals at least as good.
 - For clustering (`gwesp`), homophily and reciprocity, it keeps **99% of the information** in the typical sample.
 :::
@@ -740,7 +816,7 @@ The full model's rare rescues converge to the wrong place. The conditional model
 ### But
 
 ::: {.incremental}
-- Terms that bend with the edge count (`gwnsp`, `gwdsp`, `gwdegree`, size-varying effects) can lose a lot of information.
+- Terms that bend with the edge count (`gwnsp`, `gwdsp`, `gwdegree`, size-varying effects) can lose a lot of information, and their conditional fits time out more often.
 - It does not rescue coefficients that are **not identified**, nor dense networks.
 - You no longer get a model for density. Simulating new networks needs the edge count from somewhere.
 :::
@@ -845,12 +921,9 @@ $$
 :::
 
 ::: {.column width="45%" .fragment}
-**The loop**
-
-1. Guess $\params$ (usually using Maximum Pseudo-Likelihood, MPLE).
-2. Simulate networks from the model at $\params$.
-3. Approximate a ratio of $\normconst{\params}/\normconst{\params_0}$ (~~LLM~~ LLN).
-4. Update $\params$ via a Newton-Raphson step; go back to 2.
+```{=html}
+{{< include fig/diag-mcmle-loop.svg >}}
+```
 :::
 :::
 

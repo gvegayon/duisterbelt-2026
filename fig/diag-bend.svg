@@ -1,0 +1,57 @@
+<!-- "What a bend looks like" slide: the information identity
+     I_eff - I_cond = Var(m(S_k) - B S_k) as a picture. Schematic curves, not
+     model output. Left: m(S_k) is a straight line, so it coincides with its
+     regression line and the gap is zero. Right: m(S_k) curves; the rust
+     segments are the gap m(S_k) - B S_k, weighted by where S_k falls (the hump
+     under each axis). Fragment 1 shows the right panel, fragment 2 the gaps. -->
+<svg class="diagram" viewBox="0 0 940 400" role="img"
+     aria-label="Two schematic panels of the expected value of a statistic against the edge count. Left: a straight line, which equals its best linear fit, so conditioning loses nothing. Right: a curve; the vertical gaps to its best linear fit are the information conditioning loses.">
+  <defs>
+    <marker id="bend-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="arrowhead"/>
+    </marker>
+  </defs>
+
+  <!-- Left panel: linear -->
+  <g>
+    <text x="235" y="16" text-anchor="middle" class="accent">Linear: nothing lost</text>
+    <path class="axis" d="M50,30 L50,290 L420,290" marker-start="url(#bend-arrow)" marker-end="url(#bend-arrow)"/>
+    <path class="hump" d="M 60.0,330.0 L 70.0,330.0 L 80.0,329.9 L 90.0,329.9 L 100.0,329.7 L 110.0,329.6 L 120.0,329.3 L 130.0,328.8 L 140.0,328.2 L 150.0,327.2 L 160.0,325.9 L 170.0,324.3 L 180.0,322.1 L 190.0,319.6 L 200.0,316.7 L 210.0,313.5 L 220.0,310.2 L 230.0,307.0 L 240.0,304.1 L 250.0,301.9 L 260.0,300.5 L 270.0,300.0 L 280.0,300.5 L 290.0,301.9 L 300.0,304.1 L 310.0,307.0 L 320.0,310.2 L 330.0,313.5 L 340.0,316.7 L 350.0,319.6 L 360.0,322.1 L 370.0,324.3 L 380.0,325.9 L 390.0,327.2 L 400.0,328.2 L 410.0,328.8"/>
+    <line class="curve" x1="68" y1="262" x2="410" y2="62"/>
+    <line class="fit" x1="68" y1="262" x2="410" y2="62"/>
+    <text x="250" y="122" text-anchor="end" class="small muted">curve = its best straight line</text>
+    <text x="235" y="390" text-anchor="middle">edge count, <tspan font-style="italic">S</tspan><tspan baseline-shift="sub" font-size="70%">k</tspan></text>
+    <text transform="translate(28 160) rotate(-90)" text-anchor="middle" class="small">expected other statistic</text>
+  </g>
+
+  <!-- Right panel: bends -->
+  <g transform="translate(470 0)" class="fragment" data-fragment-index="1">
+    <text x="235" y="16" text-anchor="middle" class="rust">Bends: information lost</text>
+    <path class="axis" d="M50,30 L50,290 L420,290" marker-start="url(#bend-arrow)" marker-end="url(#bend-arrow)"/>
+    <path class="hump" d="M 60.0,330.0 L 70.0,330.0 L 80.0,329.9 L 90.0,329.9 L 100.0,329.7 L 110.0,329.6 L 120.0,329.3 L 130.0,328.8 L 140.0,328.2 L 150.0,327.2 L 160.0,325.9 L 170.0,324.3 L 180.0,322.1 L 190.0,319.6 L 200.0,316.7 L 210.0,313.5 L 220.0,310.2 L 230.0,307.0 L 240.0,304.1 L 250.0,301.9 L 260.0,300.5 L 270.0,300.0 L 280.0,300.5 L 290.0,301.9 L 300.0,304.1 L 310.0,307.0 L 320.0,310.2 L 330.0,313.5 L 340.0,316.7 L 350.0,319.6 L 360.0,322.1 L 370.0,324.3 L 380.0,325.9 L 390.0,327.2 L 400.0,328.2 L 410.0,328.8"/>
+    <path class="curve" d="M60,280 Q300,285 410,30"/>
+    <line class="fit" x1="170" y1="289.4" x2="400" y2="104.9"/>
+    <text x="150" y="122" text-anchor="middle" class="small muted">e.g. two-paths: grow</text>
+    <text x="150" y="144" text-anchor="middle" class="small muted">with the square of the</text>
+    <text x="150" y="166" text-anchor="middle" class="small muted">edge count</text>
+    <text x="420" y="350" text-anchor="end" class="small muted">where <tspan font-style="italic">S</tspan><tspan baseline-shift="sub" font-size="70%">k</tspan> falls</text>
+    <text x="235" y="390" text-anchor="middle">edge count, <tspan font-style="italic">S</tspan><tspan baseline-shift="sub" font-size="70%">k</tspan></text>
+  </g>
+
+  <!-- Fragment 2: the gap m(S_k) - B S_k. -->
+  <g transform="translate(470 0)" class="fragment" data-fragment-index="2">
+    <g class="gap">
+      <line x1="170" y1="266.8" x2="170" y2="289.4"/>
+      <line x1="190" y1="260.4" x2="190" y2="273.4"/>
+      <line x1="210" y1="252.6" x2="210" y2="257.4"/>
+      <line x1="250" y1="231.6" x2="250" y2="225.3"/>
+      <line x1="270" y1="218.2" x2="270" y2="209.2"/>
+      <line x1="290" y1="202.4" x2="290" y2="193.2"/>
+      <line x1="310" y1="183.9" x2="310" y2="177.1"/>
+      <line x1="350" y1="137.0" x2="350" y2="145.0"/>
+      <line x1="370" y1="107.3" x2="370" y2="129.0"/>
+    </g>
+    <text x="300" y="250" class="small rust">gap = what</text>
+    <text x="300" y="272" class="small rust">conditioning loses</text>
+  </g>
+</svg>

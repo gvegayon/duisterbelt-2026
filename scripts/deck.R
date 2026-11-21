@@ -47,6 +47,86 @@ labs_e <- c(
 # ---------------------------------------------------------------------------
 cmp     <- dat("sim_compare")
 cmp_all <- cmp[cmp$group == "all", ]
+# One row of sim_compare: an experiment, "M1".."M20" or "all".
+cg <- function(g) cmp[cmp$group == g, ]
+# Convergence gain of the conditional model, percentage points.
+gain <- function(g) round(100 * (cg(g)$conv_cond - cg(g)$conv_uncond))
+
+# Paired outcomes, pooled (sim_paired, `finite` = the report's convergence).
+paired     <- dat("sim_paired")
+paired_all <- paired[paired$definition == "finite" & paired$by == "all", ]
+# One row of sim_paired: definition "finite" (converged) or "usable", group
+# "positive", "negative" or "all".
+prow <- function(definition, group) {
+  paired[paired$definition == definition & paired$group == group &
+           paired$by %in% c("clustering", "all"), ]
+}
+
+# Rescue rates by clustering sign: how often each model works when the other
+# does not, for convergence and for usable GW estimates (report
+# cond-failures, Table 1).
+tab_rescue <- function() {
+  if (is.null(prow("usable", "all")) || !nrow(prow("usable", "all")))
+    return(pending("sim_paired"))
+  groups <- c(positive = "Positive", negative = "Negative", all = "All")
+  cell <- function(d, g) {
+    x <- prow(d, g)
+    paste0("**", pct(x$cond_given_uncond_failed), "** vs ", pct(x$uncond_given_cond_failed))
+  }
+  md(data.frame(
+    Clustering  = groups,
+    Converges   = vapply(names(groups), cell, "", d = "finite"),
+    `Usable`    = vapply(names(groups), cell, "", d = "usable"),
+    check.names = FALSE
+  ), align = "lcc")
+}
+
+# Share of fits that time out, by experiment and model, over all M.
+timeout_share <- function(e, m) {
+  f <- dat("sim_failures_by_M")
+  f <- f[f$experiment == e & f$model == m, ]
+  sum(f$timeout * f$fits) / sum(f$fits)
+}
+
+# Quality of the GW coefficients by clustering sign (sim_quality).
+quality <- dat("sim_quality")
+qrow <- function(clustering, M = "all") {
+  quality[quality$clustering == clustering & quality$M == M, ]
+}
+tab_quality <- function() {
+  if (is.null(quality)) return(pending("sim_quality"))
+  vs <- function(a, b) paste0("**", pct(a), "** vs ", pct(b))
+  p <- qrow("positive")
+  n <- qrow("negative")
+  md(data.frame(
+    ` `                     = c("Converged", "Usable (SE ≤ 1)", "Accurate (covers truth, excludes 0)"),
+    `Positive clustering`   = c(vs(p$conv_cond, p$conv_uncond), vs(p$use_cond, p$use_uncond), vs(p$acc_cond, p$acc_uncond)),
+    `Negative clustering`   = c(vs(n$conv_cond, n$conv_uncond), vs(n$use_cond, n$use_uncond), vs(n$acc_cond, n$acc_uncond)),
+    check.names = FALSE
+  ), align = "lcc")
+}
+
+# Information lost on one coefficient (info_loss): median or 90th
+# percentile over identified samples.
+info_loss <- dat("info_loss")
+iloss <- function(design, param, M, stat = "loss_median") {
+  info_loss[info_loss$design == design & info_loss$param == param &
+              info_loss$M == M, stat]
+}
+
+# Information lost on a coefficient of mutual_gwesp by clustering sign
+# (info_gwesp_sign), and the binned figure data (info_mutual_gwesp_bins).
+isign <- dat("info_gwesp_sign")
+ibins <- dat("info_mutual_gwesp_bins")
+irow  <- function(M, clustering, param = "gwesp") {
+  isign[isign$param == param & isign$M == M & isign$clustering == clustering, ]
+}
+# Share of samples where the conditional model does not identify gwesp,
+# pooled over M unless one is given.
+inonid <- function(clustering, M = c(1, 5)) {
+  x <- do.call(rbind, lapply(M, irow, clustering = clustering))
+  sum(x$not_id) / sum(x$samples)
+}
 
 # ---------------------------------------------------------------------------
 # Why fits fail: ranges over M of three causes, for two models

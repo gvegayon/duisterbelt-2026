@@ -1,0 +1,38 @@
+<!-- "Two ways to fit" slide, left column: the unconditional sampler toggles one
+     pair, so the edge count moves by one. Pairs with diag-sampler-move.svg;
+     keep the two networks identical before the step. -->
+<svg class="diagram sampler" viewBox="0 0 420 175" role="img"
+     aria-label="Toggle step: a network with 7 ties gains one tie and ends with 8 ties.">
+  <defs>
+    <marker id="toggle-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="arrowhead"/>
+    </marker>
+  </defs>
+  <g transform="translate(75 70)">
+    <g class="tie">
+      <line x1="0" y1="-48" x2="-41.6" y2="-24"/><line x1="-41.6" y1="-24" x2="-41.6" y2="24"/>
+      <line x1="-41.6" y1="24" x2="0" y2="48"/><line x1="0" y1="48" x2="41.6" y2="24"/>
+      <line x1="41.6" y1="24" x2="41.6" y2="-24"/><line x1="41.6" y1="-24" x2="0" y2="-48"/>
+      <line x1="0" y1="-48" x2="0" y2="48"/>
+    </g>
+    <circle class="node" cx="0" cy="-48" r="8"/><circle class="node" cx="-41.6" cy="-24" r="8"/>
+    <circle class="node" cx="-41.6" cy="24" r="8"/><circle class="node" cx="0" cy="48" r="8"/>
+    <circle class="node" cx="41.6" cy="24" r="8"/><circle class="node" cx="41.6" cy="-24" r="8"/>
+    <text x="0" y="96" text-anchor="middle">7 ties</text>
+  </g>
+  <line class="step" x1="140" y1="70" x2="268" y2="70" marker-end="url(#toggle-arrow)"/>
+  <text x="204" y="56" text-anchor="middle" class="small muted">toggle a pair</text>
+  <g transform="translate(335 70)">
+    <g class="tie">
+      <line x1="0" y1="-48" x2="-41.6" y2="-24"/><line x1="-41.6" y1="-24" x2="-41.6" y2="24"/>
+      <line x1="-41.6" y1="24" x2="0" y2="48"/><line x1="0" y1="48" x2="41.6" y2="24"/>
+      <line x1="41.6" y1="24" x2="41.6" y2="-24"/><line x1="41.6" y1="-24" x2="0" y2="-48"/>
+      <line x1="0" y1="-48" x2="0" y2="48"/>
+    </g>
+    <line class="tie-new" x1="-41.6" y1="24" x2="41.6" y2="24"/>
+    <circle class="node" cx="0" cy="-48" r="8"/><circle class="node" cx="-41.6" cy="-24" r="8"/>
+    <circle class="node" cx="-41.6" cy="24" r="8"/><circle class="node" cx="0" cy="48" r="8"/>
+    <circle class="node" cx="41.6" cy="24" r="8"/><circle class="node" cx="41.6" cy="-24" r="8"/>
+    <text x="0" y="96" text-anchor="middle" class="rust">8 ties</text>
+  </g>
+</svg>

@@ -1,0 +1,139 @@
+<!-- "Take the edge count away" slide. Inlined into index.qmd through a raw
+     HTML block so it inherits the deck font and palette (see "Diagrams" in
+     style.scss) and so its groups can be reveal fragments. Schematic: the bar
+     heights are an illustrative near-degenerate edge-count distribution, not
+     model output. Fragment 1 picks the slice at c and crosses out the
+     extremes; fragment 2 opens the slice. -->
+<svg class="diagram" viewBox="0 0 980 440" role="img"
+     aria-label="Distribution of the number of ties under a near-degenerate ERGM: almost all mass sits at the empty and the complete network. Conditioning keeps only the networks with the observed number of ties, c.">
+  <!-- Edge-count distribution: U-shaped, mass at both extremes. -->
+  <g class="bars fragment semi-fade-out" data-fragment-index="1">
+    <rect x="102.0" y="225.0" width="15.0" height="155.0"/>
+    <rect x="121.0" y="272.9" width="15.0" height="107.1"/>
+    <rect x="140.0" y="305.5" width="15.0" height="74.5"/>
+    <rect x="159.0" y="327.7" width="15.0" height="52.3"/>
+    <rect x="178.0" y="342.8" width="15.0" height="37.2"/>
+    <rect x="197.0" y="353.1" width="15.0" height="26.9"/>
+    <rect x="216.0" y="360.1" width="15.0" height="19.9"/>
+    <rect x="235.0" y="364.8" width="15.0" height="15.2"/>
+    <rect x="254.0" y="368.1" width="15.0" height="11.9"/>
+    <rect x="273.0" y="370.3" width="15.0" height="9.7"/>
+    <rect x="292.0" y="371.8" width="15.0" height="8.2"/>
+    <rect x="311.0" y="372.8" width="15.0" height="7.2"/>
+    <rect x="330.0" y="373.5" width="15.0" height="6.5"/>
+    <rect x="349.0" y="374.0" width="15.0" height="6.0"/>
+    <rect x="368.0" y="374.3" width="15.0" height="5.7"/>
+    <rect x="387.0" y="374.5" width="15.0" height="5.5"/>
+    <rect x="425.0" y="374.8" width="15.0" height="5.2"/>
+    <rect x="444.0" y="374.8" width="15.0" height="5.2"/>
+    <rect x="463.0" y="374.9" width="15.0" height="5.1"/>
+    <rect x="482.0" y="374.9" width="15.0" height="5.1"/>
+    <rect x="501.0" y="374.9" width="15.0" height="5.1"/>
+    <rect x="520.0" y="374.8" width="15.0" height="5.2"/>
+    <rect x="539.0" y="374.8" width="15.0" height="5.2"/>
+    <rect x="558.0" y="374.7" width="15.0" height="5.3"/>
+    <rect x="577.0" y="374.5" width="15.0" height="5.5"/>
+    <rect x="596.0" y="374.3" width="15.0" height="5.7"/>
+    <rect x="615.0" y="374.0" width="15.0" height="6.0"/>
+    <rect x="634.0" y="373.5" width="15.0" height="6.5"/>
+    <rect x="653.0" y="372.8" width="15.0" height="7.2"/>
+    <rect x="672.0" y="371.8" width="15.0" height="8.2"/>
+    <rect x="691.0" y="370.3" width="15.0" height="9.7"/>
+    <rect x="710.0" y="368.1" width="15.0" height="11.9"/>
+    <rect x="729.0" y="364.8" width="15.0" height="15.2"/>
+    <rect x="748.0" y="360.1" width="15.0" height="19.9"/>
+    <rect x="767.0" y="353.1" width="15.0" height="26.9"/>
+    <rect x="786.0" y="342.8" width="15.0" height="37.2"/>
+    <rect x="805.0" y="327.7" width="15.0" height="52.3"/>
+    <rect x="824.0" y="305.5" width="15.0" height="74.5"/>
+    <rect x="843.0" y="272.9" width="15.0" height="107.1"/>
+    <rect x="862.0" y="225.0" width="15.0" height="155.0"/>
+    <text x="620" y="300" text-anchor="middle" class="muted">Full model, near-degenerate θ:</text>
+    <text x="620" y="326" text-anchor="middle" class="muted">the probability piles up at the extremes</text>
+  </g>
+
+  <!-- The observed edge count: its bar stays at full strength. -->
+  <rect class="slice-bar" x="406.0" y="374.7" width="15.0" height="5.3"/>
+
+  <!-- Axis -->
+  <line class="axis" x1="95" y1="381" x2="885" y2="381"/>
+  <text x="109.5" y="408" text-anchor="middle" class="muted">0</text>
+  <text x="869.5" y="408" text-anchor="middle" class="muted">all pairs</text>
+  <text x="490" y="434" text-anchor="middle">number of ties</text>
+
+  <!-- Extremes: the empty and the complete network. -->
+  <g class="mini" transform="translate(109.5 150)">
+    <circle class="node" cx="0" cy="-26" r="6"/>
+    <circle class="node" cx="-24.7" cy="-8" r="6"/>
+    <circle class="node" cx="-15.3" cy="21" r="6"/>
+    <circle class="node" cx="15.3" cy="21" r="6"/>
+    <circle class="node" cx="24.7" cy="-8" r="6"/>
+    <text x="0" y="62" text-anchor="middle" class="muted">empty</text>
+  </g>
+  <g class="mini" transform="translate(869.5 150)">
+    <g class="tie">
+      <line x1="0" y1="-26" x2="-24.7" y2="-8"/><line x1="0" y1="-26" x2="-15.3" y2="21"/>
+      <line x1="0" y1="-26" x2="15.3" y2="21"/><line x1="0" y1="-26" x2="24.7" y2="-8"/>
+      <line x1="-24.7" y1="-8" x2="-15.3" y2="21"/><line x1="-24.7" y1="-8" x2="15.3" y2="21"/>
+      <line x1="-24.7" y1="-8" x2="24.7" y2="-8"/><line x1="-15.3" y1="21" x2="15.3" y2="21"/>
+      <line x1="-15.3" y1="21" x2="24.7" y2="-8"/><line x1="15.3" y1="21" x2="24.7" y2="-8"/>
+    </g>
+    <circle class="node" cx="0" cy="-26" r="6"/>
+    <circle class="node" cx="-24.7" cy="-8" r="6"/>
+    <circle class="node" cx="-15.3" cy="21" r="6"/>
+    <circle class="node" cx="15.3" cy="21" r="6"/>
+    <circle class="node" cx="24.7" cy="-8" r="6"/>
+    <text x="0" y="62" text-anchor="middle" class="muted">complete</text>
+  </g>
+
+  <!-- Fragment 1: condition on c. -->
+  <g class="fragment" data-fragment-index="1">
+    <rect class="slice-band" x="401" y="205" width="25" height="176" rx="3"/>
+    <text x="413.5" y="408" text-anchor="middle" class="rust">c</text>
+    <g class="cross">
+      <line x1="75" y1="116" x2="144" y2="185"/><line x1="144" y1="116" x2="75" y2="185"/>
+      <line x1="835" y1="116" x2="904" y2="185"/><line x1="904" y1="116" x2="835" y2="185"/>
+    </g>
+  </g>
+
+  <!-- Fragment 2: inside the slice, only networks with c ties compete. -->
+  <g class="fragment" data-fragment-index="2">
+    <path class="funnel" d="M401,205 L262,178 M426,205 L568,178"/>
+    <rect class="slice-box" x="262" y="44" width="306" height="134" rx="10"/>
+    <text x="415" y="30" text-anchor="middle" class="rust">only networks with c ties compete</text>
+    <!-- Three arrangements of the same five ties; the first is "observed". -->
+    <g class="mini" transform="translate(320 108)">
+      <circle class="observed-ring" cx="0" cy="0" r="40"/>
+      <g class="tie">
+        <line x1="0" y1="-26" x2="-24.7" y2="-8"/><line x1="-24.7" y1="-8" x2="-15.3" y2="21"/>
+        <line x1="-15.3" y1="21" x2="15.3" y2="21"/><line x1="15.3" y1="21" x2="24.7" y2="-8"/>
+        <line x1="24.7" y1="-8" x2="0" y2="-26"/>
+      </g>
+      <circle class="node" cx="0" cy="-26" r="6"/><circle class="node" cx="-24.7" cy="-8" r="6"/>
+      <circle class="node" cx="-15.3" cy="21" r="6"/><circle class="node" cx="15.3" cy="21" r="6"/>
+      <circle class="node" cx="24.7" cy="-8" r="6"/>
+      <text x="0" y="62" text-anchor="middle" class="small rust">observed</text>
+    </g>
+    <g class="mini" transform="translate(415 108)">
+      <g class="tie">
+        <line x1="0" y1="-26" x2="-24.7" y2="-8"/><line x1="0" y1="-26" x2="-15.3" y2="21"/>
+        <line x1="0" y1="-26" x2="15.3" y2="21"/><line x1="0" y1="-26" x2="24.7" y2="-8"/>
+        <line x1="-24.7" y1="-8" x2="-15.3" y2="21"/>
+      </g>
+      <circle class="node" cx="0" cy="-26" r="6"/><circle class="node" cx="-24.7" cy="-8" r="6"/>
+      <circle class="node" cx="-15.3" cy="21" r="6"/><circle class="node" cx="15.3" cy="21" r="6"/>
+      <circle class="node" cx="24.7" cy="-8" r="6"/>
+    </g>
+    <g class="mini" transform="translate(510 108)">
+      <g class="tie">
+        <line x1="0" y1="-26" x2="-24.7" y2="-8"/><line x1="-24.7" y1="-8" x2="24.7" y2="-8"/>
+        <line x1="24.7" y1="-8" x2="0" y2="-26"/><line x1="-24.7" y1="-8" x2="-15.3" y2="21"/>
+        <line x1="-15.3" y1="21" x2="15.3" y2="21"/>
+      </g>
+      <circle class="node" cx="0" cy="-26" r="6"/><circle class="node" cx="-24.7" cy="-8" r="6"/>
+      <circle class="node" cx="-15.3" cy="21" r="6"/><circle class="node" cx="15.3" cy="21" r="6"/>
+      <circle class="node" cx="24.7" cy="-8" r="6"/>
+    </g>
+    <text x="555" y="168" text-anchor="end" class="small muted">…</text>
+  </g>
+</svg>

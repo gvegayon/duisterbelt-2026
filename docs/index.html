@@ -59,7 +59,7 @@
     div.csl-indent {
       margin-left: 2em;
     }  </style>
-  <link rel="stylesheet" href="index_files/libs/revealjs/dist/theme/quarto-62166277e511c0aa512b9951f40d81db.css">
+  <link rel="stylesheet" href="index_files/libs/revealjs/dist/theme/quarto-f09c653473ec109bd0c0b3c325a04f9a.css">
   <link href="index_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="index_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="index_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -164,7 +164,7 @@
   <div class="reveal">
     <div class="slides">
 
-<section id="title-slide" data-background-image="fig/Zoom-Background_PrideU.jpg" data-background-opacity="0.1" data-background-size="contain" class="quarto-title-block center">
+<section id="title-slide" data-background-image="fig/Zoom-Background_PrideU.jpg" data-background-opacity="0.1" data-background-position="center" data-background-size="cover" class="quarto-title-block center">
   <h1 class="title">Conditional Exponential-Family Random Graph Models</h1>
   <p class="subtitle">Does conditioning on edge counts help?</p>
 
@@ -343,6 +343,151 @@
 <h1>Part 2 – Conditioning on the edge count</h1>
 
 </section>
+<section id="take-the-edge-count-away" class="slide level2 compact" data-menu-title="Conditioning, in a picture">
+<h2>Take the edge count away</h2>
+<!-- "Take the edge count away" slide. Inlined into index.qmd through a raw
+     HTML block so it inherits the deck font and palette (see "Diagrams" in
+     style.scss) and so its groups can be reveal fragments. Schematic: the bar
+     heights are an illustrative near-degenerate edge-count distribution, not
+     model output. Fragment 1 picks the slice at c and crosses out the
+     extremes; fragment 2 opens the slice. -->
+<svg class="diagram" viewbox="0 0 980 440" role="img" aria-label="Distribution of the number of ties under a near-degenerate ERGM: almost all mass sits at the empty and the complete network. Conditioning keeps only the networks with the observed number of ties, c.">
+  <!-- Edge-count distribution: U-shaped, mass at both extremes. -->
+  <g class="bars fragment semi-fade-out" data-fragment-index="1">
+    <rect x="102.0" y="225.0" width="15.0" height="155.0"></rect>
+    <rect x="121.0" y="272.9" width="15.0" height="107.1"></rect>
+    <rect x="140.0" y="305.5" width="15.0" height="74.5"></rect>
+    <rect x="159.0" y="327.7" width="15.0" height="52.3"></rect>
+    <rect x="178.0" y="342.8" width="15.0" height="37.2"></rect>
+    <rect x="197.0" y="353.1" width="15.0" height="26.9"></rect>
+    <rect x="216.0" y="360.1" width="15.0" height="19.9"></rect>
+    <rect x="235.0" y="364.8" width="15.0" height="15.2"></rect>
+    <rect x="254.0" y="368.1" width="15.0" height="11.9"></rect>
+    <rect x="273.0" y="370.3" width="15.0" height="9.7"></rect>
+    <rect x="292.0" y="371.8" width="15.0" height="8.2"></rect>
+    <rect x="311.0" y="372.8" width="15.0" height="7.2"></rect>
+    <rect x="330.0" y="373.5" width="15.0" height="6.5"></rect>
+    <rect x="349.0" y="374.0" width="15.0" height="6.0"></rect>
+    <rect x="368.0" y="374.3" width="15.0" height="5.7"></rect>
+    <rect x="387.0" y="374.5" width="15.0" height="5.5"></rect>
+    <rect x="425.0" y="374.8" width="15.0" height="5.2"></rect>
+    <rect x="444.0" y="374.8" width="15.0" height="5.2"></rect>
+    <rect x="463.0" y="374.9" width="15.0" height="5.1"></rect>
+    <rect x="482.0" y="374.9" width="15.0" height="5.1"></rect>
+    <rect x="501.0" y="374.9" width="15.0" height="5.1"></rect>
+    <rect x="520.0" y="374.8" width="15.0" height="5.2"></rect>
+    <rect x="539.0" y="374.8" width="15.0" height="5.2"></rect>
+    <rect x="558.0" y="374.7" width="15.0" height="5.3"></rect>
+    <rect x="577.0" y="374.5" width="15.0" height="5.5"></rect>
+    <rect x="596.0" y="374.3" width="15.0" height="5.7"></rect>
+    <rect x="615.0" y="374.0" width="15.0" height="6.0"></rect>
+    <rect x="634.0" y="373.5" width="15.0" height="6.5"></rect>
+    <rect x="653.0" y="372.8" width="15.0" height="7.2"></rect>
+    <rect x="672.0" y="371.8" width="15.0" height="8.2"></rect>
+    <rect x="691.0" y="370.3" width="15.0" height="9.7"></rect>
+    <rect x="710.0" y="368.1" width="15.0" height="11.9"></rect>
+    <rect x="729.0" y="364.8" width="15.0" height="15.2"></rect>
+    <rect x="748.0" y="360.1" width="15.0" height="19.9"></rect>
+    <rect x="767.0" y="353.1" width="15.0" height="26.9"></rect>
+    <rect x="786.0" y="342.8" width="15.0" height="37.2"></rect>
+    <rect x="805.0" y="327.7" width="15.0" height="52.3"></rect>
+    <rect x="824.0" y="305.5" width="15.0" height="74.5"></rect>
+    <rect x="843.0" y="272.9" width="15.0" height="107.1"></rect>
+    <rect x="862.0" y="225.0" width="15.0" height="155.0"></rect>
+    <text x="620" y="300" text-anchor="middle" class="muted">Full model, near-degenerate θ:</text>
+    <text x="620" y="326" text-anchor="middle" class="muted">the probability piles up at the extremes</text>
+  </g>
+
+  <!-- The observed edge count: its bar stays at full strength. -->
+  <rect class="slice-bar" x="406.0" y="374.7" width="15.0" height="5.3"></rect>
+
+  <!-- Axis -->
+  <line class="axis" x1="95" y1="381" x2="885" y2="381"></line>
+  <text x="109.5" y="408" text-anchor="middle" class="muted">0</text>
+  <text x="869.5" y="408" text-anchor="middle" class="muted">all pairs</text>
+  <text x="490" y="434" text-anchor="middle">number of ties</text>
+
+  <!-- Extremes: the empty and the complete network. -->
+  <g class="mini" transform="translate(109.5 150)">
+    <circle class="node" cx="0" cy="-26" r="6"></circle>
+    <circle class="node" cx="-24.7" cy="-8" r="6"></circle>
+    <circle class="node" cx="-15.3" cy="21" r="6"></circle>
+    <circle class="node" cx="15.3" cy="21" r="6"></circle>
+    <circle class="node" cx="24.7" cy="-8" r="6"></circle>
+    <text x="0" y="62" text-anchor="middle" class="muted">empty</text>
+  </g>
+  <g class="mini" transform="translate(869.5 150)">
+    <g class="tie">
+      <line x1="0" y1="-26" x2="-24.7" y2="-8"></line><line x1="0" y1="-26" x2="-15.3" y2="21"></line>
+      <line x1="0" y1="-26" x2="15.3" y2="21"></line><line x1="0" y1="-26" x2="24.7" y2="-8"></line>
+      <line x1="-24.7" y1="-8" x2="-15.3" y2="21"></line><line x1="-24.7" y1="-8" x2="15.3" y2="21"></line>
+      <line x1="-24.7" y1="-8" x2="24.7" y2="-8"></line><line x1="-15.3" y1="21" x2="15.3" y2="21"></line>
+      <line x1="-15.3" y1="21" x2="24.7" y2="-8"></line><line x1="15.3" y1="21" x2="24.7" y2="-8"></line>
+    </g>
+    <circle class="node" cx="0" cy="-26" r="6"></circle>
+    <circle class="node" cx="-24.7" cy="-8" r="6"></circle>
+    <circle class="node" cx="-15.3" cy="21" r="6"></circle>
+    <circle class="node" cx="15.3" cy="21" r="6"></circle>
+    <circle class="node" cx="24.7" cy="-8" r="6"></circle>
+    <text x="0" y="62" text-anchor="middle" class="muted">complete</text>
+  </g>
+
+  <!-- Fragment 1: condition on c. -->
+  <g class="fragment" data-fragment-index="1">
+    <rect class="slice-band" x="401" y="205" width="25" height="176" rx="3"></rect>
+    <text x="413.5" y="408" text-anchor="middle" class="rust">c</text>
+    <g class="cross">
+      <line x1="75" y1="116" x2="144" y2="185"></line><line x1="144" y1="116" x2="75" y2="185"></line>
+      <line x1="835" y1="116" x2="904" y2="185"></line><line x1="904" y1="116" x2="835" y2="185"></line>
+    </g>
+  </g>
+
+  <!-- Fragment 2: inside the slice, only networks with c ties compete. -->
+  <g class="fragment" data-fragment-index="2">
+    <path class="funnel" d="M401,205 L262,178 M426,205 L568,178"></path>
+    <rect class="slice-box" x="262" y="44" width="306" height="134" rx="10"></rect>
+    <text x="415" y="30" text-anchor="middle" class="rust">only networks with c ties compete</text>
+    <!-- Three arrangements of the same five ties; the first is "observed". -->
+    <g class="mini" transform="translate(320 108)">
+      <circle class="observed-ring" cx="0" cy="0" r="40"></circle>
+      <g class="tie">
+        <line x1="0" y1="-26" x2="-24.7" y2="-8"></line><line x1="-24.7" y1="-8" x2="-15.3" y2="21"></line>
+        <line x1="-15.3" y1="21" x2="15.3" y2="21"></line><line x1="15.3" y1="21" x2="24.7" y2="-8"></line>
+        <line x1="24.7" y1="-8" x2="0" y2="-26"></line>
+      </g>
+      <circle class="node" cx="0" cy="-26" r="6"></circle><circle class="node" cx="-24.7" cy="-8" r="6"></circle>
+      <circle class="node" cx="-15.3" cy="21" r="6"></circle><circle class="node" cx="15.3" cy="21" r="6"></circle>
+      <circle class="node" cx="24.7" cy="-8" r="6"></circle>
+      <text x="0" y="62" text-anchor="middle" class="small rust">observed</text>
+    </g>
+    <g class="mini" transform="translate(415 108)">
+      <g class="tie">
+        <line x1="0" y1="-26" x2="-24.7" y2="-8"></line><line x1="0" y1="-26" x2="-15.3" y2="21"></line>
+        <line x1="0" y1="-26" x2="15.3" y2="21"></line><line x1="0" y1="-26" x2="24.7" y2="-8"></line>
+        <line x1="-24.7" y1="-8" x2="-15.3" y2="21"></line>
+      </g>
+      <circle class="node" cx="0" cy="-26" r="6"></circle><circle class="node" cx="-24.7" cy="-8" r="6"></circle>
+      <circle class="node" cx="-15.3" cy="21" r="6"></circle><circle class="node" cx="15.3" cy="21" r="6"></circle>
+      <circle class="node" cx="24.7" cy="-8" r="6"></circle>
+    </g>
+    <g class="mini" transform="translate(510 108)">
+      <g class="tie">
+        <line x1="0" y1="-26" x2="-24.7" y2="-8"></line><line x1="-24.7" y1="-8" x2="24.7" y2="-8"></line>
+        <line x1="24.7" y1="-8" x2="0" y2="-26"></line><line x1="-24.7" y1="-8" x2="-15.3" y2="21"></line>
+        <line x1="-15.3" y1="21" x2="15.3" y2="21"></line>
+      </g>
+      <circle class="node" cx="0" cy="-26" r="6"></circle><circle class="node" cx="-24.7" cy="-8" r="6"></circle>
+      <circle class="node" cx="-15.3" cy="21" r="6"></circle><circle class="node" cx="15.3" cy="21" r="6"></circle>
+      <circle class="node" cx="24.7" cy="-8" r="6"></circle>
+    </g>
+    <text x="555" y="168" text-anchor="end" class="small muted">…</text>
+  </g>
+</svg>
+
+<div class="takeaway fragment" data-fragment-index="3">
+<p>The model no longer decides <strong>how many</strong> ties there are, only <strong>where</strong> they go.</p>
+</div>
+</section>
 <section id="fix-what-you-do-not-want-to-model" class="slide level2 compact" data-menu-title="Conditional ERGM">
 <h2>Fix what you do not want to model</h2>
 <ul>
@@ -494,39 +639,105 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <p>Conditioning loses information only where the expected statistics <strong>bend</strong> with the edge count. A strong but linear relation costs nothing. See the <a href="#/information-algebra">&lt;algebra&gt;</a>.</p>
 </div>
 </section>
+<section id="what-a-bend-looks-like" class="slide level2 compact" data-menu-title="Information: the bend">
+<h2>What a bend looks like</h2>
+<p>How the expected value of another statistic changes with the edge count (schematic):</p>
+<!-- "What a bend looks like" slide: the information identity
+     I_eff - I_cond = Var(m(S_k) - B S_k) as a picture. Schematic curves, not
+     model output. Left: m(S_k) is a straight line, so it coincides with its
+     regression line and the gap is zero. Right: m(S_k) curves; the rust
+     segments are the gap m(S_k) - B S_k, weighted by where S_k falls (the hump
+     under each axis). Fragment 1 shows the right panel, fragment 2 the gaps. -->
+<svg class="diagram" viewbox="0 0 940 400" role="img" aria-label="Two schematic panels of the expected value of a statistic against the edge count. Left: a straight line, which equals its best linear fit, so conditioning loses nothing. Right: a curve; the vertical gaps to its best linear fit are the information conditioning loses.">
+  <defs>
+    <marker id="bend-arrow" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="arrowhead"></path>
+    </marker>
+  </defs>
+
+  <!-- Left panel: linear -->
+  <g>
+    <text x="235" y="16" text-anchor="middle" class="accent">Linear: nothing lost</text>
+    <path class="axis" d="M50,30 L50,290 L420,290" marker-start="url(#bend-arrow)" marker-end="url(#bend-arrow)"></path>
+    <path class="hump" d="M 60.0,330.0 L 70.0,330.0 L 80.0,329.9 L 90.0,329.9 L 100.0,329.7 L 110.0,329.6 L 120.0,329.3 L 130.0,328.8 L 140.0,328.2 L 150.0,327.2 L 160.0,325.9 L 170.0,324.3 L 180.0,322.1 L 190.0,319.6 L 200.0,316.7 L 210.0,313.5 L 220.0,310.2 L 230.0,307.0 L 240.0,304.1 L 250.0,301.9 L 260.0,300.5 L 270.0,300.0 L 280.0,300.5 L 290.0,301.9 L 300.0,304.1 L 310.0,307.0 L 320.0,310.2 L 330.0,313.5 L 340.0,316.7 L 350.0,319.6 L 360.0,322.1 L 370.0,324.3 L 380.0,325.9 L 390.0,327.2 L 400.0,328.2 L 410.0,328.8"></path>
+    <line class="curve" x1="68" y1="262" x2="410" y2="62"></line>
+    <line class="fit" x1="68" y1="262" x2="410" y2="62"></line>
+    <text x="250" y="122" text-anchor="end" class="small muted">curve = its best straight line</text>
+    <text x="235" y="390" text-anchor="middle">edge count, <tspan font-style="italic">S</tspan><tspan baseline-shift="sub" font-size="70%">k</tspan></text>
+    <text transform="translate(28 160) rotate(-90)" text-anchor="middle" class="small">expected other statistic</text>
+  </g>
+
+  <!-- Right panel: bends -->
+  <g transform="translate(470 0)" class="fragment" data-fragment-index="1">
+    <text x="235" y="16" text-anchor="middle" class="rust">Bends: information lost</text>
+    <path class="axis" d="M50,30 L50,290 L420,290" marker-start="url(#bend-arrow)" marker-end="url(#bend-arrow)"></path>
+    <path class="hump" d="M 60.0,330.0 L 70.0,330.0 L 80.0,329.9 L 90.0,329.9 L 100.0,329.7 L 110.0,329.6 L 120.0,329.3 L 130.0,328.8 L 140.0,328.2 L 150.0,327.2 L 160.0,325.9 L 170.0,324.3 L 180.0,322.1 L 190.0,319.6 L 200.0,316.7 L 210.0,313.5 L 220.0,310.2 L 230.0,307.0 L 240.0,304.1 L 250.0,301.9 L 260.0,300.5 L 270.0,300.0 L 280.0,300.5 L 290.0,301.9 L 300.0,304.1 L 310.0,307.0 L 320.0,310.2 L 330.0,313.5 L 340.0,316.7 L 350.0,319.6 L 360.0,322.1 L 370.0,324.3 L 380.0,325.9 L 390.0,327.2 L 400.0,328.2 L 410.0,328.8"></path>
+    <path class="curve" d="M60,280 Q300,285 410,30"></path>
+    <line class="fit" x1="170" y1="289.4" x2="400" y2="104.9"></line>
+    <text x="150" y="122" text-anchor="middle" class="small muted">e.g. two-paths: grow</text>
+    <text x="150" y="144" text-anchor="middle" class="small muted">with the square of the</text>
+    <text x="150" y="166" text-anchor="middle" class="small muted">edge count</text>
+    <text x="420" y="350" text-anchor="end" class="small muted">where <tspan font-style="italic">S</tspan><tspan baseline-shift="sub" font-size="70%">k</tspan> falls</text>
+    <text x="235" y="390" text-anchor="middle">edge count, <tspan font-style="italic">S</tspan><tspan baseline-shift="sub" font-size="70%">k</tspan></text>
+  </g>
+
+  <!-- Fragment 2: the gap m(S_k) - B S_k. -->
+  <g transform="translate(470 0)" class="fragment" data-fragment-index="2">
+    <g class="gap">
+      <line x1="170" y1="266.8" x2="170" y2="289.4"></line>
+      <line x1="190" y1="260.4" x2="190" y2="273.4"></line>
+      <line x1="210" y1="252.6" x2="210" y2="257.4"></line>
+      <line x1="250" y1="231.6" x2="250" y2="225.3"></line>
+      <line x1="270" y1="218.2" x2="270" y2="209.2"></line>
+      <line x1="290" y1="202.4" x2="290" y2="193.2"></line>
+      <line x1="310" y1="183.9" x2="310" y2="177.1"></line>
+      <line x1="350" y1="137.0" x2="350" y2="145.0"></line>
+      <line x1="370" y1="107.3" x2="370" y2="129.0"></line>
+    </g>
+    <text x="300" y="250" class="small rust">gap = what</text>
+    <text x="300" y="272" class="small rust">conditioning loses</text>
+  </g>
+</svg>
+
+<div class="takeaway fragment" data-fragment-index="3">
+<p>The full model can use the curve; the conditional model sees only the straight part. What it loses is the variance of the gap, <span class="math inline">\(\text{Var}\left\{m(S_k) - B\,S_k\right\}\)</span>.</p>
+</div>
+</section>
 <section id="results-triangles-lose-almost-nothing" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Information: mutual + gwesp">
 <h2>Results: triangles lose almost nothing</h2>
 <div class="columns">
-<div class="column" style="width:62%;">
+<div class="column" style="width:64%;">
 <p><a href="fig/info-mutual-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img data-src="fig/info-mutual-gwesp.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
-<p>Directed model with homophily, mutual and gwesp. Line: median sample. Band: 10th to 90th percentile. 500 samples per panel.</p>
+<p>Directed model with homophily, mutual and gwesp. One point per sample where <code>gwesp</code> is identified; curves are densities.</p>
 </div>
-</div><div class="column" style="width:38%;">
+</div><div class="column" style="width:36%;">
 <ul>
-<li class="fragment">The <strong>median loss is at most 1.2%</strong> for every coefficient, at every density.</li>
-<li class="fragment">Homophily and reciprocity: nothing to see.</li>
-<li class="fragment">The band for <code>gwesp</code> opens in <strong>sparse</strong> networks: in the worst cell, 18% of samples lose more than 5%.</li>
-<li class="fragment">More networks (<span class="math inline">\(M = 5\)</span>) do not make it go away.</li>
+<li class="fragment"><strong>Median loss under 3%</strong> in every cell. Homophily and reciprocity: nothing to see.</li>
+<li class="fragment"><strong>Positive clustering, sparse networks</strong>: a second hump at 20–100%. 13% of samples lose more than 5%, 20% with five networks.</li>
+<li class="fragment"><strong>Negative clustering</strong>: the loss is small or total. The conditional model cannot identify <code>gwesp</code> in 30% of samples.</li>
 </ul>
 </div></div>
 <div class="takeaway fragment">
-<p>In the typical sample, the edge count knows nothing about clustering, homophily or reciprocity that the rest of the network does not.</p>
+<p>The typical sample loses almost nothing. When conditioning costs, it costs on <code>gwesp</code>: in sparse, clustered networks, and by erasing it when clustering is negative.</p>
 </div>
 </section>
-<section id="results-but-it-depends-on-the-term" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Information: all models">
+<section id="results-but-it-depends-on-the-term" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Information: by term">
 <h2>Results: but it depends on the term</h2>
 <div class="columns">
-<div class="column" style="width:70%;">
-<p><a href="fig/info-loss.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="fig/info-loss.png" style="width:100.0%"></a></p>
-</div><div class="column" style="width:30%;">
+<div class="column" style="width:66%;">
+<p><a href="fig/info-terms.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="fig/info-terms.png" style="width:100.0%"></a></p>
+<div style="font-size: 80%; color: #666;">
+<p>Three undirected models (all with homophily); each row is one of the model’s coefficients. One point per sample where it is identified.</p>
+</div>
+</div><div class="column" style="width:34%;">
 <div class="fragment">
 <h3 id="loses-little">Loses little</h3>
-<p><code>gwesp</code>, homophily and reciprocity: median below 1%.</p>
+<p>Homophily and <code>gwesp</code>: median below 0.3%.</p>
 </div>
 <div class="fragment">
 <h3 id="loses-more">Loses more</h3>
-<p><code>gwnsp</code> (median <strong>31%</strong> with five networks), <code>gwdsp</code>, <code>gwdegree</code>, and a <code>gwesp</code> effect that varies with network size.</p>
+<p><code>gwdegree</code>: median 3.2% with five networks. <code>gwnsp</code>: <strong>31%</strong>, and it drags <code>gwesp</code> with it. <code>gwdsp</code> and size effects (not shown) also lose more.</p>
 </div>
 <div class="fragment">
 <h3 id="why">Why</h3>
@@ -560,21 +771,92 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <h1>Part 4 – Does it work in practice?</h1>
 
 </section>
-<section id="two-ways-to-fit-the-same-networks" class="slide level2 semi" data-menu-title="Simulation: arms">
+<section id="two-ways-to-fit-the-same-networks" class="slide level2 compact" data-menu-title="Simulation: arms">
 <h2>Two ways to fit the same networks</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
 <h3 id="unconditional">Unconditional</h3>
-<ul>
-<li>Estimates edges and its size effect, as in the model that generated the data.</li>
-<li>The <strong>correctly specified</strong> model: this is its home turf.</li>
-</ul>
+<!-- "Two ways to fit" slide, left column: the unconditional sampler toggles one
+     pair, so the edge count moves by one. Pairs with diag-sampler-move.svg;
+     keep the two networks identical before the step. -->
+<svg class="diagram sampler" viewbox="0 0 420 175" role="img" aria-label="Toggle step: a network with 7 ties gains one tie and ends with 8 ties.">
+  <defs>
+    <marker id="toggle-arrow" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="arrowhead"></path>
+    </marker>
+  </defs>
+  <g transform="translate(75 70)">
+    <g class="tie">
+      <line x1="0" y1="-48" x2="-41.6" y2="-24"></line><line x1="-41.6" y1="-24" x2="-41.6" y2="24"></line>
+      <line x1="-41.6" y1="24" x2="0" y2="48"></line><line x1="0" y1="48" x2="41.6" y2="24"></line>
+      <line x1="41.6" y1="24" x2="41.6" y2="-24"></line><line x1="41.6" y1="-24" x2="0" y2="-48"></line>
+      <line x1="0" y1="-48" x2="0" y2="48"></line>
+    </g>
+    <circle class="node" cx="0" cy="-48" r="8"></circle><circle class="node" cx="-41.6" cy="-24" r="8"></circle>
+    <circle class="node" cx="-41.6" cy="24" r="8"></circle><circle class="node" cx="0" cy="48" r="8"></circle>
+    <circle class="node" cx="41.6" cy="24" r="8"></circle><circle class="node" cx="41.6" cy="-24" r="8"></circle>
+    <text x="0" y="96" text-anchor="middle">7 ties</text>
+  </g>
+  <line class="step" x1="140" y1="70" x2="268" y2="70" marker-end="url(#toggle-arrow)"></line>
+  <text x="204" y="56" text-anchor="middle" class="small muted">toggle a pair</text>
+  <g transform="translate(335 70)">
+    <g class="tie">
+      <line x1="0" y1="-48" x2="-41.6" y2="-24"></line><line x1="-41.6" y1="-24" x2="-41.6" y2="24"></line>
+      <line x1="-41.6" y1="24" x2="0" y2="48"></line><line x1="0" y1="48" x2="41.6" y2="24"></line>
+      <line x1="41.6" y1="24" x2="41.6" y2="-24"></line><line x1="41.6" y1="-24" x2="0" y2="-48"></line>
+      <line x1="0" y1="-48" x2="0" y2="48"></line>
+    </g>
+    <line class="tie-new" x1="-41.6" y1="24" x2="41.6" y2="24"></line>
+    <circle class="node" cx="0" cy="-48" r="8"></circle><circle class="node" cx="-41.6" cy="-24" r="8"></circle>
+    <circle class="node" cx="-41.6" cy="24" r="8"></circle><circle class="node" cx="0" cy="48" r="8"></circle>
+    <circle class="node" cx="41.6" cy="24" r="8"></circle><circle class="node" cx="41.6" cy="-24" r="8"></circle>
+    <text x="0" y="96" text-anchor="middle" class="rust">8 ties</text>
+  </g>
+</svg>
+
+<p>Estimates edges and its size effect: the <strong>correctly specified</strong> model, on its home turf.</p>
 </div><div class="column" style="width:50%;">
 <h3 id="conditional">Conditional</h3>
-<ul>
-<li>Drops edges; fixes <strong>each network’s</strong> edge count.</li>
-<li>Needs a new sampler: move a tie <em>within</em> a network (<code>condergm</code>, built on <code>ergm</code> and <code>ergm.multi</code>).</li>
-</ul>
+<!-- "Two ways to fit" slide, right column: the conditional sampler moves a tie
+     within the network (drop one, add another), so the edge count is fixed.
+     Pairs with diag-sampler-toggle.svg; same starting network. -->
+<svg class="diagram sampler" viewbox="0 0 420 175" role="img" aria-label="Move step: a network with 7 ties drops one tie and adds another, and still has 7 ties.">
+  <defs>
+    <marker id="move-arrow" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="arrowhead"></path>
+    </marker>
+  </defs>
+  <g transform="translate(75 70)">
+    <g class="tie">
+      <line x1="0" y1="-48" x2="-41.6" y2="-24"></line><line x1="-41.6" y1="-24" x2="-41.6" y2="24"></line>
+      <line x1="-41.6" y1="24" x2="0" y2="48"></line><line x1="0" y1="48" x2="41.6" y2="24"></line>
+      <line x1="41.6" y1="24" x2="41.6" y2="-24"></line><line x1="41.6" y1="-24" x2="0" y2="-48"></line>
+      <line x1="0" y1="-48" x2="0" y2="48"></line>
+    </g>
+    <circle class="node" cx="0" cy="-48" r="8"></circle><circle class="node" cx="-41.6" cy="-24" r="8"></circle>
+    <circle class="node" cx="-41.6" cy="24" r="8"></circle><circle class="node" cx="0" cy="48" r="8"></circle>
+    <circle class="node" cx="41.6" cy="24" r="8"></circle><circle class="node" cx="41.6" cy="-24" r="8"></circle>
+    <text x="0" y="96" text-anchor="middle">7 ties</text>
+  </g>
+  <line class="step" x1="140" y1="70" x2="268" y2="70" marker-end="url(#move-arrow)"></line>
+  <text x="204" y="56" text-anchor="middle" class="small muted">move a tie</text>
+  <g transform="translate(335 70)">
+    <g class="tie">
+      <line x1="0" y1="-48" x2="-41.6" y2="-24"></line><line x1="-41.6" y1="-24" x2="-41.6" y2="24"></line>
+      <line x1="-41.6" y1="24" x2="0" y2="48"></line><line x1="0" y1="48" x2="41.6" y2="24"></line>
+      <line x1="41.6" y1="24" x2="41.6" y2="-24"></line>
+      <line x1="0" y1="-48" x2="0" y2="48"></line>
+    </g>
+    <line class="tie-gone" x1="41.6" y1="-24" x2="0" y2="-48"></line>
+    <line class="tie-new" x1="-41.6" y1="24" x2="41.6" y2="24"></line>
+    <circle class="node" cx="0" cy="-48" r="8"></circle><circle class="node" cx="-41.6" cy="-24" r="8"></circle>
+    <circle class="node" cx="-41.6" cy="24" r="8"></circle><circle class="node" cx="0" cy="48" r="8"></circle>
+    <circle class="node" cx="41.6" cy="24" r="8"></circle><circle class="node" cx="41.6" cy="-24" r="8"></circle>
+    <text x="0" y="96" text-anchor="middle" class="accent">7 ties</text>
+  </g>
+</svg>
+
+<p>Drops edges; <strong>each network</strong> keeps its edge count (<code>condergm</code>, built on <code>ergm</code> and <code>ergm.multi</code>).</p>
 </div></div>
 <ul>
 <li class="fragment">Both fit by <strong>MCMC-MLE</strong> with the <code>ergm</code> R package, from the <strong>same starting values</strong>, with a one-hour limit per fit.</li>
@@ -585,21 +867,21 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="results-the-short-version" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: headline">
 <h2>Results: the short version</h2>
-<p>All models and sample sizes pooled (10,179 samples, each fit both ways):</p>
+<p>All models and sample sizes pooled (13,989 samples, each fit both ways):</p>
 <div class="findings-grid headline">
 <div class="finding fragment">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20666120636972636c652d636865636b203e7d7d-converges-more-often"><i class="fa-solid fa-circle-check" aria-label="circle-check"></i><br>Converges more often</h3>
-<p><span class="badge badge-strong"><strong>62%</strong> vs 55%</span></p>
-<p>In every one of the seven models</p>
+<p><span class="badge badge-strong"><strong>53%</strong> vs 48%</span></p>
+<p>In six of the seven models; tied with <code>gwnsp</code></p>
 </div>
 <div class="finding fragment">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c2066612073746f707761746368203e7d7d-faster"><i class="fa-solid fa-stopwatch" aria-label="stopwatch"></i><br>Faster</h3>
-<p><span class="badge badge-strong"><strong>31 s</strong> vs 56 s</span></p>
-<p>About half the time with five or more networks</p>
+<p><span class="badge badge-strong"><strong>26 s</strong> vs 53 s</span></p>
+<p>Median time of a converged fit, faster in every model</p>
 </div>
 <div class="finding fragment">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c2066612062756c6c73657965203e7d7d-just-as-accurate"><i class="fa-solid fa-bullseye" aria-label="bullseye"></i><br>Just as accurate</h3>
-<p><span class="badge badge-strong"><strong>0.15</strong> vs 0.16</span></p>
+<p><span class="badge badge-strong"><strong>0.16</strong> vs 0.16</span></p>
 <p>Median absolute error; bias 0.01 and 0.01</p>
 </div>
 <div class="finding fragment">
@@ -612,15 +894,15 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <p>The conditional model matches or beats the correctly specified one on every measure, in a comparison designed to favor the unconditional model.</p>
 </div>
 <div class="absolute" style="font-size: 80%; color: #666;bottom: 0px; right: 0px; ">
-<p>Conditional vs.&nbsp;unconditional. Accuracy and coverage among converged fits.</p>
+<p>Conditional vs.&nbsp;unconditional. Time, accuracy and coverage among converged fits.</p>
 </div>
 </section>
 <section id="results-more-networks-same-story" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: by M">
 <h2>Results: more networks, same story</h2>
 <p><a href="fig/sim-by-m.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img data-src="fig/sim-by-m.png" style="width:100.0%"></a></p>
 <ul>
-<li class="fragment"><strong>Consistency.</strong> The error falls from 0.34 with one network to 0.10 with twenty, at the same rate in both models.</li>
-<li class="fragment"><strong>Time.</strong> The gap widens with <span class="math inline">\(M\)</span>: 2 minutes against 4 with twenty networks.</li>
+<li class="fragment"><strong>Consistency.</strong> The error falls from 0.33 with one network to 0.10 with twenty, at the same rate in both models.</li>
+<li class="fragment"><strong>Time.</strong> The gap widens with <span class="math inline">\(M\)</span>: a converged fit of twenty networks takes 1.4 minutes against 3.1.</li>
 <li class="fragment"><strong>Coverage.</strong> The unconditional intervals get slightly too narrow as <span class="math inline">\(M\)</span> grows; the conditional ones hold at 92%.</li>
 </ul>
 </section>
@@ -628,9 +910,9 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <h2>Results: model by model</h2>
 <p><a href="fig/sim-by-experiment.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img data-src="fig/sim-by-experiment.png" style="width:100.0%"></a></p>
 <ul>
-<li class="fragment">The gain in convergence is largest where fitting is hardest: degree terms (+13 points) and an estimated decay (+12 points).</li>
-<li class="fragment">With <code>gwesp + gwnsp</code>, the unconditional intervals cover the truth 81% of the time; the conditional ones, 92%.</li>
-<li class="fragment">Recall part 3: <code>gwnsp</code> was the term that <strong>lost the most information</strong>. It does not show up as worse estimates here.</li>
+<li class="fragment">The gain in convergence is largest with an estimated decay (+12 points). With <code>gwesp + gwnsp</code> there is none: 40% against 39%.</li>
+<li class="fragment">With two-path and degree terms the conditional fits <strong>time out more often</strong>: 40% against 34% with <code>gwnsp</code>, 28% against 12% with <code>gwdegree</code>.</li>
+<li class="fragment">Recall part 3: these terms <strong>lose the most information</strong>. That costs precision, not convergence: with positive clustering, the conditional model alone is usable on 20% of the samples losing 5% or more, against 4% under 1%.</li>
 </ul>
 </section>
 <section id="where-both-models-struggle-density" class="slide level2 compact" data-menu-title="Simulation: density">
@@ -681,76 +963,157 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">Non-finite standard error</td>
-<td style="text-align: right;">15%–32%</td>
-<td style="text-align: right;">17%–32%</td>
+<td style="text-align: right;">14%–32%</td>
+<td style="text-align: right;">16%–32%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">Timed out</td>
-<td style="text-align: right;">1%–8%</td>
-<td style="text-align: right;">2%–5%</td>
+<td style="text-align: right;">2%–15%</td>
+<td style="text-align: right;">2%–8%</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>gwdegree + gwesp</code></td>
 <td style="text-align: left;">Chain did not mix</td>
-<td style="text-align: right;">24%–36%</td>
-<td style="text-align: right;">0%–21%</td>
+<td style="text-align: right;">23%–38%</td>
+<td style="text-align: right;">0%–23%</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">Non-finite standard error</td>
-<td style="text-align: right;">20%–35%</td>
-<td style="text-align: right;">25%–39%</td>
+<td style="text-align: right;">17%–32%</td>
+<td style="text-align: right;">19%–32%</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">Timed out</td>
-<td style="text-align: right;">1%–5%</td>
-<td style="text-align: right;">5%–12%</td>
+<td style="text-align: right;">9%–15%</td>
+<td style="text-align: right;">20%–32%</td>
 </tr>
 </tbody>
 </table>
 <ul>
 <li class="fragment">Conditioning nearly removes the failures in which <strong>the chain does not mix</strong>: the degeneracy story of part 1.</li>
 <li class="fragment">It does nothing for <strong>non-finite standard errors</strong>. Those are mostly samples whose coefficients cannot be estimated by either model (the “not identified” samples of part 3).</li>
-<li class="fragment">Still, 38% of conditional fits fail. Strong coefficients in small networks are a hard test by design.</li>
+<li class="fragment">Timeouts grow with <span class="math inline">\(M\)</span> in both models, slightly more for the conditional one: hard models are slow either way.</li>
+<li class="fragment">Still, 47% of conditional fits fail. Strong coefficients in small networks are a hard test by design.</li>
 </ul>
+</section>
+<section id="beyond-convergence-the-sign-of-clustering" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: by clustering sign">
+<h2>Beyond convergence: the sign of clustering</h2>
+<!-- Numbers: report/report.qmd, "Beyond convergence" (Table 12), rebuilt
+     into data/sim_quality.csv by scripts/tables.R. -->
+<p>Every GW coefficient, graded; failed fits count. Conditional <strong>vs</strong> unconditional:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 46%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: center;">Positive clustering</th>
+<th style="text-align: center;">Negative clustering</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Converged</td>
+<td style="text-align: center;"><strong>75%</strong> vs 67%</td>
+<td style="text-align: center;"><strong>31%</strong> vs 29%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Usable (SE ≤ 1)</td>
+<td style="text-align: center;"><strong>63%</strong> vs 56%</td>
+<td style="text-align: center;"><strong>26%</strong> vs 24%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Accurate (covers truth, excludes 0)</td>
+<td style="text-align: center;"><strong>54%</strong> vs 47%</td>
+<td style="text-align: center;"><strong>22%</strong> vs 20%</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li class="fragment">The design draws clustering <strong>negative half the time</strong>. In applied social networks it is almost always positive (McMillan, Felmlee and Ashford, 2022).</li>
+<li class="fragment">With negative clustering both models fail most of the time: those samples add noise to the comparison, not signal.</li>
+<li class="fragment">When both models give usable coefficients, the conditional standard errors are only 1% larger (median ratio), in line with the small information losses of part 3.</li>
+</ul>
+<div class="takeaway fragment">
+<p>In the case that matters in practice, the gap widens: 7 more points of accurate coefficients with conditioning.</p>
+</div>
 </section>
 <section id="when-the-full-model-fails" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: rescue">
 <h2>When the full model fails</h2>
 <!-- [1:30] The paired question: of the samples where the unconditional fit
      fails, how many does the conditional fit recover? And the reverse, as a
      control. Figure and numbers: report/cond-failures.md of the research
-     repository (Figure 1, Table 1); copied by `make figs-from-repo`. -->
-<p>Paired on the sample: both models fit to the same networks, 10,179 samples.</p>
-<p><a href="fig/cond-failures-outcomes.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/cond-failures-outcomes.png" style="width:80.0%"></a></p>
-<ul>
-<li class="fragment"><strong>Conditional only</strong> (orange) outnumbers <strong>full only</strong> (green) at every density below 0.5: 7% against 2% of samples overall (exact McNemar, <span class="math inline">\(p &lt; 0.001\)</span>). <!-- - Most failures are shared (**neither**): at $M = 1$ and $5$, a third of them are samples whose drawn coefficients cannot be estimated by either model. --></li>
-</ul>
+     repository (Figure 1, Table 1); rates by sign rebuilt into
+     data/sim_paired.csv by scripts/tables.R. -->
+<p>Paired on the sample: both models fit to the same networks, 13,989 samples.</p>
+<div class="columns">
+<div class="column" style="width:58%;">
+<p><a href="fig/cond-failures-outcomes.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/cond-failures-outcomes.png" style="width:100.0%"></a></p>
+<div style="font-size: 80%; color: #666;">
+<p><strong>Conditional only</strong> (red) outnumbers <strong>full only</strong> (green) at every density below 0.5: 8% against 3% of samples (exact McNemar, <span class="math inline">\(p &lt; 0.001\)</span>).</p>
+</div>
+</div><div class="column" style="width:42%;">
+<p>How often a model works when the other did not, conditional <strong>vs</strong> full:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Clustering</th>
+<th style="text-align: center;">Converges</th>
+<th style="text-align: center;">Usable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Positive</td>
+<td style="text-align: center;"><strong>41%</strong> vs 15%</td>
+<td style="text-align: center;"><strong>23%</strong> vs 6%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Negative</td>
+<td style="text-align: center;"><strong>7%</strong> vs 4%</td>
+<td style="text-align: center;"><strong>4%</strong> vs 2%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">All</td>
+<td style="text-align: center;"><strong>16%</strong> vs 6%</td>
+<td style="text-align: center;"><strong>11%</strong> vs 4%</td>
+</tr>
+</tbody>
+</table>
+<div style="font-size: 80%; color: #666;">
+<p>Usable: every GW coefficient with SE ≤ 1 and |estimate| ≤ 10.</p>
+</div>
+</div></div>
 <div class="takeaway fragment">
-<p>When the full model fails, the conditional one converges in <strong>17%</strong> of the samples. When the conditional one fails, the full model converges in only <strong>5%</strong>.</p>
+<p>With positive clustering, the conditional model rescues <strong>41%</strong> of the full model’s failures; the reverse, 15%. With negative clustering neither rescues the other.</p>
 </div>
 </section>
 <section id="converged-is-not-the-same-as-usable" class="slide level2 compact" data-menu-title="Simulation: usable fits">
 <h2>Converged is not the same as usable</h2>
 <!-- [1:30] A rescue only counts if the rescued fit is accurate. Figure and
      numbers: report/cond-failures.md of the research repository (Figure 4,
-     Table 4); copied by `make figs-from-repo`. -->
+     Table 4, positive clustering rows); copied by `make figs-from-repo`. -->
 <div class="columns">
 <div class="column" style="width:58%;">
 <p><a href="fig/cond-failures-error.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img data-src="fig/cond-failures-error.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
-<p>Absolute error of the GW coefficients of converged fits. Solid: both models converged. Dashed: only this model converged.</p>
+<p>Positive clustering. Absolute error of the GW coefficients of converged fits. Solid: both models converged. Dashed: only this model converged.</p>
 </div>
 </div><div class="column" style="width:42%;">
 <ul>
-<li class="fragment">When both converge, the two models are <strong>indistinguishable</strong>: median absolute error 0.15, 95% intervals cover 92–93%.</li>
-<li class="fragment"><strong>Full model, after the conditional failed</strong> (261 estimates): median error <strong>0.89</strong>, coverage <strong>66%</strong>.</li>
-<li class="fragment"><strong>Conditional, after the full model failed</strong> (856 estimates): median error <strong>0.20</strong>, coverage <strong>89%</strong>.</li>
+<li class="fragment">When both converge, the two models are <strong>indistinguishable</strong>: median absolute error 0.16, 95% intervals cover 92–93%.</li>
+<li class="fragment"><strong>Full model, after the conditional failed</strong> (305 estimates): median error <strong>1.00</strong>, coverage <strong>53%</strong>. Keeping only the usable ones does not help (0.41, 45%).</li>
+<li class="fragment"><strong>Conditional, after the full model failed</strong> (976 estimates): median error <strong>0.16</strong>, coverage <strong>91%</strong>: a normal fit.</li>
 </ul>
 </div></div>
 <div class="takeaway fragment">
-<p>The full model’s rare rescues converge to the wrong place. The conditional model’s rescues are close to normal fits.</p>
+<p>The full model’s rare rescues are confidently wrong, even when their standard errors look fine. The conditional model’s rescues are as good as any other fit.</p>
 </div>
 </section></section>
 <section>
@@ -764,14 +1127,14 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <div class="column" style="width:50%;">
 <h3 id="yes">Yes</h3>
 <ul>
-<li class="fragment">It <strong>converges more often</strong>, in about <strong>half the time</strong>.</li>
+<li class="fragment">It <strong>converges more often</strong>, and a converged fit takes about <strong>half the time</strong>.</li>
 <li class="fragment">It is <strong>as accurate</strong> as the correctly specified full model, with intervals at least as good.</li>
 <li class="fragment">For clustering (<code>gwesp</code>), homophily and reciprocity, it keeps <strong>99% of the information</strong> in the typical sample.</li>
 </ul>
 </div><div class="column" style="width:50%;">
 <h3 id="but">But</h3>
 <ul>
-<li class="fragment">Terms that bend with the edge count (<code>gwnsp</code>, <code>gwdsp</code>, <code>gwdegree</code>, size-varying effects) can lose a lot of information.</li>
+<li class="fragment">Terms that bend with the edge count (<code>gwnsp</code>, <code>gwdsp</code>, <code>gwdegree</code>, size-varying effects) can lose a lot of information, and their conditional fits time out more often.</li>
 <li class="fragment">It does not rescue coefficients that are <strong>not identified</strong>, nor dense networks.</li>
 <li class="fragment">You no longer get a model for density. Simulating new networks needs the edge count from somewhere.</li>
 </ul>
@@ -899,13 +1262,43 @@ mindmap
 <li class="fragment">So the likelihood is <strong>approximated by simulation</strong> (Markov chain Monte Carlo maximum likelihood, MCMC-MLE).</li>
 </ul>
 </div><div class="column fragment" style="width:45%;">
-<p><strong>The loop</strong></p>
-<ol type="1">
-<li>Guess <span class="math inline">\(\boldsymbol{\theta}\)</span> (usually using Maximum Pseudo-Likelihood, MPLE).</li>
-<li>Simulate networks from the model at <span class="math inline">\(\boldsymbol{\theta}\)</span>.</li>
-<li>Approximate a ratio of <span class="math inline">\(\eta\left(\boldsymbol{\theta}\right)/\eta\left(\boldsymbol{\theta}_0\right)\)</span> (<del>LLM</del> LLN).</li>
-<li>Update <span class="math inline">\(\boldsymbol{\theta}\)</span> via a Newton-Raphson step; go back to 2.</li>
-</ol>
+<!-- Appendix "Fitting is the hard part": the MCMC-MLE loop as a cycle. The
+     simulation step carries the rust outline because it is where degenerate
+     models break the loop (the slide's takeaway) and the one step the
+     conditional model changes (the move sampler). -->
+<svg class="diagram loop" viewbox="0 0 460 350" role="img" aria-label="MCMC-MLE loop: start from the MPLE guess, then repeat simulate networks, approximate the ratio of normalizing constants, and take a Newton-Raphson step.">
+  <defs>
+    <marker id="loop-arrow" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="arrowhead"></path>
+    </marker>
+  </defs>
+  <!-- Start -->
+  <rect class="box box-start" x="130" y="4" width="200" height="50" rx="25"></rect>
+  <text x="230" y="35" text-anchor="middle">Guess θ (MPLE)</text>
+  <line class="step" x1="230" y1="56" x2="230" y2="94" marker-end="url(#loop-arrow)"></line>
+
+  <!-- The loop -->
+  <rect class="box box-hot" x="120" y="98" width="220" height="58" rx="10"></rect>
+  <text x="230" y="124" text-anchor="middle">Simulate networks</text>
+  <text x="230" y="146" text-anchor="middle" class="small muted">from the model at θ</text>
+
+  <rect class="box" x="250" y="226" width="205" height="58" rx="10"></rect>
+  <text x="352" y="252" text-anchor="middle">Approximate</text>
+  <text x="352" y="274" text-anchor="middle" class="small muted">η(θ)/η(θ₀) by the <tspan text-decoration="line-through">LLM</tspan> LLN</text>
+
+  <rect class="box" x="5" y="226" width="205" height="58" rx="10"></rect>
+  <text x="107" y="252" text-anchor="middle">Update θ</text>
+  <text x="107" y="274" text-anchor="middle" class="small muted">Newton–Raphson step</text>
+
+  <path class="step" d="M300,158 Q345,185 350,222" marker-end="url(#loop-arrow)"></path>
+  <line class="step" x1="248" y1="255" x2="214" y2="255" marker-end="url(#loop-arrow)"></line>
+  <path class="step" d="M105,224 Q112,185 158,160" marker-end="url(#loop-arrow)"></path>
+  <text x="230" y="210" text-anchor="middle" class="small muted">repeat</text>
+
+  <text x="230" y="320" text-anchor="middle" class="small rust">The outlined step breaks when the simulated</text>
+  <text x="230" y="342" text-anchor="middle" class="small rust">networks look nothing like the data</text>
+</svg>
+
 </div></div>
 <div class="takeaway fragment">
 <p>This only works if the simulated networks look something like the observed one. Often they do not.</p>

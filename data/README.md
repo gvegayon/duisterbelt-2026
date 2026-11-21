@@ -10,7 +10,7 @@ the full results are on CHPC.
 
 | file | content | built by |
 |---|---|---|
-| `sim_compare.csv` | conditional vs unconditional, by experiment, M and pooled (report Table 2) | both |
+| `sim_compare.csv` | conditional vs unconditional, by experiment, M and pooled (report Table 2); `time_ok_*` (median time of converged fits) only from `tables.R` | both |
 | `sim_by_density.csv` | by observed density (report Tables 3c-9c) | both |
 | `sim_failures_by_M.csv` | causes of failure by M (report Tables 3b-9b) | both |
 | `sim_dense.csv` | densities above 0.5, earlier design (report Table A1) | both |
@@ -19,7 +19,9 @@ the full results are on CHPC.
 | `sim_paired.csv` | paired outcomes; P(conditional converges \| unconditional fails) | `tables.R` |
 | `sim_levels.csv` | returned / finite / well-defined / accurate fits, by model | `tables.R` |
 | `sim_discordant_causes.csv` | when one model converges, why the other failed | `tables.R` |
-| `info_mutual_gwesp_bins.csv` | the `mutual_gwesp` information figure by density | `tables.R` |
+| `info_mutual_gwesp_bins.csv` | `mutual_gwesp` information loss by density and clustering sign (median, 10th/90th percentile) | `tables.R` |
+| `info_gwesp_sign.csv` | `mutual_gwesp` information loss and non-identification by clustering sign | `tables.R` |
+| `sim_quality.csv` | usable and accurate GW coefficients, by clustering sign (report "Beyond convergence", Table 12) | `tables.R` |
 
 ## Building
 
@@ -48,4 +50,16 @@ until `tables.R` has run.
 Rscript scripts/tables-from-reports.R   # from the deck's root
 ```
 
-The files in this folder were last built by: `tables-from-reports.R`.
+The files in this folder were last built on 2026-11-20 by `tables.R`, from
+the research repository's exported per-fit results (`data/fits/`,
+`data/samples/`, all 28,000 fits), stacked into a `fits.rds` with the
+columns of `report/prepare.R`. `info_loss.csv`, `sim_dense.csv` and
+`bridges.csv` were not rebuilt (their inputs did not change).
+`info_mutual_gwesp_bins.csv` and `info_gwesp_sign.csv` were built on
+2026-11-21 from the exported loglik results (`data/loglik/`, `data/samples/`);
+recomputing `info_loss.csv` from the same export reproduces it.
+
+`fig/info-mutual-gwesp.png` is the one figure drawn from per-sample values:
+`scripts/figures.R` reads the research repo's `data/loglik/` and
+`data/samples/` in place and writes only the PNG; no per-sample file is
+copied here.
