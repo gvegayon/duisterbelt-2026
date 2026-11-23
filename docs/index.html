@@ -240,7 +240,7 @@
 <p><strong>Finding:</strong> after edges, <strong>clustering</strong> (<code>gwesp</code>) is the strongest term <span class="citation" data-cites="simpson_exponential_2011">(<a href="#/references" role="doc-biblioref" onclick="">Simpson et al. 2011</a>)</span>.</p>
 <div class="fragment">
 <p><strong>Many brains at once:</strong> <span class="citation" data-cites="lehmann_characterising_2021">Lehmann et al. (<a href="#/references" role="doc-biblioref" onclick="">2021</a>)</span> fit ERGMs to the networks of a whole group (young vs older adults) and find group differences in <code>gwnsp</code>.</p>
-<p>The networks come from <strong>thresholding</strong> correlations at a chosen average degree: the analyst, not the brain, sets the density. A natural case for conditioning on the edge count.</p>
+<p>The networks come from <strong>thresholding</strong> correlations at a chosen average degree: the analyst, not the brain, sets the density.</p>
 </div>
 </div></div>
 </section>
@@ -260,7 +260,7 @@
 <p><strong>Finding:</strong> feed-forward loops (transitive triangles) are over-represented in <em>E. coli</em> and yeast regulatory networks <span class="citation" data-cites="stivala_testing_2021">(<a href="#/references" role="doc-biblioref" onclick="">Stivala and Lomi 2021</a>)</span>.</p>
 </div></div>
 <div class="takeaway fragment">
-<p>Across fields, the question is the same: which local structures, clustering above all, explain the network? Those are the terms that make ERGMs hard to fit.</p>
+<p>Across fields, the question is the same: which local structures, explain the network? Those are the terms that make ERGMs hard to fit.</p>
 </div>
 </section>
 <section id="many-networks-at-once-pooled-ergms" class="slide level2 compact" data-menu-title="Application: pooled ERGMs">
@@ -941,13 +941,13 @@ l\left(\boldsymbol{\theta}\right) \;=\;
 <p>Coverage of 95% intervals</p>
 </div>
 </div>
+<div style="font-size: 80%; color: #666; text-align: right;">
+<p>Conditional vs.&nbsp;unconditional. Time, accuracy and coverage among converged fits.</p>
+</div>
 <div class="takeaway fragment">
 <p>The conditional model matches or beats the correctly specified one on every measure, in a comparison designed to favor the unconditional model.</p>
 </div>
-<div class="absolute" style="font-size: 80%; color: #666;bottom: 0px; right: 0px; ">
-<p>Conditional vs.&nbsp;unconditional. Time, accuracy and coverage among converged fits.</p>
-</div>
-<aside><ol class="aside-footnotes"><li id="fn2"><p>This is most likely an artifact of the increased accuracy that comes from reducing the support of the model. In theory, the full model should have better coverage.</p></li></ol></aside></section>
+<aside><ol class="aside-footnotes"><li id="fn2"><p>On samples where both fits are usable, conditional standard errors are 1.7% wider (the information lost) while errors are equal, so its intervals cover slightly more: 92% vs 91%. Both fall short of 95%.</p></li></ol></aside></section>
 <section id="where-both-models-struggle-density" class="slide level2 compact" data-menu-title="Simulation: density">
 <h2>Where both models struggle: density</h2>
 <div class="columns">
@@ -1074,7 +1074,7 @@ l\left(\boldsymbol{\theta}\right) \;=\;
 <ul>
 <li class="fragment">The design draws clustering <strong>negative half the time</strong>. In applied social networks it is almost always positive (McMillan, Felmlee and Ashford, 2022).</li>
 <li class="fragment">With negative clustering both models fail most of the time: those samples add noise to the comparison, not signal.</li>
-<li class="fragment">When both models give usable coefficients, the conditional standard errors are only 1% larger (median ratio), in line with the small information losses of part 3.</li>
+<li class="fragment">When both models give usable coefficients, the conditional standard errors are only 1.5% larger (median ratio), in line with the small information losses of part 3.</li>
 </ul>
 <div class="takeaway fragment">
 <p>In the case that matters in practice, the gap widens: 7 more points of accurate coefficients with conditioning.</p>

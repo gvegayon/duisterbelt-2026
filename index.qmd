@@ -122,7 +122,7 @@ So clustering was left out.
 ::: {.fragment}
 **Many brains at once:** @lehmann_characterising_2021 fit ERGMs to the networks of a whole group (young vs older adults) and find group differences in `gwnsp`.
 
-The networks come from **thresholding** correlations at a chosen average degree: the analyst, not the brain, sets the density. A natural case for conditioning on the edge count.
+The networks come from **thresholding** correlations at a chosen average degree: the analyst, not the brain, sets the density.
 :::
 :::
 :::
@@ -145,7 +145,7 @@ The networks come from **thresholding** correlations at a chosen average degree:
 :::
 
 ::: {.takeaway .fragment}
-Across fields, the question is the same: which local structures, clustering above all, explain the network? Those are the terms that make ERGMs hard to fit.
+Across fields, the question is the same: which local structures, explain the network? Those are the terms that make ERGMs hard to fit.
 :::
 
 
@@ -560,7 +560,7 @@ Median absolute error; bias `r num(crow("positive")$bias_cond)` and `r num(crow(
 ::: {.finding .fragment}
 ### {{< fa arrows-left-right-to-line >}}<br>Improved coverage[^coverage]
 
-[^coverage]: This is most likely an artifact of the increased accuracy that comes from reducing the support of the model. In theory, the full model should have better coverage.
+[^coverage]: On samples where both fits are usable, conditional standard errors are `r pct(qrow("positive")$se_ratio - 1, 1)` wider (the information lost) while errors are equal, so its intervals cover slightly more: `r pct(qrow("positive")$cov_cond)` vs `r pct(qrow("positive")$cov_uncond)`. Both fall short of 95%.
 
 [**`r pct(crow("positive")$cov_cond)`** vs `r pct(crow("positive")$cov_uncond)`]{.badge .badge-strong}
 
@@ -569,12 +569,12 @@ Coverage of 95% intervals
 
 :::
 
-::: {.takeaway .fragment}
-The conditional model matches or beats the correctly specified one on every measure, in a comparison designed to favor the unconditional model.
+::: {style="font-size: 80%; color: #666; text-align: right;"}
+Conditional vs. unconditional. Time, accuracy and coverage among converged fits.
 :::
 
-::: {.absolute bottom="0" right="0" style="font-size: 80%; color: #666;"}
-Conditional vs. unconditional. Time, accuracy and coverage among converged fits.
+::: {.takeaway .fragment}
+The conditional model matches or beats the correctly specified one on every measure, in a comparison designed to favor the unconditional model.
 :::
 
 
@@ -640,7 +640,7 @@ Clustering sign: that of `gwesp` (`gwdsp` in the model without `gwesp`).
 ::: {.incremental}
 - The design draws clustering **negative half the time**. In applied social networks it is almost always positive (McMillan, Felmlee and Ashford, 2022).
 - With negative clustering both models fail most of the time: those samples add noise to the comparison, not signal.
-- When both models give usable coefficients, the conditional standard errors are only `r pct(qrow("all")$se_ratio - 1)` larger (median ratio), in line with the small information losses of part 3.
+- When both models give usable coefficients, the conditional standard errors are only `r pct(qrow("all")$se_ratio - 1, 1)` larger (median ratio), in line with the small information losses of part 3.
 :::
 
 ::: {.takeaway .fragment}
