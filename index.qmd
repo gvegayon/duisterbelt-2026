@@ -44,7 +44,7 @@ author:
   - "**George G. Vega Yon, Ph.D.**"
 institute:
   - The University of Utah
-date: 2026-12-01
+date: 2026-11-23
 date-format: "MMMM YYYY"
 aspectratio: 169
 fig-format: png
@@ -425,47 +425,7 @@ The edge count carries a fraction of a percent of the log-likelihood. But that i
 :::
 
 
-## The right yardstick: Fisher information {.compact data-menu-title="Information identity"}
-
-
-How precisely can each model pin down $\params_{-k}$? Write $S_k = \sk{\Graph}{k}$ for the edge count and $S_{-k} = \sk{\Graph}{-k}$ for the other statistics.
-
-::: {.columns}
-::: {.column width="50%" .fragment}
-### Full model
-
-It must also estimate $\theta_{k}$, which costs precision. What is left is the **efficient information**:
-
-$$
-I_{\text{eff}} = \Var{S_{-k}} - \frac{\Cov{S_{-k}}{S_k}\,\Cov{S_k}{S_{-k}}}{\Var{S_k}}
-$$
-:::
-
-::: {.column width="50%" .fragment}
-### Conditional model
-
-The variability of the statistics **within** an edge count, averaged over edge counts:
-
-$$
-I_{\text{cond}} = \Expected{\VarCond{S_{-k}}{S_k}}
-$$
-:::
-:::
-
-::: {.fragment}
-The difference is exact, with $m(S_k) = \ExpectedCond{S_{-k}}{S_k}$ and $B$ the slope of $S_{-k}$ on $S_k$:
-
-$$
-I_{\text{eff}} - I_{\text{cond}} = \Var{m(S_k) - B\,S_k}
-$$
-:::
-
-::: {.takeaway .fragment}
-Conditioning loses information only where the expected statistics **bend** with the edge count. A strong but linear relation costs nothing. See the [\<algebra\>](#information-algebra).
-:::
-
-
-## What a bend looks like {.compact data-menu-title="Information: the bend"}
+## ERGMs are highly colinear {#ergms-colinear .compact data-menu-title="Information: the bend"}
 
 How the expected value of another statistic changes with the edge count (schematic):
 
@@ -474,39 +434,15 @@ How the expected value of another statistic changes with the edge count (schemat
 ```
 
 ::: {.takeaway .fragment fragment-index="3"}
-The full model can use the curve; the conditional model sees only the straight part. What it loses is the variance of the gap, $\Var{m(S_k) - B\,S_k}$.
+The full model can use the curve; the conditional model sees only the straight part. What it loses is the variance of the gap, $\Var{m(S_k) - B\,S_k}$ ([\<Fisher information\>](#fisher-information)).
 :::
 
 
-## Results: triangles lose almost nothing {.results background-color="#fdf6f2" .compact data-menu-title="Information: mutual + gwesp"}
+## Results: information loss {#info-loss .results background-color="#fdf6f2" .compact data-menu-title="Information: by design"}
 
-
-::: {.columns}
-::: {.column width="64%"}
-![](fig/info-mutual-gwesp.png){width="100%"}
-
-::: {style="font-size: 80%; color: #666;"}
-Directed model with homophily, mutual and gwesp. One point per sample where `gwesp` is identified; curves are densities.
-:::
-:::
-
-::: {.column width="36%" .incremental}
-- **Median loss under `r pct(ceiling(100 * max(ibins$med)) / 100)`** in every cell. Homophily and reciprocity: nothing to see.
-- **Positive clustering, sparse networks**: a second hump at 20--100%. `r pct(irow(1, "positive")$over_5)` of samples lose more than 5%, `r pct(irow(5, "positive")$over_5)` with five networks.
-- **Negative clustering**: the loss is small or total. The conditional model cannot identify `gwesp` in `r pct(inonid("negative"))` of samples.
-:::
-:::
-
-::: {.takeaway .fragment}
-The typical sample loses almost nothing. When conditioning costs, it costs on `gwesp`: in sparse, clustered networks, and by erasing it when clustering is negative.
-:::
-
-
-## Results: information lost, by design {.results background-color="#fdf6f2" .compact data-menu-title="Information: by design (table)"}
-
-<!-- Alternative to the previous slide. Numbers: data/info_by_design.csv,
-     built by scripts/info-by-design.R from the research repo's
-     data/loglik/ and data/samples/. -->
+<!-- Numbers: data/info_by_design.csv, built by scripts/info-by-design.R
+     from the research repo's data/loglik/ and data/samples/. Figures in the
+     appendix: #info-triangles and #info-by-term. -->
 
 Information lost on each GW coefficient, at the true parameter (M = 1 and 5):
 
@@ -518,45 +454,11 @@ print(tab_info_design())
 :::
 
 ::: {style="font-size: 75%; color: #666;"}
-Median over samples where the coefficient is identified; 95% CI from order statistics. n.i.: share of samples where conditioning leaves it unidentified.
+Median over samples where the coefficient is identified; 95% CI from order statistics. n.i.: share of samples where conditioning leaves it unidentified. Per sample: [\<gwesp by clustering sign\>](#info-triangles), [\<by term\>](#info-by-term).
 :::
 
 ::: {.takeaway .fragment}
 Typical losses are a few percent at most for every term but `gwnsp`. Negative coefficients are where conditioning costs: they are not identified in up to `r pct(max(idesign$not_id_neg))` of samples, and a negative `gwnsp` loses a median `r pct(idesign$med_neg[idesign$param == "gwnsp"])`.
-:::
-
-
-## Results: but it depends on the term {.results background-color="#fdf6f2" .compact data-menu-title="Information: by term"}
-
-
-::: {.columns}
-::: {.column width="66%"}
-![](fig/info-terms.png){width="100%"}
-
-::: {style="font-size: 80%; color: #666;"}
-Three undirected models (all with homophily); each row is one of the model's coefficients. One point per sample where it is identified.
-:::
-:::
-
-::: {.column width="34%"}
-::: {.fragment}
-### Loses little
-
-Homophily and `gwesp`: median below `r pct(max(iloss("undirected_gwesp", c("gwesp", "nodematch.x"), 5)), 1)`.
-:::
-
-::: {.fragment}
-### Loses more
-
-`gwdegree`: median `r pct(iloss("undirected_gwdegree_gwesp", "gwdegree", 5), 1)` with five networks. `gwnsp`: **`r pct(iloss("undirected_gwesp_gwnsp", "gwnsp", 5))`**, and it drags `gwesp` with it. `gwdsp` and size effects (not shown) also lose more.
-:::
-
-::: {.fragment}
-### Why
-
-Two-paths and degrees grow with the **square** of the edge count: that is the bend.
-:::
-:::
 :::
 
 
@@ -812,33 +714,47 @@ The full model's rare rescues are confidently wrong, even when their standard er
 
 # Closing {background-color="#00707a"}
 
-## Does conditioning on edge counts help? {.compact data-menu-title="Summary"}
+## Conditional ERGMs: a promising start {#conclusion .compact .conclusion data-menu-title="Summary"}
 
+::: {.concl-lead}
+::: {.concl-text}
+**ERGMs** are graphical models for networks. Born in sociology, they fit **any** network: brains, genes, health care.
+:::
 
-::: {.columns .cols-gap}
-::: {.column width="50%"}
-### Yes
-
-::: {.incremental}
-- It **converges more often**, and a converged fit takes about **half the time**.
-- It is **as accurate** as the correctly specified full model, with intervals at least as good.
-- For clustering (`gwesp`), homophily and reciprocity, it keeps **99% of the information** in the typical sample.
+::: {.concl-apps}
+[![](fig/app-simpson2011-brain.png)](#neuroscience-whole-brain-connectivity)
+[![](fig/app-stivala2021-ecoli.png)](#biology-gene-regulation)
+[![](fig/app-vegayon2027-nursing-homes.png)](#many-networks-at-once-pooled-ergms)
 :::
 :::
 
-::: {.column width="50%"}
-### But
+Fixing the edge count, in this first study:
 
-::: {.incremental}
-- Terms that bend with the edge count (`gwnsp`, `gwdsp`, `gwdegree`, size-varying effects) can lose a lot of information, and their conditional fits time out more often.
-- It does not rescue coefficients that are **not identified**, nor dense networks.
-- You no longer get a model for density. Simulating new networks needs the edge count from somewhere.
+::: {.columns .concl-cards}
+::: {.column width="33%" .fragment}
+[![](fig/sim-paired-positive.png)](#when-the-full-model-fails)
+
+**Converges more, twice as fast**  
+`r pct(crow("positive")$conv_cond)` vs `r pct(crow("positive")$conv_uncond)`; `r num(crow("positive")$time_ok_cond, 0)` s vs `r num(crow("positive")$time_ok_uncond, 0)` s
 :::
+
+::: {.column width="33%" .fragment}
+[![](fig/cond-failures-error.png)](#converged-is-not-the-same-as-usable)
+
+**Just as accurate**  
+Error `r num(crow("positive")$mae_cond)` vs `r num(crow("positive")$mae_uncond)`; its rescues are sound
+:::
+
+::: {.column width="33%" .fragment}
+[![](fig/info-terms.png)](#info-loss)
+
+**Loses little information**  
+Except terms that bend with the edge count
 :::
 :::
 
 ::: {.takeaway .fragment}
-If density is a nuisance in your question, do not estimate it. If it is the question, a conditional fit is still a cheap and stable place to start.
+Today's software is tuned for the full model, so this is a **lower bound**. Next: full inference in two steps ([\<seeding\>](#seeding-proof-of-concept)).
 :::
 
 
@@ -1025,6 +941,50 @@ $$
 $\normconst{\params \mid \sn{k} = c} = \sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c} \exp{\t{\params}\s{\graph'}}$ is the normalizing constant over the networks with $c$ ties; $-k$ means "all terms but the $k$-th".
 :::
 
+## The right yardstick: Fisher information {#fisher-information .compact visibility="uncounted" data-menu-title="Information identity"}
+
+
+How precisely can each model pin down $\params_{-k}$? Write $S_k = \sk{\Graph}{k}$ for the edge count and $S_{-k} = \sk{\Graph}{-k}$ for the other statistics.
+
+::: {.columns}
+::: {.column width="50%" .fragment}
+### Full model
+
+It must also estimate $\theta_{k}$, which costs precision. What is left is the **efficient information**:
+
+$$
+I_{\text{eff}} = \Var{S_{-k}} - \frac{\Cov{S_{-k}}{S_k}\,\Cov{S_k}{S_{-k}}}{\Var{S_k}}
+$$
+:::
+
+::: {.column width="50%" .fragment}
+### Conditional model
+
+The variability of the statistics **within** an edge count, averaged over edge counts:
+
+$$
+I_{\text{cond}} = \Expected{\VarCond{S_{-k}}{S_k}}
+$$
+:::
+:::
+
+::: {.fragment}
+The difference is exact, with $m(S_k) = \ExpectedCond{S_{-k}}{S_k}$ and $B$ the slope of $S_{-k}$ on $S_k$:
+
+$$
+I_{\text{eff}} - I_{\text{cond}} = \Var{m(S_k) - B\,S_k}
+$$
+:::
+
+::: {.takeaway .fragment}
+Conditioning loses information only where the expected statistics **bend** with the edge count. A strong but linear relation costs nothing. See the [\<algebra\>](#information-algebra).
+:::
+
+::: {.absolute bottom="0" right="0" style="font-size: 80%; color: #666;"}
+Go [\<back\>](#ergms-colinear)
+:::
+
+
 ## The information identity {#information-algebra .compact visibility="uncounted" data-menu-title="Information: algebra"}
 
 ::: {.callout-caution}
@@ -1054,7 +1014,73 @@ $$
 :::
 
 ::: {.absolute bottom="0" right="0" style="font-size: 80%; color: #666;"}
-Go [\<back\>](#the-right-yardstick-fisher-information)
+Go [\<back\>](#fisher-information)
+:::
+
+
+## Results: triangles lose almost nothing {#info-triangles .results background-color="#fdf6f2" .compact visibility="uncounted" data-menu-title="Information: mutual + gwesp"}
+
+
+::: {.columns}
+::: {.column width="64%"}
+![](fig/info-mutual-gwesp.png){width="100%"}
+
+::: {style="font-size: 80%; color: #666;"}
+Directed model with homophily, mutual and gwesp. One point per sample where `gwesp` is identified; curves are densities.
+:::
+:::
+
+::: {.column width="36%" .incremental}
+- **Median loss under `r pct(ceiling(100 * max(ibins$med)) / 100)`** in every cell. Homophily and reciprocity: nothing to see.
+- **Positive clustering, sparse networks**: a second hump at 20--100%. `r pct(irow(1, "positive")$over_5)` of samples lose more than 5%, `r pct(irow(5, "positive")$over_5)` with five networks.
+- **Negative clustering**: the loss is small or total. The conditional model cannot identify `gwesp` in `r pct(inonid("negative"))` of samples.
+:::
+:::
+
+::: {.takeaway .fragment}
+The typical sample loses almost nothing. When conditioning costs, it costs on `gwesp`: in sparse, clustered networks, and by erasing it when clustering is negative.
+:::
+
+::: {.absolute bottom="0" right="0" style="font-size: 80%; color: #666;"}
+Go [\<back\>](#info-loss)
+:::
+
+
+## Results: but it depends on the term {#info-by-term .results background-color="#fdf6f2" .compact visibility="uncounted" data-menu-title="Information: by term"}
+
+
+::: {.columns}
+::: {.column width="66%"}
+![](fig/info-terms.png){width="100%"}
+
+::: {style="font-size: 80%; color: #666;"}
+Three undirected models (all with homophily); each row is one of the model's coefficients. One point per sample where it is identified.
+:::
+:::
+
+::: {.column width="34%"}
+::: {.fragment}
+### Loses little
+
+Homophily and `gwesp`: median below `r pct(max(iloss("undirected_gwesp", c("gwesp", "nodematch.x"), 5)), 1)`.
+:::
+
+::: {.fragment}
+### Loses more
+
+`gwdegree`: median `r pct(iloss("undirected_gwdegree_gwesp", "gwdegree", 5), 1)` with five networks. `gwnsp`: **`r pct(iloss("undirected_gwesp_gwnsp", "gwnsp", 5))`**, and it drags `gwesp` with it. `gwdsp` and size effects (not shown) also lose more.
+:::
+
+::: {.fragment}
+### Why
+
+Two-paths and degrees grow with the **square** of the edge count: that is the bend.
+:::
+:::
+:::
+
+::: {.absolute bottom="0" right="0" style="font-size: 80%; color: #666;"}
+Go [\<back\>](#info-loss)
 :::
 
 

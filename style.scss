@@ -499,3 +499,45 @@ $results-wash:   #fdf6f2;
 
 // The sampler panels sit under a column h3; the step text says it all.
 .reveal svg.diagram.sampler { max-width: 360px; margin: 0 0 .2em; }
+
+// ---------------------------------------------------------------------------
+// Conclusion slide: application thumbnails and figure cards that link back to
+// the slides where each figure lives.
+// ---------------------------------------------------------------------------
+.reveal .conclusion {
+  .concl-lead {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-bottom: .4em;
+  }
+  .concl-text { flex: 1; }
+  .concl-apps {
+    display: flex;
+    gap: .4em;
+    p { margin: 0; display: flex; gap: .4em; }
+    img {
+      height: 90px;
+      width: 120px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      margin: 0;
+    }
+  }
+  .concl-cards {
+    .column { text-align: center; font-size: 85%; line-height: 1.3; }
+    img {
+      height: 175px;
+      width: 100%;
+      object-fit: contain;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 4px;
+      margin: 0 0 .3em;
+      transition: border-color .15s;
+    }
+    a:hover img { border-color: $accent; }
+  }
+}

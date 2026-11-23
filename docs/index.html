@@ -59,7 +59,7 @@
     div.csl-indent {
       margin-left: 2em;
     }  </style>
-  <link rel="stylesheet" href="index_files/libs/revealjs/dist/theme/quarto-f09c653473ec109bd0c0b3c325a04f9a.css">
+  <link rel="stylesheet" href="index_files/libs/revealjs/dist/theme/quarto-cb2fcf4fcf771f03e0b46f85881ecd00.css">
   <link href="index_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="index_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="index_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -179,7 +179,7 @@
     </div>
 </div>
 
-  <p class="date">December 2026</p>
+  <p class="date">November 2026</p>
 </section>
 <section id="today" class="slide level2" data-menu-title="Roadmap">
 <h2>Today</h2>
@@ -634,35 +634,8 @@ l\left(\boldsymbol{\theta}\right) \;=\;
 <p>The edge count carries a fraction of a percent of the log-likelihood. But that is mostly size. The real question is what it says about the <strong>coefficients</strong>.</p>
 </div>
 </section>
-<section id="the-right-yardstick-fisher-information" class="slide level2 compact" data-menu-title="Information identity">
-<h2>The right yardstick: Fisher information</h2>
-<p>How precisely can each model pin down <span class="math inline">\(\boldsymbol{\theta}_{-k}\)</span>? Write <span class="math inline">\(S_k = s_{k}\left(\mathbf{Y}\right)\)</span> for the edge count and <span class="math inline">\(S_{-k} = s_{-k}\left(\mathbf{Y}\right)\)</span> for the other statistics.</p>
-<div class="columns">
-<div class="column fragment" style="width:50%;">
-<h3 id="full-model">Full model</h3>
-<p>It must also estimate <span class="math inline">\(\theta_{k}\)</span>, which costs precision. What is left is the <strong>efficient information</strong>:</p>
-<p><span class="math display">\[
-I_{\text{eff}} = \text{Var}\left\{S_{-k}\right\} - \frac{\text{Cov}\left\{S_{-k},\, S_k\right\}\,\text{Cov}\left\{S_k,\, S_{-k}\right\}}{\text{Var}\left\{S_k\right\}}
-\]</span></p>
-</div><div class="column fragment" style="width:50%;">
-<h3 id="conditional-model">Conditional model</h3>
-<p>The variability of the statistics <strong>within</strong> an edge count, averaged over edge counts:</p>
-<p><span class="math display">\[
-I_{\text{cond}} = {\mathbb{E}\left\{\text{Var}\left\{S_{-k}\vphantom{S_k}\right|\left.\vphantom{S_{-k}}S_k\right\}\right\}}
-\]</span></p>
-</div></div>
-<div class="fragment">
-<p>The difference is exact, with <span class="math inline">\(m(S_k) = {\mathbb{E}\left\{S_{-k}\vphantom{S_k}\right|\left.\vphantom{S_{-k}}S_k\right\}}\)</span> and <span class="math inline">\(B\)</span> the slope of <span class="math inline">\(S_{-k}\)</span> on <span class="math inline">\(S_k\)</span>:</p>
-<p><span class="math display">\[
-I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
-\]</span></p>
-</div>
-<div class="takeaway fragment">
-<p>Conditioning loses information only where the expected statistics <strong>bend</strong> with the edge count. A strong but linear relation costs nothing. See the <a href="#/information-algebra">&lt;algebra&gt;</a>.</p>
-</div>
-</section>
-<section id="what-a-bend-looks-like" class="slide level2 compact" data-menu-title="Information: the bend">
-<h2>What a bend looks like</h2>
+<section id="ergms-colinear" class="slide level2 compact" data-menu-title="Information: the bend">
+<h2>ERGMs are highly colinear</h2>
 <p>How the expected value of another statistic changes with the edge count (schematic):</p>
 <!-- "What a bend looks like" slide: the information identity
      I_eff - I_cond = Var(m(S_k) - B S_k) as a picture. Schematic curves, not
@@ -722,33 +695,14 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </svg>
 
 <div class="takeaway fragment" data-fragment-index="3">
-<p>The full model can use the curve; the conditional model sees only the straight part. What it loses is the variance of the gap, <span class="math inline">\(\text{Var}\left\{m(S_k) - B\,S_k\right\}\)</span>.</p>
+<p>The full model can use the curve; the conditional model sees only the straight part. What it loses is the variance of the gap, <span class="math inline">\(\text{Var}\left\{m(S_k) - B\,S_k\right\}\)</span> (<a href="#/fisher-information">&lt;Fisher information&gt;</a>).</p>
 </div>
 </section>
-<section id="results-triangles-lose-almost-nothing" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Information: mutual + gwesp">
-<h2>Results: triangles lose almost nothing</h2>
-<div class="columns">
-<div class="column" style="width:64%;">
-<p><a href="fig/info-mutual-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="fig/info-mutual-gwesp.png" style="width:100.0%"></a></p>
-<div style="font-size: 80%; color: #666;">
-<p>Directed model with homophily, mutual and gwesp. One point per sample where <code>gwesp</code> is identified; curves are densities.</p>
-</div>
-</div><div class="column" style="width:36%;">
-<ul>
-<li class="fragment"><strong>Median loss under 3%</strong> in every cell. Homophily and reciprocity: nothing to see.</li>
-<li class="fragment"><strong>Positive clustering, sparse networks</strong>: a second hump at 20–100%. 13% of samples lose more than 5%, 20% with five networks.</li>
-<li class="fragment"><strong>Negative clustering</strong>: the loss is small or total. The conditional model cannot identify <code>gwesp</code> in 30% of samples.</li>
-</ul>
-</div></div>
-<div class="takeaway fragment">
-<p>The typical sample loses almost nothing. When conditioning costs, it costs on <code>gwesp</code>: in sparse, clustered networks, and by erasing it when clustering is negative.</p>
-</div>
-</section>
-<section id="results-information-lost-by-design" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Information: by design (table)">
-<h2>Results: information lost, by design</h2>
-<!-- Alternative to the previous slide. Numbers: data/info_by_design.csv,
-     built by scripts/info-by-design.R from the research repo's
-     data/loglik/ and data/samples/. -->
+<section id="info-loss" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Information: by design">
+<h2>Results: information loss</h2>
+<!-- Numbers: data/info_by_design.csv, built by scripts/info-by-design.R
+     from the research repo's data/loglik/ and data/samples/. Figures in the
+     appendix: #info-triangles and #info-by-term. -->
 <p>Information lost on each GW coefficient, at the true parameter (M = 1 and 5):</p>
 <div style="font-size: 85%;">
 <table class="caption-top">
@@ -836,34 +790,11 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </table>
 </div>
 <div style="font-size: 75%; color: #666;">
-<p>Median over samples where the coefficient is identified; 95% CI from order statistics. n.i.: share of samples where conditioning leaves it unidentified.</p>
+<p>Median over samples where the coefficient is identified; 95% CI from order statistics. n.i.: share of samples where conditioning leaves it unidentified. Per sample: <a href="#/info-triangles">&lt;gwesp by clustering sign&gt;</a>, <a href="#/info-by-term">&lt;by term&gt;</a>.</p>
 </div>
 <div class="takeaway fragment">
 <p>Typical losses are a few percent at most for every term but <code>gwnsp</code>. Negative coefficients are where conditioning costs: they are not identified in up to 30% of samples, and a negative <code>gwnsp</code> loses a median 31%.</p>
 </div>
-</section>
-<section id="results-but-it-depends-on-the-term" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Information: by term">
-<h2>Results: but it depends on the term</h2>
-<div class="columns">
-<div class="column" style="width:66%;">
-<p><a href="fig/info-terms.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/info-terms.png" style="width:100.0%"></a></p>
-<div style="font-size: 80%; color: #666;">
-<p>Three undirected models (all with homophily); each row is one of the model’s coefficients. One point per sample where it is identified.</p>
-</div>
-</div><div class="column" style="width:34%;">
-<div class="fragment">
-<h3 id="loses-little">Loses little</h3>
-<p>Homophily and <code>gwesp</code>: median below 0.3%.</p>
-</div>
-<div class="fragment">
-<h3 id="loses-more">Loses more</h3>
-<p><code>gwdegree</code>: median 3.2% with five networks. <code>gwnsp</code>: <strong>31%</strong>, and it drags <code>gwesp</code> with it. <code>gwdsp</code> and size effects (not shown) also lose more.</p>
-</div>
-<div class="fragment">
-<h3 id="why">Why</h3>
-<p>Two-paths and degrees grow with the <strong>square</strong> of the edge count: that is the bend.</p>
-</div>
-</div></div>
 </section>
 <section id="how-far-to-trust-these-numbers" class="slide level2 compact" data-menu-title="Information: checks">
 <h2>How far to trust these numbers</h2>
@@ -1021,7 +952,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <h2>Where both models struggle: density</h2>
 <div class="columns">
 <div class="column" style="width:60%;">
-<p><a href="fig/sim-density.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img data-src="fig/sim-density.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-density.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="fig/sim-density.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Directed model with homophily, mutual and gwesp; all <span class="math inline">\(M\)</span>.</p>
 </div>
@@ -1158,7 +1089,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <p><strong>Positive clustering</strong>, paired on the sample: 7,012 samples (<a href="#/rescue-all">&lt;all samples&gt;</a>).</p>
 <div class="columns">
 <div class="column" style="width:58%;">
-<p><a href="fig/sim-paired-positive.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img data-src="fig/sim-paired-positive.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-paired-positive.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/sim-paired-positive.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p><strong>Conditional only</strong> (red) outnumbers <strong>full only</strong> (green) at every density below 0.5: 11% against 3% of samples (exact McNemar, <span class="math inline">\(p &lt; 0.001\)</span>). Densities above 0.5 are rare in this design.</p>
 </div>
@@ -1205,7 +1136,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
      Table 4, positive clustering rows); copied by `make figs-from-repo`. -->
 <div class="columns">
 <div class="column" style="width:58%;">
-<p><a href="fig/cond-failures-error.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img data-src="fig/cond-failures-error.png" style="width:100.0%"></a></p>
+<p><a href="fig/cond-failures-error.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img data-src="fig/cond-failures-error.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Positive clustering. Absolute error of the GW coefficients of converged fits; the counts on the right are estimates (one per GW coefficient), not samples. Solid: both models converged. Dashed: only this model converged.</p>
 </div>
@@ -1225,26 +1156,33 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <h1>Closing</h1>
 
 </section>
-<section id="does-conditioning-on-edge-counts-help" class="slide level2 compact" data-menu-title="Summary">
-<h2>Does conditioning on edge counts help?</h2>
-<div class="columns cols-gap">
-<div class="column" style="width:50%;">
-<h3 id="yes">Yes</h3>
-<ul>
-<li class="fragment">It <strong>converges more often</strong>, and a converged fit takes about <strong>half the time</strong>.</li>
-<li class="fragment">It is <strong>as accurate</strong> as the correctly specified full model, with intervals at least as good.</li>
-<li class="fragment">For clustering (<code>gwesp</code>), homophily and reciprocity, it keeps <strong>99% of the information</strong> in the typical sample.</li>
-</ul>
-</div><div class="column" style="width:50%;">
-<h3 id="but">But</h3>
-<ul>
-<li class="fragment">Terms that bend with the edge count (<code>gwnsp</code>, <code>gwdsp</code>, <code>gwdegree</code>, size-varying effects) can lose a lot of information, and their conditional fits time out more often.</li>
-<li class="fragment">It does not rescue coefficients that are <strong>not identified</strong>, nor dense networks.</li>
-<li class="fragment">You no longer get a model for density. Simulating new networks needs the edge count from somewhere.</li>
-</ul>
+<section id="conclusion" class="slide level2 compact conclusion" data-menu-title="Summary">
+<h2>Conditional ERGMs: a promising start</h2>
+<div class="concl-lead">
+<div class="concl-text">
+<p><strong>ERGMs</strong> are graphical models for networks. Born in sociology, they fit <strong>any</strong> network: brains, genes, health care.</p>
+</div>
+<div class="concl-apps">
+<p><a href="#/neuroscience-whole-brain-connectivity"><img data-src="fig/app-simpson2011-brain.png"></a> <a href="#/biology-gene-regulation"><img data-src="fig/app-stivala2021-ecoli.png"></a> <a href="#/many-networks-at-once-pooled-ergms"><img data-src="fig/app-vegayon2027-nursing-homes.png"></a></p>
+</div>
+</div>
+<p>Fixing the edge count, in this first study:</p>
+<div class="columns concl-cards">
+<div class="column fragment" style="width:33%;">
+<p><a href="#/when-the-full-model-fails"><img data-src="fig/sim-paired-positive.png"></a></p>
+<p><strong>Converges more, twice as fast</strong><br>
+75% vs 67%; 26 s vs 53 s</p>
+</div><div class="column fragment" style="width:33%;">
+<p><a href="#/converged-is-not-the-same-as-usable"><img data-src="fig/cond-failures-error.png"></a></p>
+<p><strong>Just as accurate</strong><br>
+Error 0.16 vs 0.16; its rescues are sound</p>
+</div><div class="column fragment" style="width:33%;">
+<p><a href="#/info-loss"><img data-src="fig/info-terms.png"></a></p>
+<p><strong>Loses little information</strong><br>
+Except terms that bend with the edge count</p>
 </div></div>
 <div class="takeaway fragment">
-<p>If density is a nuisance in your question, do not estimate it. If it is the question, a conditional fit is still a cheap and stable place to start.</p>
+<p>Today’s software is tuned for the full model, so this is a <strong>lower bound</strong>. Next: full inference in two steps (<a href="#/seeding-proof-of-concept">&lt;seeding&gt;</a>).</p>
 </div>
 </section>
 <section id="what-comes-next" class="slide level2 compact where-next" data-menu-title="Next steps">
@@ -1365,7 +1303,7 @@ mindmap
 <h2>The model in one equation</h2>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:85.0%"></a></p>
+<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:85.0%"></a></p>
 </figure>
 </div>
 <ul>
@@ -1465,6 +1403,36 @@ mindmap
 <p><span class="math inline">\(\eta\left(\boldsymbol{\theta}\mid s_{k} = c\right) = \sum_{\mathbf{y}' \in \mathcal{Y}:\, s_{k}\left(\mathbf{y}'\right) = c} \text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}'\right)\right\}\)</span> is the normalizing constant over the networks with <span class="math inline">\(c\)</span> ties; <span class="math inline">\(-k\)</span> means “all terms but the <span class="math inline">\(k\)</span>-th”.</p>
 </div>
 </section>
+<section id="fisher-information" class="slide level2 compact" data-visibility="uncounted" data-menu-title="Information identity">
+<h2>The right yardstick: Fisher information</h2>
+<p>How precisely can each model pin down <span class="math inline">\(\boldsymbol{\theta}_{-k}\)</span>? Write <span class="math inline">\(S_k = s_{k}\left(\mathbf{Y}\right)\)</span> for the edge count and <span class="math inline">\(S_{-k} = s_{-k}\left(\mathbf{Y}\right)\)</span> for the other statistics.</p>
+<div class="columns">
+<div class="column fragment" style="width:50%;">
+<h3 id="full-model">Full model</h3>
+<p>It must also estimate <span class="math inline">\(\theta_{k}\)</span>, which costs precision. What is left is the <strong>efficient information</strong>:</p>
+<p><span class="math display">\[
+I_{\text{eff}} = \text{Var}\left\{S_{-k}\right\} - \frac{\text{Cov}\left\{S_{-k},\, S_k\right\}\,\text{Cov}\left\{S_k,\, S_{-k}\right\}}{\text{Var}\left\{S_k\right\}}
+\]</span></p>
+</div><div class="column fragment" style="width:50%;">
+<h3 id="conditional-model">Conditional model</h3>
+<p>The variability of the statistics <strong>within</strong> an edge count, averaged over edge counts:</p>
+<p><span class="math display">\[
+I_{\text{cond}} = {\mathbb{E}\left\{\text{Var}\left\{S_{-k}\vphantom{S_k}\right|\left.\vphantom{S_{-k}}S_k\right\}\right\}}
+\]</span></p>
+</div></div>
+<div class="fragment">
+<p>The difference is exact, with <span class="math inline">\(m(S_k) = {\mathbb{E}\left\{S_{-k}\vphantom{S_k}\right|\left.\vphantom{S_{-k}}S_k\right\}}\)</span> and <span class="math inline">\(B\)</span> the slope of <span class="math inline">\(S_{-k}\)</span> on <span class="math inline">\(S_k\)</span>:</p>
+<p><span class="math display">\[
+I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
+\]</span></p>
+</div>
+<div class="takeaway fragment">
+<p>Conditioning loses information only where the expected statistics <strong>bend</strong> with the edge count. A strong but linear relation costs nothing. See the <a href="#/information-algebra">&lt;algebra&gt;</a>.</p>
+</div>
+<div class="absolute" style="font-size: 80%; color: #666;bottom: 0px; right: 0px; ">
+<p>Go <a href="#/ergms-colinear">&lt;back&gt;</a></p>
+</div>
+</section>
 <section id="information-algebra" class="slide level2 compact" data-visibility="uncounted" data-menu-title="Information: algebra">
 <h2>The information identity</h2>
 <div class="callout callout-caution callout-titled callout-style-default">
@@ -1500,7 +1468,55 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{S_{-k}\right\} - B\,\text{Va
 <li class="fragment">With several networks and a shared size effect, the full sample’s information is assembled first and the nuisance block removed once.</li>
 </ul>
 <div class="absolute" style="font-size: 80%; color: #666;bottom: 0px; right: 0px; ">
-<p>Go <a href="#/the-right-yardstick-fisher-information">&lt;back&gt;</a></p>
+<p>Go <a href="#/fisher-information">&lt;back&gt;</a></p>
+</div>
+</section>
+<section id="info-triangles" class="slide level2 results compact" data-background-color="#fdf6f2" data-visibility="uncounted" data-menu-title="Information: mutual + gwesp">
+<h2>Results: triangles lose almost nothing</h2>
+<div class="columns">
+<div class="column" style="width:64%;">
+<p><a href="fig/info-mutual-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img data-src="fig/info-mutual-gwesp.png" style="width:100.0%"></a></p>
+<div style="font-size: 80%; color: #666;">
+<p>Directed model with homophily, mutual and gwesp. One point per sample where <code>gwesp</code> is identified; curves are densities.</p>
+</div>
+</div><div class="column" style="width:36%;">
+<ul>
+<li class="fragment"><strong>Median loss under 3%</strong> in every cell. Homophily and reciprocity: nothing to see.</li>
+<li class="fragment"><strong>Positive clustering, sparse networks</strong>: a second hump at 20–100%. 13% of samples lose more than 5%, 20% with five networks.</li>
+<li class="fragment"><strong>Negative clustering</strong>: the loss is small or total. The conditional model cannot identify <code>gwesp</code> in 30% of samples.</li>
+</ul>
+</div></div>
+<div class="takeaway fragment">
+<p>The typical sample loses almost nothing. When conditioning costs, it costs on <code>gwesp</code>: in sparse, clustered networks, and by erasing it when clustering is negative.</p>
+</div>
+<div class="absolute" style="font-size: 80%; color: #666;bottom: 0px; right: 0px; ">
+<p>Go <a href="#/info-loss">&lt;back&gt;</a></p>
+</div>
+</section>
+<section id="info-by-term" class="slide level2 results compact" data-background-color="#fdf6f2" data-visibility="uncounted" data-menu-title="Information: by term">
+<h2>Results: but it depends on the term</h2>
+<div class="columns">
+<div class="column" style="width:66%;">
+<p><a href="fig/info-terms.png" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img data-src="fig/info-terms.png" style="width:100.0%"></a></p>
+<div style="font-size: 80%; color: #666;">
+<p>Three undirected models (all with homophily); each row is one of the model’s coefficients. One point per sample where it is identified.</p>
+</div>
+</div><div class="column" style="width:34%;">
+<div class="fragment">
+<h3 id="loses-little">Loses little</h3>
+<p>Homophily and <code>gwesp</code>: median below 0.3%.</p>
+</div>
+<div class="fragment">
+<h3 id="loses-more">Loses more</h3>
+<p><code>gwdegree</code>: median 3.2% with five networks. <code>gwnsp</code>: <strong>31%</strong>, and it drags <code>gwesp</code> with it. <code>gwdsp</code> and size effects (not shown) also lose more.</p>
+</div>
+<div class="fragment">
+<h3 id="why">Why</h3>
+<p>Two-paths and degrees grow with the <strong>square</strong> of the edge count: that is the bend.</p>
+</div>
+</div></div>
+<div class="absolute" style="font-size: 80%; color: #666;bottom: 0px; right: 0px; ">
+<p>Go <a href="#/info-loss">&lt;back&gt;</a></p>
 </div>
 </section>
 <section id="conditional-bridges" class="slide level2 compact" data-visibility="uncounted" data-menu-title="Conditional bridges">
