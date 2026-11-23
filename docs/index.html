@@ -263,32 +263,53 @@
 <p>Across fields, the question is the same: which local structures, clustering above all, explain the network? Those are the terms that make ERGMs hard to fit.</p>
 </div>
 </section>
+<section id="many-networks-at-once-pooled-ergms" class="slide level2 compact" data-menu-title="Application: pooled ERGMs">
+<h2>Many networks at once: pooled ERGMs</h2>
+<div class="columns">
+<div class="column" style="width:45%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="fig/app-vegayon2027-nursing-homes.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="All 99 resident–provider contact networks from US nursing homes; providers in blue, residents in green. From @vegayon_ltcf_2027, CC BY."><img data-src="fig/app-vegayon2027-nursing-homes.png" style="width:92.0%" alt="All 99 resident–provider contact networks from US nursing homes; providers in blue, residents in green. From Vega Yon et al. (2027), CC BY."></a></p>
+<figcaption>All 99 resident–provider contact networks from US nursing homes; providers in blue, residents in green. From <span class="citation" data-cites="vegayon_ltcf_2027">Vega Yon et al. (<a href="#/references" role="doc-biblioref" onclick="">2027</a>)</span>, CC BY.</figcaption>
+</figure>
+</div>
+</div><div class="column" style="width:55%;">
+<p><strong>Question:</strong> do providers’ contacts cluster residents with the same clinical risks (cohorting), e.g., drug-resistant organisms?</p>
+<p><strong>One model, 93 networks:</strong> a pooled (multilevel) bipartite ERGM. Heterogeneity across networks enters as interactions:</p>
+<ul>
+<li>edges × centred log number of residents and of providers,</li>
+<li>state-specific edges,</li>
+<li>shared partners (<code>gwdsp</code>) × log size.</li>
+</ul>
+<p><strong>Finding:</strong> residents with wound care, bedridden or on a ventilator have more contacts; no cohorting-like sharing by resistant-organism status <span class="citation" data-cites="vegayon_ltcf_2027">(<a href="#/references" role="doc-biblioref" onclick="">Vega Yon et al. 2027</a>)</span>.</p>
+</div></div>
+</section>
 <section id="sufficient-statistics-counting-structures" class="slide level2 compact" data-menu-title="Sufficient statistics">
 <h2>Sufficient Statistics: Counting Structures</h2>
 <p>Each statistic counts a <strong>local structure</strong>. Its coefficient says whether the network has more or fewer of them than chance, given everything else in the model. Besides of the <strong>edges</strong> term (density), the most common are:</p>
 <div class="columns terms-row">
 <div class="column fragment" style="width:20%;">
-<p><a href="fig/term-mutual.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img data-src="fig/term-mutual.png" height="130"></a></p>
+<p><a href="fig/term-mutual.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img data-src="fig/term-mutual.png" height="130"></a></p>
 <h3 id="mutual-ties">Mutual ties</h3>
 <p><code>mutual</code></p>
 <p>“I name you, you name me”</p>
 </div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-nodematch.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img data-src="fig/term-nodematch.png" height="130"></a></p>
+<p><a href="fig/term-nodematch.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img data-src="fig/term-nodematch.png" height="130"></a></p>
 <h3 id="homophily">Homophily</h3>
 <p><code>nodematch</code></p>
 <p>“We are alike”</p>
 </div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img data-src="fig/term-gwesp.png" height="130"></a></p>
+<p><a href="fig/term-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img data-src="fig/term-gwesp.png" height="130"></a></p>
 <h3 id="closure">Closure</h3>
 <p><code>gwesp</code></p>
 <p>“Our friends are friends”</p>
 </div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-gwdsp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img data-src="fig/term-gwdsp.png" height="130"></a></p>
+<p><a href="fig/term-gwdsp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="fig/term-gwdsp.png" height="130"></a></p>
 <h3 id="shared-partners">Shared partners</h3>
 <p><code>gwdsp</code></p>
 <p>“We know the same people”</p>
 </div><div class="column fragment" style="width:20%;">
-<p><a href="fig/term-gwdegree.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="fig/term-gwdegree.png" height="130"></a></p>
+<p><a href="fig/term-gwdegree.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img data-src="fig/term-gwdegree.png" height="130"></a></p>
 <h3 id="popularity">Popularity</h3>
 <p><code>gwdegree</code></p>
 <p>“Some have many ties”</p>
@@ -322,18 +343,6 @@
 <p>where <span style="font-size: 80%"><span class="math inline">\(\textcolor{purple}{\delta_{ij} = s\left(\mathbf{Y}_{ij}^{+}\right) - s\left(\mathbf{Y}_{ij}^{-}\right)}\)</span></span> is how much each statistic changes when the tie <span class="math inline">\(i \to j\)</span> is added.</p>
 </div>
 <aside><ol class="aside-footnotes"><li id="fn1"><p>Unless you care about small networks (which we do: <span class="citation" data-cites="yon2019exponential">Vega Yon et al. (<a href="#/references" role="doc-biblioref" onclick="">2021</a>)</span>; <span class="citation" data-cites="ergmito">Vega Yon and Haye (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span>; <span class="citation" data-cites="defm">Vega Yon (<a href="#/references" role="doc-biblioref" onclick="">2026a</a>)</span>; <span class="citation" data-cites="vegayonDiscreteExponentialFamilyModels2022">Vega Yon et al. (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span>).</p></li></ol></aside></section>
-<section id="reading-the-coefficients" class="slide level2 semi" data-menu-title="Interpretation">
-<h2>Reading the coefficients</h2>
-<p>Because the conditional is a logit, each coefficient is a <strong>log-odds ratio</strong>, holding the rest of the network fixed:</p>
-<ul>
-<li class="fragment"><span class="math inline">\(\theta_{\text{homophily}} = 1\)</span>: a tie between two alike nodes has <span class="math inline">\(e^{1} \approx 2.7\)</span> times the odds of a tie between two unlike ones.</li>
-<li class="fragment"><span class="math inline">\(\theta_{\text{mutual}} = 2\)</span>: a tie that reciprocates an existing one has <span class="math inline">\(e^{2} \approx 7.4\)</span> times the odds.</li>
-<li class="fragment"><span class="math inline">\(\theta_{\text{edges}} = -3\)</span>: the baseline. A tie that creates nothing else has probability <span class="math inline">\(\approx 0.05\)</span>.</li>
-</ul>
-<div class="takeaway fragment">
-<p>A logistic regression in which each tie’s predictors are the other ties.</p>
-</div>
-</section>
 <section id="simulation-ergms" class="slide level2 compact" data-menu-title="Demo: ERGM">
 <h2>Simulation ERGMs</h2>
 <div class="ergm-widget" id="ergm-demo" style="font-size: 130%;"></div>
@@ -361,7 +370,7 @@
 <h2>Degeneracy</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<p><a href="fig/ergm-distributions.webp" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img data-src="fig/ergm-distributions.webp" style="width:95.0%"></a></p>
+<p><a href="fig/ergm-distributions.webp" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img data-src="fig/ergm-distributions.webp" style="width:95.0%"></a></p>
 </div><div class="column" style="width:50%;">
 <ul>
 <li class="fragment">Each dot is a possible network: its share of ties (x) and of triangles (y).</li>
@@ -381,6 +390,7 @@
 </section>
 <section id="take-the-edge-count-away" class="slide level2 compact" data-menu-title="Conditioning, in a picture">
 <h2>Take the edge count away</h2>
+<p>Following <span class="citation" data-cites="jonassonRandomTriangleModel1999">Jonasson (<a href="#/references" role="doc-biblioref" onclick="">1999</a>)</span>, the distribution of edges in the edge + triangle model exhibits the following behavior:</p>
 <!-- "Take the edge count away" slide. Inlined into index.qmd through a raw
      HTML block so it inherits the deck font and palette (see "Diagrams" in
      style.scss) and so its groups can be reveal fragments. Schematic: the bar
@@ -522,30 +532,6 @@
 
 <div class="takeaway fragment" data-fragment-index="3">
 <p>The model no longer decides <strong>how many</strong> ties there are, only <strong>where</strong> they go.</p>
-</div>
-</section>
-<section id="fix-what-you-do-not-want-to-model" class="slide level2 compact" data-menu-title="Conditional ERGM">
-<h2>Fix what you do not want to model</h2>
-<ul>
-<li>The edges coefficient, <span class="math inline">\(\theta_k\)</span>, <strong>cancels</strong>. There is one parameter less, and it is the troublesome one.</li>
-<li>The empty and the complete network are no longer possible outcomes. <!-- - It is the idea behind **conditional logistic regression** (matched case--control studies), applied to networks [@snijders_conditional_2010; @pattison_conditional_2013]. --> <!-- - Sometimes it is simply the truth: surveys that cap the number of friends you can name, or brain networks thresholded to a fixed density. --></li>
-</ul>
-<div class="takeaway">
-<p>With several networks, each keeps its own edge count, so every network’s density drops out at once.</p>
-</div>
-<p>Let <span class="math inline">\(s_{k}\left(\mathbf{y}\right)\)</span> be the number of ties. Only consider networks with <strong>exactly as many ties as the one we observed</strong>, <span class="math inline">\(\textcolor{#c0491f}{c}\)</span>:</p>
-<div style="font-size: 85%">
-<p><span class="math display">\[
-\begin{aligned}
-{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}\vphantom{s_{k}\left(\mathbf{Y}\right) = \textcolor{#c0491f}{c};\ \boldsymbol{\theta}}\;\right|\left.\vphantom{\mathbf{Y}= \mathbf{y}}s_{k}\left(\mathbf{Y}\right) = \textcolor{#c0491f}{c};\ \boldsymbol{\theta}\right\}}
-&amp; \class{fragment}{= \frac{\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}\mid s_{k} = \textcolor{#c0491f}{c}\right)}} %
-\class{fragment}{= \frac{\text{exp}\left\{\theta_{k}\textcolor{#c0491f}{c}\right\}\;\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}\right)\right\}}{\text{exp}\left\{\theta_{k}\textcolor{#c0491f}{c}\right\}\;\sum_{\mathbf{y}' \in \mathcal{Y}:\, s_{k}\left(\mathbf{y}'\right) = c}\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}'\right)\right\}}} \\
-&amp; \class{fragment}{= \frac{\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}_{-k} \mid s_{k} = \textcolor{#c0491f}{c}\right)}}
-\end{aligned}
-\]</span></p>
-</div>
-<div style="font-size: 85%; color: #666;">
-<p><span class="math inline">\(\eta\left(\boldsymbol{\theta}\mid s_{k} = c\right) = \sum_{\mathbf{y}' \in \mathcal{Y}:\, s_{k}\left(\mathbf{y}'\right) = c} \text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}'\right)\right\}\)</span> is the normalizing constant over the networks with <span class="math inline">\(c\)</span> ties; <span class="math inline">\(-k\)</span> means “all terms but the <span class="math inline">\(k\)</span>-th”.</p>
 </div>
 </section>
 <section id="what-could-it-cost" class="slide level2" data-menu-title="The two questions">
@@ -743,7 +729,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <h2>Results: triangles lose almost nothing</h2>
 <div class="columns">
 <div class="column" style="width:64%;">
-<p><a href="fig/info-mutual-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img data-src="fig/info-mutual-gwesp.png" style="width:100.0%"></a></p>
+<p><a href="fig/info-mutual-gwesp.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="fig/info-mutual-gwesp.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Directed model with homophily, mutual and gwesp. One point per sample where <code>gwesp</code> is identified; curves are densities.</p>
 </div>
@@ -758,11 +744,109 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <p>The typical sample loses almost nothing. When conditioning costs, it costs on <code>gwesp</code>: in sparse, clustered networks, and by erasing it when clustering is negative.</p>
 </div>
 </section>
+<section id="results-information-lost-by-design" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Information: by design (table)">
+<h2>Results: information lost, by design</h2>
+<!-- Alternative to the previous slide. Numbers: data/info_by_design.csv,
+     built by scripts/info-by-design.R from the research repo's
+     data/loglik/ and data/samples/. -->
+<p>Information lost on each GW coefficient, at the true parameter (M = 1 and 5):</p>
+<div style="font-size: 85%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 9%">
+<col style="width: 21%">
+<col style="width: 19%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Term</th>
+<th style="text-align: center;">Median [95% CI]</th>
+<th style="text-align: center;">Positive coefficient</th>
+<th style="text-align: center;">Negative coefficient</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Directed: mutual + gwesp</td>
+<td style="text-align: left;"><code>gwesp</code></td>
+<td style="text-align: center;"><strong>0.4%</strong> [0.3%, 0.5%]</td>
+<td style="text-align: center;"><strong>0.7%</strong> (3% n.i.)</td>
+<td style="text-align: center;"><strong>0.2%</strong> (30% n.i.)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Directed: mutual + gwdsp</td>
+<td style="text-align: left;"><code>gwdsp</code></td>
+<td style="text-align: center;"><strong>0.9%</strong> [0.8%, 1.1%]</td>
+<td style="text-align: center;"><strong>1.3%</strong></td>
+<td style="text-align: center;"><strong>0.3%</strong> (18% n.i.)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Directed: mutual + gwesp × size</td>
+<td style="text-align: left;"><code>gwesp</code></td>
+<td style="text-align: center;"><strong>1.2%</strong> [1.0%, 1.6%]</td>
+<td style="text-align: center;"><strong>6.4%</strong> (1% n.i.)</td>
+<td style="text-align: center;"><strong>0.4%</strong> (10% n.i.)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Undirected: gwesp</td>
+<td style="text-align: left;"><code>gwesp</code></td>
+<td style="text-align: center;"><strong>0.2%</strong> [0.2%, 0.3%]</td>
+<td style="text-align: center;"><strong>1.3%</strong> (3% n.i.)</td>
+<td style="text-align: center;"><strong>0.1%</strong> (20% n.i.)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Undirected: gwesp + gwnsp</td>
+<td style="text-align: left;"><code>gwesp</code></td>
+<td style="text-align: center;"><strong>3.4%</strong> [2.7%, 4.0%]</td>
+<td style="text-align: center;"><strong>4.1%</strong> (11% n.i.)</td>
+<td style="text-align: center;"><strong>2.4%</strong> (17% n.i.)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><code>gwnsp</code></td>
+<td style="text-align: center;"><strong>6.8%</strong> [5.0%, 11.4%]</td>
+<td style="text-align: center;"><strong>3.6%</strong> (4% n.i.)</td>
+<td style="text-align: center;"><strong>30.7%</strong> (16% n.i.)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Undirected: gwdegree + gwesp</td>
+<td style="text-align: left;"><code>gwdegree</code></td>
+<td style="text-align: center;"><strong>2.6%</strong> [2.3%, 2.9%]</td>
+<td style="text-align: center;"><strong>2.4%</strong> (9% n.i.)</td>
+<td style="text-align: center;"><strong>2.8%</strong> (7% n.i.)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><code>gwesp</code></td>
+<td style="text-align: center;"><strong>0.3%</strong> [0.2%, 0.3%]</td>
+<td style="text-align: center;"><strong>1.0%</strong> (6% n.i.)</td>
+<td style="text-align: center;"><strong>&lt;0.1%</strong> (24% n.i.)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Undirected: curved gwesp</td>
+<td style="text-align: left;"><code>gwesp</code></td>
+<td style="text-align: center;"><strong>0.3%</strong> [0.2%, 0.3%]</td>
+<td style="text-align: center;"><strong>1.3%</strong> (3% n.i.)</td>
+<td style="text-align: center;"><strong>&lt;0.1%</strong> (21% n.i.)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div style="font-size: 75%; color: #666;">
+<p>Median over samples where the coefficient is identified; 95% CI from order statistics. n.i.: share of samples where conditioning leaves it unidentified.</p>
+</div>
+<div class="takeaway fragment">
+<p>Typical losses are a few percent at most for every term but <code>gwnsp</code>. Negative coefficients are where conditioning costs: they are not identified in up to 30% of samples, and a negative <code>gwnsp</code> loses a median 31%.</p>
+</div>
+</section>
 <section id="results-but-it-depends-on-the-term" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Information: by term">
 <h2>Results: but it depends on the term</h2>
 <div class="columns">
 <div class="column" style="width:66%;">
-<p><a href="fig/info-terms.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="fig/info-terms.png" style="width:100.0%"></a></p>
+<p><a href="fig/info-terms.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/info-terms.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Three undirected models (all with homophily); each row is one of the model’s coefficients. One point per sample where it is identified.</p>
 </div>
@@ -903,17 +987,17 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </section>
 <section id="results-the-short-version" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: headline">
 <h2>Results: the short version</h2>
-<p>All models and sample sizes pooled (13,989 samples, each fit both ways):</p>
+<p><strong>Positive clustering</strong>: 7,012 samples, all models and M, each fit both ways (<a href="#/short-version-all">&lt;all samples&gt;</a>).</p>
 <div class="findings-grid headline">
 <div class="finding fragment">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20666120636972636c652d636865636b203e7d7d-converges-more-often"><i class="fa-solid fa-circle-check" aria-label="circle-check"></i><br>Converges more often</h3>
-<p><span class="badge badge-strong"><strong>53%</strong> vs 48%</span></p>
+<p><span class="badge badge-strong"><strong>75%</strong> vs 67%</span></p>
 <p>In six of the seven models; tied with <code>gwnsp</code></p>
 </div>
 <div class="finding fragment">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c2066612073746f707761746368203e7d7d-faster"><i class="fa-solid fa-stopwatch" aria-label="stopwatch"></i><br>Faster</h3>
 <p><span class="badge badge-strong"><strong>26 s</strong> vs 53 s</span></p>
-<p>Median time of a converged fit, faster in every model</p>
+<p>Median time of a converged fit</p>
 </div>
 <div class="finding fragment">
 <h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c2066612062756c6c73657965203e7d7d-just-as-accurate"><i class="fa-solid fa-bullseye" aria-label="bullseye"></i><br>Just as accurate</h3>
@@ -921,7 +1005,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <p>Median absolute error; bias 0.01 and 0.01</p>
 </div>
 <div class="finding fragment">
-<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c206661206172726f77732d6c6566742d72696768742d746f2d6c696e65203e7d7d-honest-intervals"><i class="fa-solid fa-arrows-left-right-to-line" aria-label="arrows-left-right-to-line"></i><br>Honest intervals</h3>
+<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c206661206172726f77732d6c6566742d72696768742d746f2d6c696e65203e7d7d-improved-coveragecoverage"><i class="fa-solid fa-arrows-left-right-to-line" aria-label="arrows-left-right-to-line"></i><br>Improved coverage<sup>1</sup></h3>
 <p><span class="badge badge-strong"><strong>92%</strong> vs 90%</span></p>
 <p>Coverage of 95% intervals</p>
 </div>
@@ -932,30 +1016,12 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <div class="absolute" style="font-size: 80%; color: #666;bottom: 0px; right: 0px; ">
 <p>Conditional vs.&nbsp;unconditional. Time, accuracy and coverage among converged fits.</p>
 </div>
-</section>
-<section id="results-more-networks-same-story" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: by M">
-<h2>Results: more networks, same story</h2>
-<p><a href="fig/sim-by-m.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="fig/sim-by-m.png" style="width:100.0%"></a></p>
-<ul>
-<li class="fragment"><strong>Consistency.</strong> The error falls from 0.33 with one network to 0.10 with twenty, at the same rate in both models.</li>
-<li class="fragment"><strong>Time.</strong> The gap widens with <span class="math inline">\(M\)</span>: a converged fit of twenty networks takes 1.4 minutes against 3.1.</li>
-<li class="fragment"><strong>Coverage.</strong> The unconditional intervals get slightly too narrow as <span class="math inline">\(M\)</span> grows; the conditional ones hold at 92%.</li>
-</ul>
-</section>
-<section id="results-model-by-model" class="slide level2 results compact" data-background-color="#fdf6f2" data-menu-title="Simulation: by model">
-<h2>Results: model by model</h2>
-<p><a href="fig/sim-by-experiment.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img data-src="fig/sim-by-experiment.png" style="width:100.0%"></a></p>
-<ul>
-<li class="fragment">The gain in convergence is largest with an estimated decay (+12 points). With <code>gwesp + gwnsp</code> there is none: 40% against 39%.</li>
-<li class="fragment">With two-path and degree terms the conditional fits <strong>time out more often</strong>: 40% against 34% with <code>gwnsp</code>, 28% against 12% with <code>gwdegree</code>.</li>
-<li class="fragment">Recall part 3: these terms <strong>lose the most information</strong>. That costs precision, not convergence: with positive clustering, the conditional model alone is usable on 20% of the samples losing 5% or more, against 4% under 1%.</li>
-</ul>
-</section>
+<aside><ol class="aside-footnotes"><li id="fn2"><p>This is most likely an artifact of the increased accuracy that comes from reducing the support of the model. In theory, the full model should have better coverage.</p></li></ol></aside></section>
 <section id="where-both-models-struggle-density" class="slide level2 compact" data-menu-title="Simulation: density">
 <h2>Where both models struggle: density</h2>
 <div class="columns">
 <div class="column" style="width:60%;">
-<p><a href="fig/sim-density.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img data-src="fig/sim-density.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-density.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img data-src="fig/sim-density.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
 <p>Directed model with homophily, mutual and gwesp; all <span class="math inline">\(M\)</span>.</p>
 </div>
@@ -1039,7 +1105,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <h2>Beyond convergence: the sign of clustering</h2>
 <!-- Numbers: report/report.qmd, "Beyond convergence" (Table 12), rebuilt
      into data/sim_quality.csv by scripts/tables.R. -->
-<p>Every GW coefficient, graded; failed fits count. Conditional <strong>vs</strong> unconditional:</p>
+<p>Every GW coefficient (all models and M); failures count. Conditional <strong>vs</strong> unconditional:</p>
 <table class="caption-top">
 <colgroup>
 <col style="width: 46%">
@@ -1071,6 +1137,9 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 </tr>
 </tbody>
 </table>
+<div style="font-size: 75%; color: #666;">
+<p>Clustering sign: that of <code>gwesp</code> (<code>gwdsp</code> in the model without <code>gwesp</code>).</p>
+</div>
 <ul>
 <li class="fragment">The design draws clustering <strong>negative half the time</strong>. In applied social networks it is almost always positive (McMillan, Felmlee and Ashford, 2022).</li>
 <li class="fragment">With negative clustering both models fail most of the time: those samples add noise to the comparison, not signal.</li>
@@ -1084,15 +1153,14 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
 <h2>When the full model fails</h2>
 <!-- [1:30] The paired question: of the samples where the unconditional fit
      fails, how many does the conditional fit recover? And the reverse, as a
-     control. Figure and numbers: report/cond-failures.md of the research
-     repository (Figure 1, Table 1); rates by sign rebuilt into
-     data/sim_paired.csv by scripts/tables.R. -->
-<p>Paired on the sample: both models fit to the same networks, 13,989 samples.</p>
+     control. Figure: fig/sim-paired-positive.png (scripts/figures.R, from
+     data/sim_paired_density_sign.csv); rates by sign in data/sim_paired.csv. -->
+<p><strong>Positive clustering</strong>, paired on the sample: 7,012 samples (<a href="#/rescue-all">&lt;all samples&gt;</a>).</p>
 <div class="columns">
 <div class="column" style="width:58%;">
-<p><a href="fig/cond-failures-outcomes.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img data-src="fig/cond-failures-outcomes.png" style="width:100.0%"></a></p>
+<p><a href="fig/sim-paired-positive.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img data-src="fig/sim-paired-positive.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
-<p><strong>Conditional only</strong> (red) outnumbers <strong>full only</strong> (green) at every density below 0.5: 8% against 3% of samples (exact McNemar, <span class="math inline">\(p &lt; 0.001\)</span>).</p>
+<p><strong>Conditional only</strong> (red) outnumbers <strong>full only</strong> (green) at every density below 0.5: 11% against 3% of samples (exact McNemar, <span class="math inline">\(p &lt; 0.001\)</span>). Densities above 0.5 are rare in this design.</p>
 </div>
 </div><div class="column" style="width:42%;">
 <p>How often a model works when the other did not, conditional <strong>vs</strong> full:</p>
@@ -1137,9 +1205,9 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{m(S_k) - B\,S_k\right\}
      Table 4, positive clustering rows); copied by `make figs-from-repo`. -->
 <div class="columns">
 <div class="column" style="width:58%;">
-<p><a href="fig/cond-failures-error.png" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img data-src="fig/cond-failures-error.png" style="width:100.0%"></a></p>
+<p><a href="fig/cond-failures-error.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img data-src="fig/cond-failures-error.png" style="width:100.0%"></a></p>
 <div style="font-size: 80%; color: #666;">
-<p>Positive clustering. Absolute error of the GW coefficients of converged fits. Solid: both models converged. Dashed: only this model converged.</p>
+<p>Positive clustering. Absolute error of the GW coefficients of converged fits; the counts on the right are estimates (one per GW coefficient), not samples. Solid: both models converged. Dashed: only this model converged.</p>
 </div>
 </div><div class="column" style="width:42%;">
 <ul>
@@ -1297,7 +1365,7 @@ mindmap
 <h2>The model in one equation</h2>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-17"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:85.0%"></a></p>
+<p><a href="fig/parts-of-ergm.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img data-src="fig/parts-of-ergm.svg" class="quarto-figure quarto-figure-center" style="width:85.0%"></a></p>
 </figure>
 </div>
 <ul>
@@ -1305,6 +1373,18 @@ mindmap
 <li class="fragment">Networks with more of the features we count are more (or less) likely, depending on the sign of <span class="math inline">\(\boldsymbol{\theta}\)</span>.</li>
 <li class="fragment">It is the same family as logistic regression, with the whole network as the outcome <span class="citation" data-cites="Hunter2008">(<a href="#/references" role="doc-biblioref" onclick="">Hunter et al. 2008</a>)</span>.</li>
 </ul>
+</section>
+<section id="reading-the-coefficients" class="slide level2 semi" data-menu-title="Interpretation">
+<h2>Reading the coefficients</h2>
+<p>Because the conditional is a logit, each coefficient is a <strong>log-odds ratio</strong>, holding the rest of the network fixed:</p>
+<ul>
+<li class="fragment"><span class="math inline">\(\theta_{\text{homophily}} = 1\)</span>: a tie between two alike nodes has <span class="math inline">\(e^{1} \approx 2.7\)</span> times the odds of a tie between two unlike ones.</li>
+<li class="fragment"><span class="math inline">\(\theta_{\text{mutual}} = 2\)</span>: a tie that reciprocates an existing one has <span class="math inline">\(e^{2} \approx 7.4\)</span> times the odds.</li>
+<li class="fragment"><span class="math inline">\(\theta_{\text{edges}} = -3\)</span>: the baseline. A tie that creates nothing else has probability <span class="math inline">\(\approx 0.05\)</span>.</li>
+</ul>
+<div class="takeaway fragment">
+<p>A logistic regression in which each tie’s predictors are the other ties.</p>
+</div>
 </section>
 <section id="fitting-is-the-hard-part" class="slide level2 semi" data-menu-title="Estimation">
 <h2>Fitting is the hard part</h2>
@@ -1359,6 +1439,30 @@ mindmap
 </div></div>
 <div class="takeaway fragment">
 <p>This only works if the simulated networks look something like the observed one. Often they do not.</p>
+</div>
+</section>
+<section id="fix-what-you-do-not-want-to-model" class="slide level2 compact" data-menu-title="Conditional ERGM">
+<h2>Fix what you do not want to model</h2>
+<ul>
+<li>The edges coefficient, <span class="math inline">\(\theta_k\)</span>, <strong>cancels</strong> (one fewer parameter to estimate).</li>
+<li>The empty and the complete network are no longer possible outcomes. <!-- - It is the idea behind **conditional logistic regression** (matched case--control studies), applied to networks [@snijders_conditional_2010; @pattison_conditional_2013]. --> <!-- - Sometimes it is simply the truth: surveys that cap the number of friends you can name, or brain networks thresholded to a fixed density. --></li>
+</ul>
+<div class="takeaway">
+<p>With several networks, each keeps its own edge count, so every network’s density drops out at once.</p>
+</div>
+<p>Let <span class="math inline">\(s_{k}\left(\mathbf{y}\right)\)</span> be the number of ties. Only consider networks with <strong>exactly as many ties as the one we observed</strong>, <span class="math inline">\(\textcolor{#c0491f}{c}\)</span>:</p>
+<div style="font-size: 85%">
+<p><span class="math display">\[
+\begin{aligned}
+{\mathbb{P}_{\mathcal{Y}}\left\{\mathbf{Y}= \mathbf{y}\vphantom{s_{k}\left(\mathbf{Y}\right) = \textcolor{#c0491f}{c};\ \boldsymbol{\theta}}\;\right|\left.\vphantom{\mathbf{Y}= \mathbf{y}}s_{k}\left(\mathbf{Y}\right) = \textcolor{#c0491f}{c};\ \boldsymbol{\theta}\right\}}
+&amp; \class{fragment}{= \frac{\text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}\mid s_{k} = \textcolor{#c0491f}{c}\right)}} %
+\class{fragment}{= \frac{\text{exp}\left\{\theta_{k}\textcolor{#c0491f}{c}\right\}\;\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}\right)\right\}}{\text{exp}\left\{\theta_{k}\textcolor{#c0491f}{c}\right\}\;\sum_{\mathbf{y}' \in \mathcal{Y}:\, s_{k}\left(\mathbf{y}'\right) = c}\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}'\right)\right\}}} \\
+&amp; \class{fragment}{= \frac{\text{exp}\left\{{\boldsymbol{\theta}_{-k}}^\mathbf{t}s_{-k}\left(\mathbf{y}\right)\right\}}{\eta\left(\boldsymbol{\theta}_{-k} \mid s_{k} = \textcolor{#c0491f}{c}\right)}}
+\end{aligned}
+\]</span></p>
+</div>
+<div style="font-size: 85%; color: #666;">
+<p><span class="math inline">\(\eta\left(\boldsymbol{\theta}\mid s_{k} = c\right) = \sum_{\mathbf{y}' \in \mathcal{Y}:\, s_{k}\left(\mathbf{y}'\right) = c} \text{exp}\left\{{\boldsymbol{\theta}}^\mathbf{t}s\left(\mathbf{y}'\right)\right\}\)</span> is the normalizing constant over the networks with <span class="math inline">\(c\)</span> ties; <span class="math inline">\(-k\)</span> means “all terms but the <span class="math inline">\(k\)</span>-th”.</p>
 </div>
 </section>
 <section id="information-algebra" class="slide level2 compact" data-visibility="uncounted" data-menu-title="Information: algebra">
@@ -1607,7 +1711,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{S_{-k}\right\} - B\,\text{Va
 </div><div class="column" style="width:55%;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/experiment2_gof_bias.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-18" title="Bias in the predicted distribution of shortest paths"><img data-src="fig/experiment2_gof_bias.svg" style="width:100.0%" alt="Bias in the predicted distribution of shortest paths"></a></p>
+<p><a href="fig/experiment2_gof_bias.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-17" title="Bias in the predicted distribution of shortest paths"><img data-src="fig/experiment2_gof_bias.svg" style="width:100.0%" alt="Bias in the predicted distribution of shortest paths"></a></p>
 <figcaption>Bias in the predicted distribution of shortest paths</figcaption>
 </figure>
 </div>
@@ -1623,7 +1727,7 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{S_{-k}\right\} - B\,\text{Va
 </blockquote>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><a href="fig/power-rejoinder.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-19" title="Figure 1 adapted from @krivitskyRejoinderDiscussionTale2023: empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."><img data-src="fig/power-rejoinder.svg" class="" style="width:65.0%" alt="Figure 1 adapted from Krivitsky et al. (2023): empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."></a></p>
+<p><a href="fig/power-rejoinder.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-18" title="Figure 1 adapted from @krivitskyRejoinderDiscussionTale2023: empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."><img data-src="fig/power-rejoinder.svg" class="" style="width:65.0%" alt="Figure 1 adapted from Krivitsky et al. (2023): empirical power for detecting a gender homophily effect (\theta_{\text{homophily}} = 1.1) as a function of the number of networks, each with 8 nodes and 20 edges."></a></p>
 <figcaption>Figure 1 adapted from <span class="citation" data-cites="krivitskyRejoinderDiscussionTale2023">Krivitsky et al. (<a href="#/references" role="doc-biblioref" onclick="">2023</a>)</span>: empirical power for detecting a gender homophily effect (<span class="math inline">\(\theta_{\text{homophily}} = 1.1\)</span>) as a function of the number of networks, each with 8 nodes and 20 edges.</figcaption>
 </figure>
 </div>
@@ -1631,11 +1735,123 @@ I_{\text{eff}} - I_{\text{cond}} = \text{Var}\left\{S_{-k}\right\} - B\,\text{Va
 <p>Go <a href="#/what-comes-next">&lt;back&gt;</a></p>
 </div>
 </section>
+<section id="short-version-all" class="slide level2 results compact" data-background-color="#fdf6f2" data-visibility="uncounted" data-menu-title="Simulation: headline, all samples">
+<h2>The short version: all samples</h2>
+<p><strong>Both clustering signs</strong>: 13,989 samples (<a href="#/results-the-short-version">&lt;positive only&gt;</a>). Broken down <a href="#/results-by-m">&lt;by M&gt;</a> and <a href="#/results-by-model">&lt;by model&gt;</a>.</p>
+<div style="font-size: 75%; color: #666;">
+<p>11 of the 14,000 samples lost a fit to a file error on a cluster node and are left out.</p>
+</div>
+<div class="findings-grid headline">
+<div class="finding fragment">
+<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20666120636972636c652d636865636b203e7d7d-converges-more-often-1"><i class="fa-solid fa-circle-check" aria-label="circle-check"></i><br>Converges more often</h3>
+<p><span class="badge badge-strong"><strong>53%</strong> vs 48%</span></p>
+<p>In six of the seven models; tied with <code>gwnsp</code></p>
+</div>
+<div class="finding fragment">
+<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c2066612073746f707761746368203e7d7d-faster-1"><i class="fa-solid fa-stopwatch" aria-label="stopwatch"></i><br>Faster</h3>
+<p><span class="badge badge-strong"><strong>26 s</strong> vs 53 s</span></p>
+<p>Median time of a converged fit, faster in every model</p>
+</div>
+<div class="finding fragment">
+<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c2066612062756c6c73657965203e7d7d-just-as-accurate-1"><i class="fa-solid fa-bullseye" aria-label="bullseye"></i><br>Just as accurate</h3>
+<p><span class="badge badge-strong"><strong>0.16</strong> vs 0.16</span></p>
+<p>Median absolute error; bias 0.01 and 0.01</p>
+</div>
+<div class="finding fragment">
+<h3 id="b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c206661206172726f77732d6c6566742d72696768742d746f2d6c696e65203e7d7d-honest-intervals"><i class="fa-solid fa-arrows-left-right-to-line" aria-label="arrows-left-right-to-line"></i><br>Honest intervals</h3>
+<p><span class="badge badge-strong"><strong>92%</strong> vs 90%</span></p>
+<p>Coverage of 95% intervals</p>
+</div>
+</div>
+<div class="takeaway fragment">
+<p>The conditional model matches or beats the correctly specified one on every measure, in a comparison designed to favor the unconditional model.</p>
+</div>
+<div class="absolute" style="font-size: 80%; color: #666;bottom: 0px; right: 0px; ">
+<p>Conditional vs.&nbsp;unconditional. Time, accuracy and coverage among converged fits.</p>
+</div>
+</section>
+<section id="results-by-m" class="slide level2 results compact" data-background-color="#fdf6f2" data-visibility="uncounted" data-menu-title="Simulation: by M">
+<h2>Results: more networks, same story</h2>
+<p>All samples, both clustering signs (<a href="#/short-version-all">&lt;back&gt;</a>).</p>
+<p><a href="fig/sim-by-m.png" class="lightbox" data-gallery="quarto-lightbox-gallery-19"><img data-src="fig/sim-by-m.png" style="width:100.0%"></a></p>
+<ul>
+<li class="fragment"><strong>Consistency.</strong> The error falls from 0.33 with one network to 0.10 with twenty, at the same rate in both models.</li>
+<li class="fragment"><strong>Time.</strong> The gap widens with <span class="math inline">\(M\)</span>: a converged fit of twenty networks takes 1.4 minutes against 3.1.</li>
+<li class="fragment"><strong>Coverage.</strong> The unconditional intervals get slightly too narrow as <span class="math inline">\(M\)</span> grows; the conditional ones hold at 92%.</li>
+</ul>
+</section>
+<section id="results-by-model" class="slide level2 results compact" data-background-color="#fdf6f2" data-visibility="uncounted" data-menu-title="Simulation: by model">
+<h2>Results: model by model</h2>
+<p>All samples, both clustering signs (<a href="#/short-version-all">&lt;back&gt;</a>).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="fig/sim-by-experiment.png" class="lightbox" data-gallery="quarto-lightbox-gallery-20"><img data-src="fig/sim-by-experiment.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></a></p>
+</figure>
+</div>
+<ul>
+<li class="fragment">The gain in convergence is largest with an estimated decay (+12 points). With <code>gwesp + gwnsp</code> there is none: 40% against 39%.</li>
+<li class="fragment">With two-path and degree terms the conditional fits <strong>time out more often</strong>: 40% against 34% with <code>gwnsp</code>, 28% against 12% with <code>gwdegree</code>.</li>
+<li class="fragment">Recall part 3: these terms <strong>lose the most information</strong>. That costs precision, not convergence: with positive clustering, the conditional model alone is usable on 20% of the samples losing 5% or more, against 4% under 1%.</li>
+</ul>
+</section>
+<section id="rescue-all" class="slide level2 results compact" data-background-color="#fdf6f2" data-visibility="uncounted" data-menu-title="Simulation: rescue, all samples">
+<h2>When the full model fails: all samples</h2>
+<!-- [1:30] The paired question: of the samples where the unconditional fit
+     fails, how many does the conditional fit recover? And the reverse, as a
+     control. Figure and numbers: report/cond-failures.md of the research
+     repository (Figure 1, Table 1); rates by sign rebuilt into
+     data/sim_paired.csv by scripts/tables.R. -->
+<p><strong>Both clustering signs</strong>, paired on the sample: 13,989 samples (<a href="#/when-the-full-model-fails">&lt;positive only&gt;</a>).</p>
+<div class="columns">
+<div class="column" style="width:58%;">
+<p><a href="fig/cond-failures-outcomes.png" class="lightbox" data-gallery="quarto-lightbox-gallery-21"><img data-src="fig/cond-failures-outcomes.png" style="width:100.0%"></a></p>
+<div style="font-size: 80%; color: #666;">
+<p><strong>Conditional only</strong> (red) outnumbers <strong>full only</strong> (green) at every density below 0.5: 8% against 3% of samples (exact McNemar, <span class="math inline">\(p &lt; 0.001\)</span>). 11 of the 14,000 samples lost a fit to a file error on a cluster node.</p>
+</div>
+</div><div class="column" style="width:42%;">
+<p>How often a model works when the other did not, conditional <strong>vs</strong> full:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Clustering</th>
+<th style="text-align: center;">Converges</th>
+<th style="text-align: center;">Usable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Positive</td>
+<td style="text-align: center;"><strong>41%</strong> vs 15%</td>
+<td style="text-align: center;"><strong>23%</strong> vs 6%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Negative</td>
+<td style="text-align: center;"><strong>7%</strong> vs 4%</td>
+<td style="text-align: center;"><strong>4%</strong> vs 2%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">All</td>
+<td style="text-align: center;"><strong>16%</strong> vs 6%</td>
+<td style="text-align: center;"><strong>11%</strong> vs 4%</td>
+</tr>
+</tbody>
+</table>
+<div style="font-size: 80%; color: #666;">
+<p>Usable: every GW coefficient with SE ≤ 1 and |estimate| ≤ 10.</p>
+</div>
+</div></div>
+<div class="takeaway fragment">
+<p>With positive clustering, the conditional model rescues <strong>41%</strong> of the full model’s failures; the reverse, 15%. With negative clustering neither rescues the other.</p>
+</div>
+</section>
 <section id="references" class="slide level2 smaller scrollable" data-visibility="uncounted">
 <h2>References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-Hunter2008" class="csl-entry" role="listitem">
 Hunter, David R., Mark S. Handcock, Carter T. Butts, Steven M. Goodreau, and Martina Morris. 2008. <span>“<span class="nocase">ergm : A Package to Fit, Simulate and Diagnose Exponential-Family Models for Networks</span>.”</span> <em>Journal of Statistical Software</em> 24 (3). <a href="https://doi.org/10.18637/jss.v024.i03">https://doi.org/10.18637/jss.v024.i03</a>.
+</div>
+<div id="ref-jonassonRandomTriangleModel1999" class="csl-entry" role="listitem">
+Jonasson, Johan. 1999. <span>“The <span>Random Triangle Model</span>.”</span> <em>Journal of Applied Probability</em> 36 (3): 852–67. <a href="https://www.jstor.org/stable/3215446">https://www.jstor.org/stable/3215446</a>.
 </div>
 <div id="ref-krivitskyRejoinderDiscussionTale2023" class="csl-entry" role="listitem">
 Krivitsky, Pavel N., Pietro Coletti, and Niel Hens. 2023. <span>“Rejoinder to <span>Discussion</span> of <span>‘<span>A Tale</span> of <span>Two Datasets</span>: <span>Representativeness</span> and <span>Generalisability</span> of <span>Inference</span> for <span>Samples</span> of <span>Networks</span>’</span>.”</span> <em>Journal of the American Statistical Association</em> 118 (544): 2235–38. <a href="https://doi.org/10.1080/01621459.2023.2280383">https://doi.org/10.1080/01621459.2023.2280383</a>.
@@ -1678,6 +1894,9 @@ Vega Yon, George G., Mary Jo Pugh, and Thomas W. Valente. 2022. <em>Discrete Exp
 </div>
 <div id="ref-yon2019exponential" class="csl-entry" role="listitem">
 Vega Yon, George G., Andrew Slaughter, and Kayla de la Haye. 2021. <span>“Exponential Random Graph Models for Little Networks.”</span> <em>Social Networks</em> 64: 225–38. <a href="https://doi.org/10.1016/j.socnet.2020.07.005">https://doi.org/10.1016/j.socnet.2020.07.005</a>.
+</div>
+<div id="ref-vegayon_ltcf_2027" class="csl-entry" role="listitem">
+Vega Yon, George G., Chong Zhang, Karim Khader, et al. 2027. <span>“Exponential-Family Random Graph Models in Resident-Healthcare Provider Networks: <span>An</span> Application Using Data from Long-Term Healthcare Facilities in the <span>United States</span>.”</span> <em>Social Networks</em> 88: 99–111. <a href="https://doi.org/10.1016/j.socnet.2026.08.003">https://doi.org/10.1016/j.socnet.2026.08.003</a>.
 </div>
 </div>
 

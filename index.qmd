@@ -150,6 +150,28 @@ Across fields, the question is the same: which local structures, clustering abov
 
 
 
+## Many networks at once: pooled ERGMs {.compact data-menu-title="Application: pooled ERGMs"}
+
+::: {.columns}
+::: {.column width="45%"}
+![All 99 resident--provider contact networks from US nursing homes; providers in blue, residents in green. From @vegayon_ltcf_2027, CC BY.](fig/app-vegayon2027-nursing-homes.png){width="92%"}
+:::
+
+::: {.column width="55%"}
+**Question:** do providers' contacts cluster residents with the same clinical risks (cohorting), e.g., drug-resistant organisms?
+
+**One model, 93 networks:** a pooled (multilevel) bipartite ERGM. Heterogeneity across networks enters as interactions:
+
+- edges × centred log number of residents and of providers,
+- state-specific edges,
+- shared partners (`gwdsp`) × log size.
+
+**Finding:** residents with wound care, bedridden or on a ventilator have more contacts; no cohorting-like sharing by resistant-organism status [@vegayon_ltcf_2027].
+
+:::
+:::
+
+
 ## Sufficient Statistics: Counting Structures {.compact data-menu-title="Sufficient statistics"}
 
 
@@ -245,22 +267,6 @@ where [$\textcolor{purple}{\delta_{ij} = \s{\Graph_{ij}^{+}} - \s{\Graph_{ij}^{-
 
 [^ergmitos]: Unless you care about small networks (which we do: @yon2019exponential; @ergmito; @defm; @vegayonDiscreteExponentialFamilyModels2022).
 
-## Reading the coefficients {.semi data-menu-title="Interpretation"}
-
-
-Because the conditional is a logit, each coefficient is a **log-odds ratio**, holding the rest of the network fixed:
-
-::: {.incremental}
-- $\theta_{\text{homophily}} = 1$: a tie between two alike nodes has $e^{1} \approx 2.7$ times the odds of a tie between two unlike ones.
-- $\theta_{\text{mutual}} = 2$: a tie that reciprocates an existing one has $e^{2} \approx 7.4$ times the odds.
-- $\theta_{\text{edges}} = -3$: the baseline. A tie that creates nothing else has probability $\approx 0.05$.
-:::
-
-::: {.takeaway .fragment}
-A logistic regression in which each tie's predictors are the other ties.
-:::
-
-
 ## Simulation ERGMs {.compact data-menu-title="Demo: ERGM"}
 
 
@@ -318,6 +324,8 @@ The trouble runs along one direction: **the number of ties**. What if we take th
 
 ## Take the edge count away {.compact data-menu-title="Conditioning, in a picture"}
 
+Following @jonassonRandomTriangleModel1999, the distribution of edges in the edge + triangle model exhibits the following behavior:
+
 ```{=html}
 {{< include fig/diag-conditioning.svg >}}
 ```
@@ -326,34 +334,7 @@ The trouble runs along one direction: **the number of ties**. What if we take th
 The model no longer decides **how many** ties there are, only **where** they go.
 :::
 
-## Fix what you do not want to model {.compact data-menu-title="Conditional ERGM"}
 
-
-- The edges coefficient, $\theta_k$, **cancels**. There is one parameter less, and it is the troublesome one.
-- The empty and the complete network are no longer possible outcomes.
-<!-- - It is the idea behind **conditional logistic regression** (matched case--control studies), applied to networks [@snijders_conditional_2010; @pattison_conditional_2013]. -->
-<!-- - Sometimes it is simply the truth: surveys that cap the number of friends you can name, or brain networks thresholded to a fixed density. -->
-
-::: {.takeaway}
-With several networks, each keeps its own edge count, so every network's density drops out at once.
-:::
-
-Let $\sk{\graph}{k}$ be the number of ties. Only consider networks with **exactly as many ties as the one we observed**, $\textcolor{#c0491f}{c}$:
-
-::: {style="font-size: 85%"}
-$$
-\begin{aligned}
-\Prcond{\GRAPH}{\Graph = \graph}{\sk{\Graph}{k} = \textcolor{#c0491f}{c};\ \params}
-& \class{fragment}{= \frac{\exp{\t{\params}\s{\graph}}}{\normconst{\params \mid \sn{k} = \textcolor{#c0491f}{c}}}} %
-\class{fragment}{= \frac{\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\exp{\t{\params_{-k}}\sk{\graph}{-k}}}{\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c}\exp{\t{\params_{-k}}\sk{\graph'}{-k}}}} \\
-& \class{fragment}{= \frac{\exp{\t{\params_{-k}}\sk{\graph}{-k}}}{\normconst{\params_{-k} \mid \sn{k} = \textcolor{#c0491f}{c}}}}
-\end{aligned}
-$$
-:::
-
-::: {style="font-size: 85%; color: #666;"}
-$\normconst{\params \mid \sn{k} = c} = \sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c} \exp{\t{\params}\s{\graph'}}$ is the normalizing constant over the networks with $c$ ties; $-k$ means "all terms but the $k$-th".
-:::
 
 ## What could it cost? {data-menu-title="The two questions"}
 
@@ -521,6 +502,30 @@ The typical sample loses almost nothing. When conditioning costs, it costs on `g
 :::
 
 
+## Results: information lost, by design {.results background-color="#fdf6f2" .compact data-menu-title="Information: by design (table)"}
+
+<!-- Alternative to the previous slide. Numbers: data/info_by_design.csv,
+     built by scripts/info-by-design.R from the research repo's
+     data/loglik/ and data/samples/. -->
+
+Information lost on each GW coefficient, at the true parameter (M = 1 and 5):
+
+::: {style="font-size: 85%;"}
+```{r}
+#| output: asis
+print(tab_info_design())
+```
+:::
+
+::: {style="font-size: 75%; color: #666;"}
+Median over samples where the coefficient is identified; 95% CI from order statistics. n.i.: share of samples where conditioning leaves it unidentified.
+:::
+
+::: {.takeaway .fragment}
+Typical losses are a few percent at most for every term but `gwnsp`. Negative coefficients are where conditioning costs: they are not identified in up to `r pct(max(idesign$not_id_neg))` of samples, and a negative `gwnsp` loses a median `r pct(idesign$med_neg[idesign$param == "gwnsp"])`.
+:::
+
+
 ## Results: but it depends on the term {.results background-color="#fdf6f2" .compact data-menu-title="Information: by term"}
 
 
@@ -622,14 +627,14 @@ Drops edges; **each network** keeps its edge count (`condergm`, built on `ergm` 
 ## Results: the short version {.results background-color="#fdf6f2" .compact data-menu-title="Simulation: headline"}
 
 
-All models and sample sizes pooled (`r big(cmp_all$samples)` samples, each fit both ways):
+**Positive clustering**: `r big(crow("positive")$samples)` samples, all models and M, each fit both ways ([\<all samples\>](#short-version-all)).
 
 ::: {.findings-grid .headline}
 
 ::: {.finding .fragment}
 ### {{< fa circle-check >}}<br>Converges more often
 
-[**`r pct(cmp_all$conv_cond)`** vs `r pct(cmp_all$conv_uncond)`]{.badge .badge-strong}
+[**`r pct(crow("positive")$conv_cond)`** vs `r pct(crow("positive")$conv_uncond)`]{.badge .badge-strong}
 
 In six of the seven models; tied with `gwnsp`
 :::
@@ -637,23 +642,25 @@ In six of the seven models; tied with `gwnsp`
 ::: {.finding .fragment}
 ### {{< fa stopwatch >}}<br>Faster
 
-[**`r num(cmp_all$time_ok_cond, 0)` s** vs `r num(cmp_all$time_ok_uncond, 0)` s]{.badge .badge-strong}
+[**`r num(crow("positive")$time_ok_cond, 0)` s** vs `r num(crow("positive")$time_ok_uncond, 0)` s]{.badge .badge-strong}
 
-Median time of a converged fit, faster in every model
+Median time of a converged fit
 :::
 
 ::: {.finding .fragment}
 ### {{< fa bullseye >}}<br>Just as accurate
 
-[**`r num(cmp_all$mae_cond)`** vs `r num(cmp_all$mae_uncond)`]{.badge .badge-strong}
+[**`r num(crow("positive")$mae_cond)`** vs `r num(crow("positive")$mae_uncond)`]{.badge .badge-strong}
 
-Median absolute error; bias `r num(cmp_all$bias_cond)` and `r num(cmp_all$bias_uncond)`
+Median absolute error; bias `r num(crow("positive")$bias_cond)` and `r num(crow("positive")$bias_uncond)`
 :::
 
 ::: {.finding .fragment}
-### {{< fa arrows-left-right-to-line >}}<br>Honest intervals
+### {{< fa arrows-left-right-to-line >}}<br>Improved coverage[^coverage]
 
-[**`r pct(cmp_all$cov_cond)`** vs `r pct(cmp_all$cov_uncond)`]{.badge .badge-strong}
+[^coverage]: This is most likely an artifact of the increased accuracy that comes from reducing the support of the model. In theory, the full model should have better coverage.
+
+[**`r pct(crow("positive")$cov_cond)`** vs `r pct(crow("positive")$cov_uncond)`]{.badge .badge-strong}
 
 Coverage of 95% intervals
 :::
@@ -666,30 +673,6 @@ The conditional model matches or beats the correctly specified one on every meas
 
 ::: {.absolute bottom="0" right="0" style="font-size: 80%; color: #666;"}
 Conditional vs. unconditional. Time, accuracy and coverage among converged fits.
-:::
-
-
-## Results: more networks, same story {.results background-color="#fdf6f2" .compact data-menu-title="Simulation: by M"}
-
-
-![](fig/sim-by-m.png){width="100%"}
-
-::: {.incremental}
-- **Consistency.** The error falls from `r num(cg("M1")$mae_cond)` with one network to `r num(cg("M20")$mae_cond)` with twenty, at the same rate in both models.
-- **Time.** The gap widens with $M$: a converged fit of twenty networks takes `r num(cg("M20")$time_ok_cond / 60, 1)` minutes against `r num(cg("M20")$time_ok_uncond / 60, 1)`.
-- **Coverage.** The unconditional intervals get slightly too narrow as $M$ grows; the conditional ones hold at `r pct(cg("M20")$cov_cond)`.
-:::
-
-
-## Results: model by model {.results background-color="#fdf6f2" .compact data-menu-title="Simulation: by model"}
-
-
-![](fig/sim-by-experiment.png){width="100%"}
-
-::: {.incremental}
-- The gain in convergence is largest with an estimated decay (+`r gain("undirected_gwesp_curved")` points). With `gwesp + gwnsp` there is none: `r pct(cg("undirected_gwesp_gwnsp")$conv_cond)` against `r pct(cg("undirected_gwesp_gwnsp")$conv_uncond)`.
-- With two-path and degree terms the conditional fits **time out more often**: `r pct(timeout_share("undirected_gwesp_gwnsp", "cond"))` against `r pct(timeout_share("undirected_gwesp_gwnsp", "uncond"))` with `gwnsp`, `r pct(timeout_share("undirected_gwdegree_gwesp", "cond"))` against `r pct(timeout_share("undirected_gwdegree_gwesp", "uncond"))` with `gwdegree`.
-- Recall part 3: these terms **lose the most information**. That costs precision, not convergence: with positive clustering, the conditional model alone is usable on 20% of the samples losing 5% or more, against 4% under 1%.
 :::
 
 
@@ -741,12 +724,16 @@ print(tab_failures())
 <!-- Numbers: report/report.qmd, "Beyond convergence" (Table 12), rebuilt
      into data/sim_quality.csv by scripts/tables.R. -->
 
-Every GW coefficient, graded; failed fits count. Conditional **vs** unconditional:
+Every GW coefficient (all models and M); failures count. Conditional **vs** unconditional:
 
 ```{r}
 #| output: asis
 print(tab_quality())
 ```
+
+::: {style="font-size: 75%; color: #666;"}
+Clustering sign: that of `gwesp` (`gwdsp` in the model without `gwesp`).
+:::
 
 ::: {.incremental}
 - The design draws clustering **negative half the time**. In applied social networks it is almost always positive (McMillan, Felmlee and Ashford, 2022).
@@ -763,18 +750,17 @@ In the case that matters in practice, the gap widens: `r round(100 * (qrow("posi
 
 <!-- [1:30] The paired question: of the samples where the unconditional fit
      fails, how many does the conditional fit recover? And the reverse, as a
-     control. Figure and numbers: report/cond-failures.md of the research
-     repository (Figure 1, Table 1); rates by sign rebuilt into
-     data/sim_paired.csv by scripts/tables.R. -->
+     control. Figure: fig/sim-paired-positive.png (scripts/figures.R, from
+     data/sim_paired_density_sign.csv); rates by sign in data/sim_paired.csv. -->
 
-Paired on the sample: both models fit to the same networks, `r big(paired_all$samples)` samples.
+**Positive clustering**, paired on the sample: `r big(psign("positive")$samples)` samples ([\<all samples\>](#rescue-all)).
 
 ::: {.columns}
 ::: {.column width="58%"}
-![](fig/cond-failures-outcomes.png){width="100%"}
+![](fig/sim-paired-positive.png){width="100%"}
 
 ::: {style="font-size: 80%; color: #666;"}
-**Conditional only** (red) outnumbers **full only** (green) at every density below 0.5: `r pct(paired_all$only_cond / paired_all$samples)` against `r pct(paired_all$only_uncond / paired_all$samples)` of samples (exact McNemar, $p < 0.001$).
+**Conditional only** (red) outnumbers **full only** (green) at every density below 0.5: `r pct(psign("positive")$only_cond / psign("positive")$samples)` against `r pct(psign("positive")$only_uncond / psign("positive")$samples)` of samples (exact McNemar, $p < 0.001$). Densities above 0.5 are rare in this design.
 :::
 :::
 
@@ -808,7 +794,7 @@ With positive clustering, the conditional model rescues **`r pct(prow("finite", 
 ![](fig/cond-failures-error.png){width="100%"}
 
 ::: {style="font-size: 80%; color: #666;"}
-Positive clustering. Absolute error of the GW coefficients of converged fits. Solid: both models converged. Dashed: only this model converged.
+Positive clustering. Absolute error of the GW coefficients of converged fits; the counts on the right are estimates (one per GW coefficient), not samples. Solid: both models converged. Dashed: only this model converged.
 :::
 :::
 
@@ -967,6 +953,22 @@ In a network, ties depend on each other. Regression assumes they do not. Exponen
 - It is the same family as logistic regression, with the whole network as the outcome [@Hunter2008].
 :::
 
+## Reading the coefficients {.semi data-menu-title="Interpretation"}
+
+
+Because the conditional is a logit, each coefficient is a **log-odds ratio**, holding the rest of the network fixed:
+
+::: {.incremental}
+- $\theta_{\text{homophily}} = 1$: a tie between two alike nodes has $e^{1} \approx 2.7$ times the odds of a tie between two unlike ones.
+- $\theta_{\text{mutual}} = 2$: a tie that reciprocates an existing one has $e^{2} \approx 7.4$ times the odds.
+- $\theta_{\text{edges}} = -3$: the baseline. A tie that creates nothing else has probability $\approx 0.05$.
+:::
+
+::: {.takeaway .fragment}
+A logistic regression in which each tie's predictors are the other ties.
+:::
+
+
 ## Fitting is the hard part {.semi data-menu-title="Estimation"}
 
 ::: {.columns}
@@ -994,6 +996,34 @@ $$
 This only works if the simulated networks look something like the observed one. Often they do not.
 :::
 
+## Fix what you do not want to model {.compact data-menu-title="Conditional ERGM"}
+
+
+- The edges coefficient, $\theta_k$, **cancels** (one fewer parameter to estimate).
+- The empty and the complete network are no longer possible outcomes.
+<!-- - It is the idea behind **conditional logistic regression** (matched case--control studies), applied to networks [@snijders_conditional_2010; @pattison_conditional_2013]. -->
+<!-- - Sometimes it is simply the truth: surveys that cap the number of friends you can name, or brain networks thresholded to a fixed density. -->
+
+::: {.takeaway}
+With several networks, each keeps its own edge count, so every network's density drops out at once.
+:::
+
+Let $\sk{\graph}{k}$ be the number of ties. Only consider networks with **exactly as many ties as the one we observed**, $\textcolor{#c0491f}{c}$:
+
+::: {style="font-size: 85%"}
+$$
+\begin{aligned}
+\Prcond{\GRAPH}{\Graph = \graph}{\sk{\Graph}{k} = \textcolor{#c0491f}{c};\ \params}
+& \class{fragment}{= \frac{\exp{\t{\params}\s{\graph}}}{\normconst{\params \mid \sn{k} = \textcolor{#c0491f}{c}}}} %
+\class{fragment}{= \frac{\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\exp{\t{\params_{-k}}\sk{\graph}{-k}}}{\exp{\theta_{k}\textcolor{#c0491f}{c}}\;\sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c}\exp{\t{\params_{-k}}\sk{\graph'}{-k}}}} \\
+& \class{fragment}{= \frac{\exp{\t{\params_{-k}}\sk{\graph}{-k}}}{\normconst{\params_{-k} \mid \sn{k} = \textcolor{#c0491f}{c}}}}
+\end{aligned}
+$$
+:::
+
+::: {style="font-size: 85%; color: #666;"}
+$\normconst{\params \mid \sn{k} = c} = \sum_{\graph' \in \GRAPH:\, \sk{\graph'}{k} = c} \exp{\t{\params}\s{\graph'}}$ is the normalizing constant over the networks with $c$ ties; $-k$ means "all terms but the $k$-th".
+:::
 
 ## The information identity {#information-algebra .compact visibility="uncounted" data-menu-title="Information: algebra"}
 
@@ -1125,6 +1155,127 @@ Go [\<back\>](#what-comes-next)
 
 ::: {.absolute bottom="0" right="0" style="font-size: 80%; color: #666;"}
 Go [\<back\>](#what-comes-next)
+:::
+
+
+## The short version: all samples {#short-version-all .results background-color="#fdf6f2" .compact visibility="uncounted" data-menu-title="Simulation: headline, all samples"}
+
+
+**Both clustering signs**: `r big(cmp_all$samples)` samples ([\<positive only\>](#results-the-short-version)). Broken down [\<by M\>](#results-by-m) and [\<by model\>](#results-by-model).
+
+::: {style="font-size: 75%; color: #666;"}
+11 of the 14,000 samples lost a fit to a file error on a cluster node and are left out.
+:::
+
+
+::: {.findings-grid .headline}
+
+::: {.finding .fragment}
+### {{< fa circle-check >}}<br>Converges more often
+
+[**`r pct(cmp_all$conv_cond)`** vs `r pct(cmp_all$conv_uncond)`]{.badge .badge-strong}
+
+In six of the seven models; tied with `gwnsp`
+:::
+
+::: {.finding .fragment}
+### {{< fa stopwatch >}}<br>Faster
+
+[**`r num(cmp_all$time_ok_cond, 0)` s** vs `r num(cmp_all$time_ok_uncond, 0)` s]{.badge .badge-strong}
+
+Median time of a converged fit, faster in every model
+:::
+
+::: {.finding .fragment}
+### {{< fa bullseye >}}<br>Just as accurate
+
+[**`r num(cmp_all$mae_cond)`** vs `r num(cmp_all$mae_uncond)`]{.badge .badge-strong}
+
+Median absolute error; bias `r num(cmp_all$bias_cond)` and `r num(cmp_all$bias_uncond)`
+:::
+
+::: {.finding .fragment}
+### {{< fa arrows-left-right-to-line >}}<br>Honest intervals
+
+[**`r pct(cmp_all$cov_cond)`** vs `r pct(cmp_all$cov_uncond)`]{.badge .badge-strong}
+
+Coverage of 95% intervals
+:::
+
+:::
+
+::: {.takeaway .fragment}
+The conditional model matches or beats the correctly specified one on every measure, in a comparison designed to favor the unconditional model.
+:::
+
+::: {.absolute bottom="0" right="0" style="font-size: 80%; color: #666;"}
+Conditional vs. unconditional. Time, accuracy and coverage among converged fits.
+:::
+
+
+
+## Results: more networks, same story {#results-by-m .results background-color="#fdf6f2" .compact visibility="uncounted" data-menu-title="Simulation: by M"}
+
+All samples, both clustering signs ([\<back\>](#short-version-all)).
+
+
+![](fig/sim-by-m.png){width="100%"}
+
+::: {.incremental}
+- **Consistency.** The error falls from `r num(cg("M1")$mae_cond)` with one network to `r num(cg("M20")$mae_cond)` with twenty, at the same rate in both models.
+- **Time.** The gap widens with $M$: a converged fit of twenty networks takes `r num(cg("M20")$time_ok_cond / 60, 1)` minutes against `r num(cg("M20")$time_ok_uncond / 60, 1)`.
+- **Coverage.** The unconditional intervals get slightly too narrow as $M$ grows; the conditional ones hold at `r pct(cg("M20")$cov_cond)`.
+:::
+
+
+## Results: model by model {#results-by-model .results background-color="#fdf6f2" .compact visibility="uncounted" data-menu-title="Simulation: by model"}
+
+All samples, both clustering signs ([\<back\>](#short-version-all)).
+
+
+![](fig/sim-by-experiment.png){width="80%" fig-align="center"}
+
+::: {.incremental}
+- The gain in convergence is largest with an estimated decay (+`r gain("undirected_gwesp_curved")` points). With `gwesp + gwnsp` there is none: `r pct(cg("undirected_gwesp_gwnsp")$conv_cond)` against `r pct(cg("undirected_gwesp_gwnsp")$conv_uncond)`.
+- With two-path and degree terms the conditional fits **time out more often**: `r pct(timeout_share("undirected_gwesp_gwnsp", "cond"))` against `r pct(timeout_share("undirected_gwesp_gwnsp", "uncond"))` with `gwnsp`, `r pct(timeout_share("undirected_gwdegree_gwesp", "cond"))` against `r pct(timeout_share("undirected_gwdegree_gwesp", "uncond"))` with `gwdegree`.
+- Recall part 3: these terms **lose the most information**. That costs precision, not convergence: with positive clustering, the conditional model alone is usable on 20% of the samples losing 5% or more, against 4% under 1%.
+:::
+
+## When the full model fails: all samples {#rescue-all .results background-color="#fdf6f2" .compact visibility="uncounted" data-menu-title="Simulation: rescue, all samples"}
+
+<!-- [1:30] The paired question: of the samples where the unconditional fit
+     fails, how many does the conditional fit recover? And the reverse, as a
+     control. Figure and numbers: report/cond-failures.md of the research
+     repository (Figure 1, Table 1); rates by sign rebuilt into
+     data/sim_paired.csv by scripts/tables.R. -->
+
+**Both clustering signs**, paired on the sample: `r big(paired_all$samples)` samples ([\<positive only\>](#when-the-full-model-fails)).
+
+::: {.columns}
+::: {.column width="58%"}
+![](fig/cond-failures-outcomes.png){width="100%"}
+
+::: {style="font-size: 80%; color: #666;"}
+**Conditional only** (red) outnumbers **full only** (green) at every density below 0.5: `r pct(paired_all$only_cond / paired_all$samples)` against `r pct(paired_all$only_uncond / paired_all$samples)` of samples (exact McNemar, $p < 0.001$). 11 of the 14,000 samples lost a fit to a file error on a cluster node.
+:::
+:::
+
+::: {.column width="42%"}
+How often a model works when the other did not, conditional **vs** full:
+
+```{r}
+#| output: asis
+print(tab_rescue())
+```
+
+::: {style="font-size: 80%; color: #666;"}
+Usable: every GW coefficient with SE ≤ 1 and |estimate| ≤ 10.
+:::
+:::
+:::
+
+::: {.takeaway .fragment}
+With positive clustering, the conditional model rescues **`r pct(prow("finite", "positive")$cond_given_uncond_failed)`** of the full model's failures; the reverse, `r pct(prow("finite", "positive")$uncond_given_cond_failed)`. With negative clustering neither rescues the other.
 :::
 
 

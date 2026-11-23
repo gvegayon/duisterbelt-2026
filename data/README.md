@@ -21,6 +21,9 @@ the full results are on CHPC.
 | `sim_discordant_causes.csv` | when one model converges, why the other failed | `tables.R` |
 | `info_mutual_gwesp_bins.csv` | `mutual_gwesp` information loss by density and clustering sign (median, 10th/90th percentile) | `tables.R` |
 | `info_gwesp_sign.csv` | `mutual_gwesp` information loss and non-identification by clustering sign | `tables.R` |
+| `info_by_design.csv` | information lost on each GW coefficient by design and sign of the coefficient (median, 95% CI of the median, share not identified), M = 1 and 5 | `scripts/info-by-design.R` (also run by `tables.R`; no CHPC needed) |
+| `sim_compare_sign.csv` | headline comparison (as the pooled row of `sim_compare.csv`) by sign of the clustering coefficient | `scripts/sim-by-sign.R` (also run by `tables.R`; no CHPC needed) |
+| `sim_paired_density_sign.csv` | paired convergence outcomes by clustering sign, M and observed density | `scripts/sim-by-sign.R` |
 | `sim_quality.csv` | usable and accurate GW coefficients, by clustering sign (report "Beyond convergence", Table 12) | `tables.R` |
 
 ## Building

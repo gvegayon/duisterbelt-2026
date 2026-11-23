@@ -321,6 +321,18 @@ if (file.exists(lfile) && file.exists(sfile)) {
   write_csv(bins, "info_mutual_gwesp_bins")
 }
 
+# Information lost on each GW coefficient by design and sign, from the same
+# per-sample export (scripts/info-by-design.R).
+script_dir <- dirname(sub(
+  "^--file=",
+  "",
+  grep("^--file=", commandArgs(FALSE), value = TRUE)[1]
+))
+source(file.path(script_dir, "info-by-design.R"))
+# The main simulation by clustering sign, from the per-fit export
+# (scripts/sim-by-sign.R).
+source(file.path(script_dir, "sim-by-sign.R"))
+
 if (!dir.exists(file.path(ll, "results-v3"))) {
   cat("no experiment-loglik/results-v3: info_loss not written\n")
   quit(save = "no")

@@ -88,6 +88,15 @@ timeout_share <- function(e, m) {
   sum(f$timeout * f$fits) / sum(f$fits)
 }
 
+# Headline comparison by clustering sign (sim_compare_sign;
+# scripts/sim-by-sign.R), and the paired rows of one clustering sign.
+csign <- dat("sim_compare_sign")
+crow  <- function(clustering) csign[csign$clustering == clustering, ]
+psign <- function(clustering) {
+  paired[paired$definition == "finite" & paired$by == "clustering" &
+           paired$group == clustering, ]
+}
+
 # Quality of the GW coefficients by clustering sign (sim_quality).
 quality <- dat("sim_quality")
 qrow <- function(clustering, M = "all") {
@@ -121,6 +130,37 @@ ibins <- dat("info_mutual_gwesp_bins")
 irow  <- function(M, clustering, param = "gwesp") {
   isign[isign$param == param & isign$M == M & isign$clustering == clustering, ]
 }
+# Information lost on each GW coefficient by model design and sign of the
+# coefficient (info_by_design; scripts/info-by-design.R), M = 1 and 5.
+idesign <- dat("info_by_design")
+design_label <- c(
+  mutual_gwesp              = "Directed: mutual + gwesp",
+  mutual_gwdsp              = "Directed: mutual + gwdsp",
+  mutual_gwesp_size         = "Directed: mutual + gwesp × size",
+  undirected_gwesp          = "Undirected: gwesp",
+  undirected_gwesp_gwnsp    = "Undirected: gwesp + gwnsp",
+  undirected_gwdegree_gwesp = "Undirected: gwdegree + gwesp",
+  undirected_gwesp_curved   = "Undirected: curved gwesp"
+)
+tab_info_design <- function() {
+  if (is.null(idesign)) return(pending("info_by_design"))
+  x <- idesign
+  p1 <- function(v) ifelse(!is.na(v) & v < 0.0005, "<0.1%", pct(v, 1))
+  signed <- function(med, nid) {
+    paste0("**", p1(med), "**", ifelse(nid >= 0.005, paste0(" (", pct(nid), " n.i.)"), ""))
+  }
+  lab <- design_label[x$design]
+  lab[duplicated(x$design)] <- ""
+  md(data.frame(
+    Model                  = lab,
+    Term                   = paste0("`", x$param, "`"),
+    `Median [95% CI]`      = paste0("**", p1(x$med), "** [", p1(x$lo), ", ", p1(x$hi), "]"),
+    `Positive coefficient` = signed(x$med_pos, x$not_id_pos),
+    `Negative coefficient` = signed(x$med_neg, x$not_id_neg),
+    check.names            = FALSE
+  ), align = "llccc")
+}
+
 # Share of samples where the conditional model does not identify gwesp,
 # pooled over M unless one is given.
 inonid <- function(clustering, M = c(1, 5)) {

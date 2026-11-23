@@ -352,3 +352,59 @@ if (!is.null(g)) {
     theme(panel.grid.major.y = element_blank())
   save_fig(p_b, "info-mutual-gwesp.png", 7, 4.3)
 }
+
+# ---------------------------------------------------------------------------
+# Paired outcomes of the two fits of each sample, positive clustering, by
+# observed mean density and M (data/sim_paired_density_sign.csv; the
+# all-samples version is report/cond-failures.md, Figure 1). Same outcome
+# colours as that figure.
+# ---------------------------------------------------------------------------
+if (file.exists("data/sim_paired_density_sign.csv")) {
+  pd <- read.csv("data/sim_paired_density_sign.csv", check.names = FALSE)
+  pd <- pd[pd$clustering == "positive", ]
+  outcomes <- c(
+    both        = "Both converge",
+    only_cond   = "Conditional only",
+    only_uncond = "Full only",
+    neither     = "Neither"
+  )
+  outcome_cols <- c(
+    "Both converge"    = "#2a78d6",
+    "Conditional only" = "#eb6834",
+    "Full only"        = "#1baf7a",
+    "Neither"          = "#eda100"
+  )
+  long <- do.call(rbind, lapply(names(outcomes), function(k) data.frame(
+    M       = pd$M,
+    dband   = pd$dband,
+    samples = pd$samples,
+    outcome = outcomes[[k]],
+    share   = pd[[k]]
+  )))
+  long$outcome <- factor(long$outcome, rev(unname(outcomes)))
+  long$dband <- factor(long$dband, c("0–0.1", "0.1–0.2", "0.2–0.3", "0.3–0.4", "0.4–0.5", "0.5+"))
+  long$Mlab <- factor(paste("M =", long$M), paste("M =", sort(unique(long$M))))
+  # Bins with fewer than 30 samples are too noisy to show.
+  long <- long[long$samples >= 30, ]
+  p_po <- ggplot(long, aes(dband, share, fill = outcome)) +
+    geom_col(width = 0.78, colour = "white", linewidth = 0.4) +
+    geom_text(
+      aes(
+        label  = ifelse(share >= 0.08, round(100 * share), ""),
+        colour = ifelse(outcome == "Both converge", "white", "#111827")
+      ),
+      position = position_stack(vjust = 0.5),
+      size     = 3
+    ) +
+    scale_colour_identity() +
+    facet_wrap(~Mlab, nrow = 1) +
+    scale_fill_manual(values = outcome_cols, breaks = unname(outcomes)) +
+    scale_y_continuous(labels = function(v) paste0(100 * v, "%"), expand = c(0, 0)) +
+    labs(x = "Observed mean density", y = "Share of samples") +
+    theme_deck(13) +
+    theme(
+      axis.text.x        = element_text(angle = 45, hjust = 1),
+      panel.grid.major.x = element_blank()
+    )
+  save_fig(p_po, "sim-paired-positive.png", 8, 3.8)
+}
